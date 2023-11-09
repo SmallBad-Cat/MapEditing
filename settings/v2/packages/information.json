@@ -1,0 +1,41 @@
+{
+  "__version__": "1.0.0",
+  "information": {
+    "customSplash": {
+      "id": "customSplash",
+      "label": "customSplash",
+      "enable": true,
+      "customSplash": {
+        "complete": false,
+        "form": "https://creator-api.cocos.com/api/form/show?sid=9ca24d8c97bb9acbbf22cde60bc4f27a"
+      }
+    },
+    "removeSplash": {
+      "id": "removeSplash",
+      "label": "removeSplash",
+      "enable": true,
+      "removeSplash": {
+        "complete": false,
+        "form": "https://creator-api.cocos.com/api/form/show?sid=9ca24d8c97bb9acbbf22cde60bc4f27a"
+      }
+    },
+    "build-web-desktop": {
+      "id": "build-web-desktop",
+      "label": "build-web-desktop",
+      "enable": false,
+      "build-web-desktop": {
+        "complete": false,
+        "form": "https://creator-api.cocos.com/api/form/show?"
+      }
+    },
+    "build-web-mobile": {
+      "id": "build-web-mobile",
+      "label": "build-web-mobile",
+      "enable": false,
+      "build-web-mobile": {
+        "complete": false,
+        "form": "https://creator-api.cocos.com/api/form/show?"
+      }
+    }
+  }
+}
