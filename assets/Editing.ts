@@ -97,6 +97,9 @@ export class Editing extends Component {
             }
             this.map_size[str] = Number(EditBox.string);
             this.MapChange()
+            this.scheduleOnce(()=>{
+                this.CloseAll()
+            },0.05)
         }
     }
     TipTween(str) {
@@ -127,6 +130,7 @@ export class Editing extends Component {
         if (newNodeSize) {
             node.getComponent(UITransform).setContentSize(newNodeSize);
         }
+
         for (let data of this.role_map) {
             if (data.node.getChildByName('bear')) {
                 data.node.getChildByName('bear').active = false
@@ -194,7 +198,7 @@ export class Editing extends Component {
                     newChild.setPosition(v3(0, 0));
                     let data = {
                         node: node,
-                        idx: [x, y],
+                        idx: [y, x],
                         type: 1,
                         child: newChild,
                         go_num: y - 1
@@ -212,6 +216,7 @@ export class Editing extends Component {
         let people_num = Number(this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label).string) + Number(this.dataParent.getChildByName('10').getChildByName('count').getComponent(Label).string)
         this.PeopleStr.string = `当前人数为：${people_num}
         除3得数为：${(people_num / 3)}`
+
     }
     onTouchStart(event: EventTouch) {
         if (this.Piece[0]) {
@@ -233,7 +238,8 @@ export class Editing extends Component {
         let worldPos = this.Map.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(localPos.x, localPos.y));
         let data = this.TouchData(worldPos);
         if (data && data.type != this.Piece[1]) {
-            data.type = this.Piece[1];
+            data.type = this.Piece[1]
+            // this.map_data[data.idx[1]][data.idx[0]].type = this.Piece[1]
             if (this.Piece[1] == 6 || this.Piece[1] == 7 || this.Piece[1] == 8 || this.Piece[1] == 9) {
                 let newChild = instantiate(this.Piece[0])
                 newChild.getChildByName('name').active = false;
@@ -247,20 +253,23 @@ export class Editing extends Component {
                 count_label.string = String(Number(count_label.string) - 1);
                 data.child.name = this.Piece[1] + '';
                 data.child.getComponent(Sprite).color = this.Piece[0].getComponent(Sprite).color;
-                if (data.child.children.length > 1) {
-                    data.child.children[1].destroy()
-                }
+
+                // if (data.child.children.length > 1) {
+                //     data.child.children[1].destroy()
+                // }
             }
             if (this.Piece[1] != 1 && this.Piece[1] != 10) {
                 // data.child.getChildByName('go').active = false
                 if (this.Piece[1] == '2') {
-                    data.go_num = data.go_num - 1
+                    this.map_data[data.idx[1]][data.idx[0]].go_num = data.go_num - 1
                 }
             } else {
                 data.child.getChildByName('go').active = true
                 // data.go_num = data.go_num + 2
             }
-            this.map_data[data.idx[1]][data.idx[0]] = data
+            // this.map_data[data.idx[1]][data.idx[0]].type = 3
+            // this.map_data[data.idx[0]][data.idx[1]].type = data
+            // this.map_data[data.idx[1]][data.idx[0]] = data
             this.GoNumRefirsh(data)
             this.Piece[0].getChildByName('count').getComponent(Label).string = String(Number(this.Piece[0].getChildByName('count').getComponent(Label).string) + 1);
             let people_num = Number(this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label).string) + Number(this.dataParent.getChildByName('10').getChildByName('count').getComponent(Label).string)
@@ -331,11 +340,9 @@ export class Editing extends Component {
             this.map_data[type2Obj[key][0]][type2Obj[key][1]].go_num = (min < 0) ? 0 : min;
             this.map_data[type2Obj[key][0]][type2Obj[key][1]].child.getChildByName('go').getComponent(Label).string = (min < 0) ? 0 : min + ''
         }
-        console.log(type2Obj);
         return min
     }
     GoNumRefirsh(data) {
-        console.log(data);
         if (data.type == 2) {
             this.Type2ArrMin(data.idx)
         } else {
@@ -346,7 +353,6 @@ export class Editing extends Component {
             let Type2fun = (idx) => {
                 if (this.map_data[idx[1]][idx[0]].type == 2) {
                     let newMin = this.Type2ArrMin(idx)
-                    console.log(newMin);
                     if (min > newMin + 1) {
                         min = newMin + 1
                     }
@@ -364,18 +370,11 @@ export class Editing extends Component {
             if (this.map_data[y][x - 1]) {
                 Type2fun(this.map_data[y][x - 1].idx);
             }
-            // this.map_data[y][x].go_num = min
-            // this.map_data[y][x].child.getChildByName('go').getComponent(Label).string = min + ''
         }
-        // this.scheduleOnce(() => {
-            this.refish_GoNum()
-        // }, 0.03)
+        this.refish_GoNum()
         this.scheduleOnce(() => {
             this.refish_GoNum()
-        },0.03)
-
-        console.log(this.map_data);
-
+        }, 0.03)
     }
     refish_GoNum() {
         this.GoNumAll = 0
@@ -439,6 +438,7 @@ export class Editing extends Component {
                 let node: Node = this.map_data[i][x].node;
                 let size = node.getComponent(UITransform).contentSize;
                 let node_pos = node.getPosition();
+
                 if (pos.x > node_pos.x - (size.width / 2) && pos.x < node_pos.x + (size.width / 2) && pos.y < node_pos.y + (size.height / 2) && pos.y > node_pos.y - (size.height / 2)) {
                     return this.map_data[row][arrange]
                 }
@@ -578,7 +578,7 @@ export class Editing extends Component {
         this.GoNumAll = 0
         for (let i in this.map_data) {
             let row = Number(i)
-            console.log(row);
+            // console.log(row);
             for (let x in this.map_data[row]) {
                 let arrange = Number(x)
                 let node = this.map_data[i][x].node;
