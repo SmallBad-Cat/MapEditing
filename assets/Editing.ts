@@ -51,6 +51,7 @@ export class Editing extends Component {
     private enter_map = false;
     private role_map = [];
     private RoleKey = [];
+    private GoNumAll: number = 0;
     start() {
         // console.log();
         // resources.load('Csv/MapLayoutId', function (err, file) {
@@ -117,82 +118,68 @@ export class Editing extends Component {
     }
     // 地图更新
     MapChange(init?) {
+        this.GoNumAll = 0
         let node = this.Map.children[0];
         let mapLayout = this.Map.getComponent(Layout)
-        // let newWidth = (node.getComponent(UITransform).width * this.map_size.arrange) + mapLayout.paddingLeft + mapLayout.paddingRight + ((this.map_size.arrange - 1) * mapLayout.spacingX)
-        // let newHeight = (node.getComponent(UITransform).height * this.map_size.row) + mapLayout.paddingTop + mapLayout.paddingBottom + ((this.map_size.row - 1) * mapLayout.spacingY)
         let newWidth = (this.mapSize) ? (this.mapSize.width - mapLayout.paddingLeft - mapLayout.paddingRight - ((this.map_size.arrange - 1) * mapLayout.spacingX)) / this.map_size.arrange : null;
         let newHeight = (this.mapSize) ? (this.mapSize.height - mapLayout.paddingTop - mapLayout.paddingBottom - ((this.map_size.row - 1) * mapLayout.spacingY)) / this.map_size.row : null;
         let newNodeSize = (this.mapSize) ? new Size(newWidth, newHeight) : null;
-        // if (newWidth < 500) {
-        //     // newBlockWidth = 
-        //     newWidth = 500
-        // }
-        // if (newHeight > 650) {
-        //     newNodeSize = new Size((newNodeSize)?newNodeSize.width:node.getComponent(UITransform).width,
-        //     // newBlockWidth = 
-        //     newHeight = 650
-        // }
         if (newNodeSize) {
             node.getComponent(UITransform).setContentSize(newNodeSize);
         }
-        // this.Map.getComponent(UITransform).setContentSize(new Size(newWidth, node.getComponent(UITransform).height))
-        for (let node of this.role_map) {
-            if (node.getChildByName('bear')) {
-                node.getChildByName('bear').active = false
+        for (let data of this.role_map) {
+            if (data.node.getChildByName('bear')) {
+                data.node.getChildByName('bear').active = false
             }
         }
         this.role_map = []
+        for (let item of this.dataParent.children) {
+            if (item.name != 'Mask') {
+                item.getChildByName('count').getComponent(Label).string = String(0);
+            }
+        }
         for (let i in this.map_data) {
             let row = Number(i)
             for (let x in this.map_data[row]) {
                 let arrange = Number(x)
                 node = this.map_data[i][x].node;
                 if (row <= this.map_size.row && arrange <= this.map_size.arrange) {
-                    if (this.map_data[row][arrange].child) {
-                        this.map_data[row][arrange].child.getComponent(UITransform).setContentSize(node.getComponent(UITransform).contentSize);
-                        // this.map_data[row][arrange].child.destroy();
-                    }
-
+                    this.map_data[i][x].go_num = row - 1
                     let data = {
                         node: node,
                         idx: [row, arrange],
                         type: this.map_data[i][x].type,
-                        child: null
+                        child: this.map_data[row][arrange].child,
+                        go_num: row - 1
                     }
+                    this.map_data[row][arrange].child.getChildByName('go').active = (this.map_data[i][x].type == 1) ? true : false;
+                    this.map_data[row][arrange].child.getChildByName('go').getComponent(Label).string = row + ''
+                    this.GoNumAll += data.go_num;
+                    let count_label = this.dataParent.getChildByName(data.child.name).getChildByName('count').getComponent(Label)
+                    count_label.string = String(Number(count_label.string) + 1);
                     if (this.map_data[i][x].type == 1 || this.map_data[i][x].type == 10) {
-                        this.role_map.push(node)
+                        this.role_map.push(data)
                     }
                     if (newNodeSize) {
                         node.getComponent(UITransform).setContentSize(newNodeSize);
-                        for (let item in node.children) {
-                            if (node.children[item] && node.children[item].name != 'text') {
-                                node.children[item].getComponent(UITransform).setContentSize(node.getComponent(UITransform).contentSize)
-                                let count_label = this.dataParent.getChildByName(node.children[item].name).getChildByName('count').getComponent(Label)
-                                count_label.string = String(Number(count_label.string) + 1);
-                            }
-                        }
+                        data.child.getComponent(UITransform).setContentSize(node.getComponent(UITransform).contentSize)
                     }
                     node.active = true
                     this.map_data[row][arrange] = data;
-                    node.getChildByName('text').getComponent(Label).string = row + '-' + arrange
                 } else {
+                    if (newNodeSize) {
+                        node.getComponent(UITransform).setContentSize(newNodeSize);
+                        this.map_data[row][arrange].child.getComponent(UITransform).setContentSize(node.getComponent(UITransform).contentSize)
+                    }
                     node.active = false;
-                    if (this.map_data[row][arrange].child) {
-                        this.map_data[row][arrange].child.destroy();
-                    }
-                    for (let item in node.children) {
-                        if (node.children[item] && node.children[item].name != 'text') {
-                            node.children[item].destroy();
-                        }
-                    }
+                    // let count_label = this.dataParent.getChildByName(this.map_data[row][arrange].child.name).getChildByName('count').getComponent(Label)
+                    // count_label.string = String(Number(count_label.string) - 1);
                 }
             }
         }
-        let people_num = Number(this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label).string) + Number(this.dataParent.getChildByName('10').getChildByName('count').getComponent(Label).string)
-        this.PeopleStr.string = `当前人数为：${people_num}
-        除3得数为：${(people_num / 3)}`
+        let all_gonum: number = 0
         if (init) {
+            let num = 0;
             for (let y = 1; y <= this.map_size.row; y++) {
                 if (!this.map_data[y]) {
                     this.map_data[y] = []
@@ -202,19 +189,29 @@ export class Editing extends Component {
                     node = instantiate(node);
                     node.active = true;
                     this.Map.addChild(node);
-                    node.getChildByName('text').getComponent(Label).string = x + '-' + y
+                    let newChild = node.getChildByName('1')
+                    newChild.getComponent(UITransform).setContentSize(node.getComponent(UITransform).contentSize);
+                    newChild.setPosition(v3(0, 0));
                     let data = {
                         node: node,
                         idx: [x, y],
-                        type: 0,
-                        child: null
+                        type: 1,
+                        child: newChild,
+                        go_num: y - 1
                     }
+                    newChild.getChildByName('go').getComponent(Label).string = data.go_num + ''
+                    all_gonum += data.go_num
                     this.map_data[y][x] = data;
+                    num++
                 }
             }
-            console.log(this.map_data);
-
+            this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label).string = num + ''
+            this.GoNumAll = all_gonum
         }
+        this.allLabel[5].string = '角色步数总和：' + this.GoNumAll;
+        let people_num = Number(this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label).string) + Number(this.dataParent.getChildByName('10').getChildByName('count').getComponent(Label).string)
+        this.PeopleStr.string = `当前人数为：${people_num}
+        除3得数为：${(people_num / 3)}`
     }
     onTouchStart(event: EventTouch) {
         if (this.Piece[0]) {
@@ -237,31 +234,201 @@ export class Editing extends Component {
         let data = this.TouchData(worldPos);
         if (data && data.type != this.Piece[1]) {
             data.type = this.Piece[1];
-            for (let item of data.node.children) {
-                if (item && item.name != 'text') {
-                    let count_label = this.dataParent.getChildByName(item.name).getChildByName('count').getComponent(Label)
-                    count_label.string = String(Number(count_label.string) - 1);
-                    item.destroy();
+            if (this.Piece[1] == 6 || this.Piece[1] == 7 || this.Piece[1] == 8 || this.Piece[1] == 9) {
+                let newChild = instantiate(this.Piece[0])
+                newChild.getChildByName('name').active = false;
+                newChild.getChildByName('count').active = false;
+                newChild.getComponent(UITransform).setContentSize(data.node.getComponent(UITransform).contentSize);
+                newChild.getComponent(Button).enabled = false;
+                data.child.addChild(newChild);
+                newChild.setPosition(v3(0, 0));
+            } else {
+                let count_label = this.dataParent.getChildByName(data.child.name).getChildByName('count').getComponent(Label)
+                count_label.string = String(Number(count_label.string) - 1);
+                data.child.name = this.Piece[1] + '';
+                data.child.getComponent(Sprite).color = this.Piece[0].getComponent(Sprite).color;
+                if (data.child.children.length > 1) {
+                    data.child.children[1].destroy()
                 }
             }
-            if (data.child) {
-                data.child.destory();
+            if (this.Piece[1] != 1 && this.Piece[1] != 10) {
+                // data.child.getChildByName('go').active = false
+                if (this.Piece[1] == '2') {
+                    data.go_num = data.go_num - 1
+                }
+            } else {
+                data.child.getChildByName('go').active = true
+                // data.go_num = data.go_num + 2
             }
-            let newChild = instantiate(this.Piece[0])
-            newChild.getChildByName('name').active = false;
-            newChild.getChildByName('count').active = false;
-            newChild.getComponent(UITransform).setContentSize(data.node.getComponent(UITransform).contentSize);
-            // let scale = 80/data.node.getComponent(UITransform).contentSize.width
-            // newChild.getChildByName('whitebear').newChild.getComponent(UITransform).setContentSize(80/data.node.getComponent(UITransform).contentSize,80/data.node.getComponent(UITransform).contentSize)
-            newChild.getComponent(Button).enabled = false;
-            data.node.addChild(newChild);
-            newChild.setPosition(v3(0, 0));
+            this.map_data[data.idx[1]][data.idx[0]] = data
+            this.GoNumRefirsh(data)
             this.Piece[0].getChildByName('count').getComponent(Label).string = String(Number(this.Piece[0].getChildByName('count').getComponent(Label).string) + 1);
             let people_num = Number(this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label).string) + Number(this.dataParent.getChildByName('10').getChildByName('count').getComponent(Label).string)
             this.PeopleStr.string = `当前人数为：${people_num}
             除3得数为：${(people_num / 3)}`
 
         }
+    }
+    Type2ArrMin(idx) {
+        let type2Obj = {}
+        let type2 = (idx) => {
+            let y = idx[1];
+            let x = idx[0];
+            // 方向
+            let min = this.map_data[y][x].go_num
+            let direction = (Y, X) => {
+                if (this.map_data[Y][X].type == '2') {
+                    if (!type2Obj[Y + '_' + X]) {
+                        // type2Obj[Y + '_' + X] = [Y, X, this.map_data[Y][X].go_num]
+                        type2(this.map_data[Y][X].idx)
+                        return 999
+                    }
+
+                }
+                if (this.map_data[Y][X].type == 1 || this.map_data[Y][X].type == 10) {
+                    if (this.map_data[Y][X].go_num < type2Obj[y + '_' + x][2]) {
+                        type2Obj[y + '_' + x][2] = this.map_data[Y][X].go_num
+                    }
+                }
+            }
+            if (!type2Obj[y + '_' + x]) {
+                type2Obj[y + '_' + x] = [y, x, 999]
+                // 上
+                if (this.map_data[y - 1]) {
+                    let nextY = y - 1;
+                    let nextX = x;
+                    let newMin = direction(nextY, nextX)
+                    if (min > newMin) {
+                        min = newMin
+                    }
+                }
+                // 下
+                if (this.map_data[y + 1]) {
+                    let nextY = y + 1;
+                    let nextX = x
+                    direction(nextY, nextX)
+                    if (this.map_data[y][x + 1]) {
+                        let nextY = y;
+                        let nextX = x + 1;
+                        direction(nextY, nextX)
+
+                    }
+                    if (this.map_data[y][x - 1]) {
+                        let nextY = y;
+                        let nextX = x - 1;
+                        direction(nextY, nextX)
+                    }
+                }
+            }
+        }
+        type2(idx)
+        let arr = []
+        for (let key in type2Obj) {
+            arr.push(type2Obj[key][2])
+        }
+        let min = Math.min(...arr)
+        for (let key in type2Obj) {
+            this.map_data[type2Obj[key][0]][type2Obj[key][1]].go_num = (min < 0) ? 0 : min;
+            this.map_data[type2Obj[key][0]][type2Obj[key][1]].child.getChildByName('go').getComponent(Label).string = (min < 0) ? 0 : min + ''
+        }
+        console.log(type2Obj);
+        return min
+    }
+    GoNumRefirsh(data) {
+        console.log(data);
+        if (data.type == 2) {
+            this.Type2ArrMin(data.idx)
+        } else {
+            let y = data.idx[1];
+            let x = data.idx[0];
+            this.map_data[y][x].go_num += 1
+            let min = this.map_data[y][x].go_num;
+            let Type2fun = (idx) => {
+                if (this.map_data[idx[1]][idx[0]].type == 2) {
+                    let newMin = this.Type2ArrMin(idx)
+                    console.log(newMin);
+                    if (min > newMin + 1) {
+                        min = newMin + 1
+                    }
+                }
+            }
+            if (this.map_data[y - 1]) {
+                Type2fun(this.map_data[y - 1][x].idx);
+            }
+            if (this.map_data[y + 1]) {
+                Type2fun(this.map_data[y + 1][x].idx);
+            }
+            if (this.map_data[y][x + 1]) {
+                Type2fun(this.map_data[y][x + 1].idx);
+            }
+            if (this.map_data[y][x - 1]) {
+                Type2fun(this.map_data[y][x - 1].idx);
+            }
+            // this.map_data[y][x].go_num = min
+            // this.map_data[y][x].child.getChildByName('go').getComponent(Label).string = min + ''
+        }
+        // this.scheduleOnce(() => {
+            this.refish_GoNum()
+        // }, 0.03)
+        this.scheduleOnce(() => {
+            this.refish_GoNum()
+        },0.03)
+
+        console.log(this.map_data);
+
+    }
+    refish_GoNum() {
+        this.GoNumAll = 0
+        for (let y = 1; y <= this.map_size.row; y++) {
+            for (let x = 1; x <= this.map_size.arrange; x++) {
+                let type = this.map_data[y][x].type
+                if (type == 1 || type == 10 || type == 2) {
+                    let min_arr = []
+                    if (this.map_data[y - 1]) {
+                        if (type == 2) {
+                            min_arr.push(this.map_data[y - 1][x].go_num)
+                        } else if (this.map_data[y - 1][x].type == 1 || this.map_data[y - 1][x].type == 2 || this.map_data[y - 1][x].type == 10) {
+                            min_arr.push(this.map_data[y - 1][x].go_num + 1)
+                        }
+                    } else {
+                        min_arr.push(0)
+                    }
+                    if (this.map_data[y + 1]) {
+                        if (type == 2) {
+                            min_arr.push(this.map_data[y + 1][x].go_num)
+                        }
+                        else if (this.map_data[y + 1][x].type == 1 || this.map_data[y + 1][x].type == 2 || this.map_data[y + 1][x].type == 10) {
+                            min_arr.push(this.map_data[y + 1][x].go_num + 1)
+                        }
+                    }
+                    if (this.map_data[y][x + 1]) {
+                        if (type == 2) {
+                            min_arr.push(this.map_data[y][x + 1].go_num)
+                        } else if (this.map_data[y][x + 1].type == 1 || this.map_data[y][x + 1].type == 2 || this.map_data[y][x + 1].type == 10) {
+                            min_arr.push(this.map_data[y][x + 1].go_num + 1)
+                        }
+
+                    }
+                    if (this.map_data[y][x - 1]) {
+                        if (type == 2) {
+                            min_arr.push(this.map_data[y][x - 1].go_num)
+                        } else if (this.map_data[y][x - 1].type == 1 || this.map_data[y][x - 1].type == 2 || this.map_data[y][x - 1].type == 10) {
+                            min_arr.push(this.map_data[y][x - 1].go_num + 1)
+                        }
+
+                    }
+                    if (y == 6 && x == 4) {
+                    }
+                    let minNum = (min_arr.length <= 0) ? this.map_data[y][x].go_num : Math.min(...min_arr)
+                    this.map_data[y][x].go_num = minNum
+                    this.map_data[y][x].child.getChildByName('go').getComponent(Label).string = minNum + ''
+                    this.GoNumAll += minNum
+                } else if (this.map_data[y][x].type == 2) {
+                    this.Type2ArrMin(this.map_data[y][x].idx)
+                }
+            }
+        }
+        this.allLabel[5].string = '角色步数总和：' + this.GoNumAll;
     }
     // 触摸数据
     TouchData(pos) {
@@ -311,6 +478,17 @@ export class Editing extends Component {
             this.dataJsonImport(this.ImportEditBox.string);
         }
     }
+    initDataGoNum() {
+        for (let y = 1; y <= this.map_size.row; y++) {
+            for (let x = 1; x <= this.map_size.arrange; x++) {
+                if (this.map_data[y][x].type == 2) {
+                    this.Type2ArrMin(this.map_data[y][x].idx)
+                    this.map_data[y][x].child.getChildByName('go').active = false
+                    this.map_data[y][x].child.getChildByName('go').getComponent(Label).string = this.map_data[y][x].go_num + ''
+                }
+            }
+        }
+    }
     // 数据导入
     import_data(EditBox: EditBox) {
         this.dataJsonImport(EditBox.string);
@@ -344,29 +522,28 @@ export class Editing extends Component {
 
 
         if (!conf_data) {
-            this.CloseAll()
-            console.log(this.map_data);
+            this.CloseAll(data)
+
             for (let idx of new_data) {
                 row = (idx[1] > row) ? idx[1] : row;
                 arrange = (idx[0] > arrange) ? idx[0] : arrange;
                 this.map_data[idx[1]][idx[0]].type = idx[2];
                 let node = this.map_data[idx[1]][idx[0]].node;
-                if (this.map_data[idx[1]][idx[0]].child) {
-                    for (let item in node.children) {
-                        if (node.children[item] && node.children[item].name != 'text') {
-                            node.children[item].destroy();
-                        }
-                    }
+                this.map_data[idx[1]][idx[0]].child.name = idx[2] + '';
+                this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).color;
+                if (this.map_data[idx[1]][idx[0]].child.children.length > 1) {
+                    this.map_data[idx[1]][idx[0]].child.children[1].destroy()
                 }
-                let newNode = instantiate(this.dataParent.getChildByName(String(idx[2])))
-                this.map_data[idx[1]][idx[0]].child = newNode;
-                newNode.getComponent(UITransform).setContentSize(node.getComponent(UITransform).contentSize);
-                newNode.setPosition(v3(0, 0));
-                newNode.getChildByName('name').active = false;
-                newNode.getChildByName('count').active = false;
-                newNode.getChildByName('count').getComponent(Label).string = String(0)
-                newNode.getComponent(Button).enabled = false;
-                node.addChild(newNode);
+                if (idx[2] == 6 || idx[2] == 7 || idx[2] == 8 || idx[2] == 9) {
+                    let newChild = instantiate(this.dataParent.getChildByName(idx[2] + ''))
+                    newChild.getChildByName('name').active = false;
+                    newChild.getChildByName('count').active = false;
+                    newChild.getComponent(UITransform).setContentSize(this.map_data[idx[1]][idx[0]].node.getComponent(UITransform).contentSize);
+                    newChild.getComponent(Button).enabled = false;
+                    this.map_data[idx[1]][idx[0]].child.addChild(newChild);
+                    newChild.setPosition(v3(0, 0));
+                }
+                this.map_data[idx[1]][idx[0]].child.getComponent(UITransform).setContentSize(node.getComponent(UITransform).contentSize);
             }
         }
 
@@ -397,22 +574,40 @@ export class Editing extends Component {
                 item.getChildByName('count').getComponent(Label).string = String(0);
             }
         }
+        let num = 0
+        this.GoNumAll = 0
         for (let i in this.map_data) {
             let row = Number(i)
+            console.log(row);
             for (let x in this.map_data[row]) {
                 let arrange = Number(x)
                 let node = this.map_data[i][x].node;
-                this.map_data[i][x].type = 0;
-                if (this.map_data[row][arrange].child) {
-                    this.map_data[row][arrange].child.destroy();
+                this.map_data[i][x].type = 1;
+                // 角色步数重新初始化
+                this.map_data[i][x].go_num = row - 1
+                this.map_data[row][arrange].child.getChildByName('go').active = true;
+                this.map_data[row][arrange].child.getChildByName('go').getComponent(Label).string = this.map_data[i][x].go_num + ''
+                this.GoNumAll += this.map_data[i][x].go_num;
+                // 小熊节点隐藏
+                if (node.getChildByName('bear')) {
+                    node.getChildByName('bear').active = false
                 }
-                for (let item in node.children) {
-                    if (node.children[item] && node.children[item].name != 'text') {
-                        node.children[item].destroy();
-                    }
+                // 所有数据初始化为角色类型
+                this.map_data[row][arrange].child.name = '1';
+                this.map_data[row][arrange].child.getComponent(Sprite).color = this.dataParent.getChildByName('1').getComponent(Sprite).color;
+                if (this.map_data[row][arrange].child.children.length > 1) {
+                    this.map_data[row][arrange].child.children[1].destroy()
+                }
+                if (row <= this.map_size.row && arrange <= this.map_size.arrange) {
+                    num++
                 }
             }
         }
+        this.allLabel[5].string = '角色步数总和：' + this.GoNumAll;
+        this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label).string = String(num)
+        let people_num = Number(this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label).string) + Number(this.dataParent.getChildByName('10').getChildByName('count').getComponent(Label).string)
+        this.PeopleStr.string = `当前人数为：${people_num}
+        除3得数为：${(people_num / 3)}`
 
 
     }
@@ -686,12 +881,12 @@ export class Editing extends Component {
         }
         let colorData = JSON.parse(`["${this.replaceAll(RoleData.string, ",", '","')}"]`)
         for (let idx in this.role_map) {
-            let node = this.role_map[idx].getChildByName('bear');
+            let node = this.role_map[idx].node.getChildByName('bear');
             if (!node) {
                 node = instantiate(this.PeopleNode);
-                this.role_map[idx].addChild(node)
+                this.role_map[idx].node.addChild(node)
             }
-            let newscale = node.getComponent(UITransform).height / this.role_map[idx].getComponent(UITransform).height
+            let newscale = node.getComponent(UITransform).height / this.role_map[idx].node.getComponent(UITransform).height
             node.scale = v3(newscale, newscale, newscale);
             node.setPosition(v3(0, 0, 0))
             node.getComponent(Sprite).color = this.RoleColor[colorData[idx]]
@@ -818,25 +1013,30 @@ export class Editing extends Component {
         }
         this.ScrollViewSelect[3] = this.RoleKey[0];
         this.allLabel[3].string = `角色表ID:${this.ScrollViewSelect[3]}`;
+        console.log(RoleConf.datas[this.ScrollViewSelect[3]].role_data);
         this.RoleDataImport(RoleConf.datas[this.ScrollViewSelect[3]].role_data)
     }
     RoleDataImport(data) {
         let colorData = JSON.parse(`["${this.replaceAll(data, ",", '","')}"]`)
+        let RoleArr = []
         for (let idx in this.role_map) {
-            let node = this.role_map[idx].getChildByName('bear');
+            let node = this.role_map[idx].node.getChildByName('bear');
             if (!node) {
                 node = instantiate(this.PeopleNode);
-                this.role_map[idx].addChild(node)
+                this.role_map[idx].node.addChild(node)
             }
-            let newscale = this.role_map[idx].getComponent(UITransform).height / node.getComponent(UITransform).height
+            let newscale = this.role_map[idx].node.getComponent(UITransform).height / node.getComponent(UITransform).height
             node.scale = v3(newscale, newscale, newscale);
             node.setPosition(v3(0, 0, 0))
             node.getComponent(Sprite).color = this.RoleColor[colorData[idx]]
+            if (!RoleArr[this.role_map[idx].idx[0]]) {
+                RoleArr[this.role_map[idx].idx[0]] = []
+            }
+            RoleArr[this.role_map[idx].idx[0]][this.role_map[idx].idx[1]] = [this.role_map[idx].idx[1], colorData[idx]]
             node.active = true;
-            node.setSiblingIndex(this.role_map[idx].children.length);
-
-
+            node.setSiblingIndex(this.role_map[idx].node.children.length);
         }
+        console.log(RoleArr);
     }
     update(deltaTime: number) {
 
