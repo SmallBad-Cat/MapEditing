@@ -272,6 +272,9 @@ export class Editing extends Component {
             }
             if (data.type != 1 && data.type != 10) {
                 data.child.getChildByName('go').active = false
+                data.child.scale = v3(1.18,1.18,1.18)
+            }else{
+                data.child.scale = v3(1,1,1)
             }
             // this.map_data[data.idx[1]][data.idx[0]].type = 3
             // this.map_data[data.idx[0]][data.idx[1]].type = data
