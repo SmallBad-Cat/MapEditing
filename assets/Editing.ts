@@ -273,7 +273,7 @@ export class Editing extends Component {
                         this.setNewData(this.map_data[data.idx[0] + 1][data.idx[1]])
                     }
                 }
-                
+
                 // onPiece(event: Event, id: string) {
                 //     let target: any = event.target;
                 //     if (this.Piece.length > 0) {
@@ -643,6 +643,7 @@ export class Editing extends Component {
                 // 角色步数重新初始化
                 this.map_data[i][x].go_num = row - 1
                 this.map_data[row][arrange].child.getChildByName('go').active = true;
+                this.map_data[row][arrange].child.scale = v3(1, 1, 1)
                 this.map_data[row][arrange].child.getChildByName('go').getComponent(Label).string = this.map_data[i][x].go_num + ''
                 this.GoNumAll += this.map_data[i][x].go_num;
                 // 小熊节点隐藏
