@@ -238,54 +238,91 @@ export class Editing extends Component {
         let worldPos = this.Map.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(localPos.x, localPos.y));
         let data = this.TouchData(worldPos);
         if (data && data.type != this.Piece[1]) {
-            if (data.type == 6 || data.type == 7 || data.type == 8 || data.type == 9) {
-                data.child.getChildByName(String(data.type)).destroy()
-            }
-            data.type = this.Piece[1]
-            // this.map_data[data.idx[1]][data.idx[0]].type = this.Piece[1]
-            if (this.Piece[1] == 6 || this.Piece[1] == 7 || this.Piece[1] == 8 || this.Piece[1] == 9) {
-                let newChild = instantiate(this.Piece[0])
-                newChild.getChildByName('name').active = false;
-                newChild.getChildByName('count').active = false;
-                newChild.getComponent(UITransform).setContentSize(data.node.getComponent(UITransform).contentSize);
-                newChild.getComponent(Button).interactable = false
-                data.child.addChild(newChild);
-                newChild.setPosition(v3(0, 0));
-            } else {
-                let count_label = this.dataParent.getChildByName(data.child.name).getChildByName('count').getComponent(Label)
-                count_label.string = String(Number(count_label.string) - 1);
-                data.child.name = this.Piece[1] + '';
-                data.child.getComponent(Sprite).color = this.Piece[0].getComponent(Sprite).color;
-
-                // if (data.child.children.length > 1) {
-                //     data.child.children[1].destroy()
-                // }
-            }
-            if (this.Piece[1] != 1 && this.Piece[1] != 10) {
-                // data.child.getChildByName('go').active = false
-                if (this.Piece[1] == '2') {
-                    this.map_data[data.idx[0]][data.idx[1]].go_num = 999
-                }
-            } else {
-                data.child.getChildByName('go').active = true
-                // data.go_num = data.go_num + 2
-            }
-            if (data.type != 1 && data.type != 10) {
-                data.child.getChildByName('go').active = false
-                data.child.scale = v3(1.18,1.18,1.18)
-            }else{
-                data.child.scale = v3(1,1,1)
-            }
-            // this.map_data[data.idx[1]][data.idx[0]].type = 3
-            // this.map_data[data.idx[0]][data.idx[1]].type = data
-            // this.map_data[data.idx[1]][data.idx[0]] = data
-            this.GoNumRefirsh(data)
-            this.Piece[0].getChildByName('count').getComponent(Label).string = String(Number(this.Piece[0].getChildByName('count').getComponent(Label).string) + 1);
-            let people_num = Number(this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label).string) + Number(this.dataParent.getChildByName('10').getChildByName('count').getComponent(Label).string)
-            this.PeopleStr.string = `当前人数为：${people_num}
-            除3得数为：${(people_num / 3)}`
-
+            this.setNewData(data)
         }
+    }
+    setNewData(data) {
+        if (data.type == 6 || data.type == 7 || data.type == 8 || data.type == 9) {
+            data.child.getChildByName(String(data.type)).destroy()
+        }
+        data.type = this.Piece[1]
+        // this.map_data[data.idx[1]][data.idx[0]].type = this.Piece[1]
+        if (this.Piece[1] == 6 || this.Piece[1] == 7 || this.Piece[1] == 8 || this.Piece[1] == 9) {
+            let newChild = instantiate(this.Piece[0])
+            newChild.getChildByName('name').active = false;
+            newChild.getChildByName('count').active = false;
+            newChild.getComponent(UITransform).setContentSize(data.node.getComponent(UITransform).contentSize);
+            newChild.getComponent(Button).interactable = false
+            data.child.addChild(newChild);
+            newChild.setPosition(v3(0, 0));
+        } else {
+            let count_label = this.dataParent.getChildByName(data.child.name).getChildByName('count').getComponent(Label)
+            count_label.string = String(Number(count_label.string) - 1);
+            data.child.name = this.Piece[1] + '';
+            data.child.getComponent(Sprite).color = this.Piece[0].getComponent(Sprite).color;
+            if (this.Piece[1] == 11 || this.Piece[1] == 12 || this.Piece[1] == 13) {
+                // 左右出口
+                this.Piece = [this.dataParent.getChildByName('14'), 14]
+                this.ChooseKuang.setPosition(this.dataParent.getChildByName('14').getPosition());
+                this.ChooseKuang.active = true;
+                let next = (data.idx[1] > (this.map_data[1].length / 2)) ? data.idx[1] + 1 : data.idx[1] - 1
+                if (next < this.map_data[1].length && next > 0) {
+                    this.setNewData(this.map_data[data.idx[0]][(data.idx[1] > (this.map_data[1].length / 2)) ? data.idx[1] + 1 : data.idx[1] - 1])
+                } else {
+                    if (this.map_data.length > data.idx[0] + 1) {
+                        this.setNewData(this.map_data[data.idx[0] + 1][data.idx[1]])
+                    }
+                }
+                
+                // onPiece(event: Event, id: string) {
+                //     let target: any = event.target;
+                //     if (this.Piece.length > 0) {
+                //         if (this.Piece[1] == Number(id) && this.ChooseKuang.active) {
+                //             this.ChooseKuang.active = false;
+                //             this.Piece = [];
+                //             return;
+                //         }
+                //     }
+                //     this.Piece = [target, Number(id)];
+                //     
+                // }
+            } else if (this.Piece[1] == 14) {
+                let next = (data.idx[1] > (this.map_data[1].length / 2)) ? data.idx[1] + 1 : data.idx[1] - 1
+                if (next < this.map_data[1].length && next > 0) {
+                    this.setNewData(this.map_data[data.idx[0]][(data.idx[1] > (this.map_data[1].length / 2)) ? data.idx[1] + 1 : data.idx[1] - 1])
+                } else {
+                    if (this.map_data.length > data.idx[0] + 1) {
+                        this.setNewData(this.map_data[data.idx[0] + 1][data.idx[1]])
+                    }
+                }
+            }
+            // if (data.child.children.length > 1) {
+            //     data.child.children[1].destroy()
+            // }
+        }
+        if (this.Piece[1] != 1 && this.Piece[1] != 10) {
+            // data.child.getChildByName('go').active = false
+            if (this.Piece[1] == '2') {
+                this.map_data[data.idx[0]][data.idx[1]].go_num = 999
+            }
+        } else {
+            data.child.getChildByName('go').active = true
+            // data.go_num = data.go_num + 2
+        }
+        if (data.type != 1 && data.type != 10) {
+            data.child.getChildByName('go').active = false
+            data.child.scale = v3(1.18, 1.18, 1.18)
+        } else {
+            data.child.scale = v3(1, 1, 1)
+        }
+        // this.map_data[data.idx[1]][data.idx[0]].type = 3
+        // this.map_data[data.idx[0]][data.idx[1]].type = data
+        // this.map_data[data.idx[1]][data.idx[0]] = data
+        this.GoNumRefirsh(data)
+        this.Piece[0].getChildByName('count').getComponent(Label).string = String(Number(this.Piece[0].getChildByName('count').getComponent(Label).string) + 1);
+        let people_num = Number(this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label).string) + Number(this.dataParent.getChildByName('10').getChildByName('count').getComponent(Label).string)
+        this.PeopleStr.string = `当前人数为：${people_num}
+        除3得数为：${(people_num / 3)}`
     }
     Type2ArrMin(idx) {
         let type2Obj = {};
@@ -466,7 +503,6 @@ export class Editing extends Component {
         this.Piece = [target, Number(id)];
         this.ChooseKuang.setPosition(target.getPosition());
         this.ChooseKuang.active = true;
-
     }
     // 数据处理
     data_handle(event: Event) {
