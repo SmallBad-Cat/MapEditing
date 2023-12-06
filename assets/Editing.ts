@@ -238,6 +238,9 @@ export class Editing extends Component {
         let worldPos = this.Map.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(localPos.x, localPos.y));
         let data = this.TouchData(worldPos);
         if (data && data.type != this.Piece[1]) {
+            if (data.type == 6 || data.type == 7 || data.type == 8 || data.type == 9) {
+                data.child.getChildByName(String(data.type)).destroy()
+            }
             data.type = this.Piece[1]
             // this.map_data[data.idx[1]][data.idx[0]].type = this.Piece[1]
             if (this.Piece[1] == 6 || this.Piece[1] == 7 || this.Piece[1] == 8 || this.Piece[1] == 9) {
@@ -245,7 +248,7 @@ export class Editing extends Component {
                 newChild.getChildByName('name').active = false;
                 newChild.getChildByName('count').active = false;
                 newChild.getComponent(UITransform).setContentSize(data.node.getComponent(UITransform).contentSize);
-                newChild.getComponent(Button).enabled = false;
+                newChild.getComponent(Button).interactable = false
                 data.child.addChild(newChild);
                 newChild.setPosition(v3(0, 0));
             } else {
@@ -266,6 +269,9 @@ export class Editing extends Component {
             } else {
                 data.child.getChildByName('go').active = true
                 // data.go_num = data.go_num + 2
+            }
+            if (data.type != 1 && data.type != 10) {
+                data.child.getChildByName('go').active = false
             }
             // this.map_data[data.idx[1]][data.idx[0]].type = 3
             // this.map_data[data.idx[0]][data.idx[1]].type = data
@@ -302,7 +308,6 @@ export class Editing extends Component {
             }
             if (!type2Obj[y + '_' + x]) {
                 type2Obj[y + '_' + x] = [y, x, 999]
-
                 // 上
                 if (this.map_data[y - 1]) {
                     let nextY = y - 1;
@@ -311,6 +316,9 @@ export class Editing extends Component {
                     if (min > newMin) {
                         min = newMin
                     }
+                } else {
+                    type2Obj[y + '_' + x] = [y, x, 0]
+                    console.log('11111---:', y, x);
                 }
                 // 下
                 if (this.map_data[y + 1] && (y + 1) <= this.map_size.row) {
@@ -351,29 +359,31 @@ export class Editing extends Component {
         } else {
             let y = data.idx[1];
             let x = data.idx[0];
-            this.map_data[y][x].go_num += 1
-            let min = this.map_data[y][x].go_num;
-            let Type2fun = (idx) => {
-                if (this.map_data[idx[1]] && this.map_data[idx[1]][idx[0]]) {
-                    if (this.map_data[idx[1]][idx[0]].type == 2) {
-                        let newMin = this.Type2ArrMin(idx)
-                        if (min > newMin + 1) {
-                            min = newMin + 1
+            if (this.map_data[y][x]) {
+                this.map_data[y][x].go_num += 1
+                let min = this.map_data[y][x].go_num;
+                let Type2fun = (idx) => {
+                    if (this.map_data[idx[1]] && this.map_data[idx[1]][idx[0]]) {
+                        if (this.map_data[idx[1]][idx[0]].type == 2) {
+                            let newMin = this.Type2ArrMin(idx)
+                            if (min > newMin + 1) {
+                                min = newMin + 1
+                            }
                         }
                     }
                 }
-            }
-            if (this.map_data[y - 1]) {
-                Type2fun(this.map_data[y - 1][x].idx);
-            }
-            if (this.map_data[y + 1] && (y + 1) <= this.map_size.row) {
-                Type2fun(this.map_data[y + 1][x].idx);
-            }
-            if (this.map_data[y][x + 1] && (x + 1) <= this.map_size.arrange) {
-                Type2fun(this.map_data[y][x + 1].idx);
-            }
-            if (this.map_data[y][x - 1]) {
-                Type2fun(this.map_data[y][x - 1].idx);
+                if (this.map_data[y - 1]) {
+                    Type2fun(this.map_data[y - 1][x].idx);
+                }
+                if (this.map_data[y + 1] && (y + 1) <= this.map_size.row) {
+                    Type2fun(this.map_data[y + 1][x].idx);
+                }
+                if (this.map_data[y][x + 1] && (x + 1) <= this.map_size.arrange) {
+                    Type2fun(this.map_data[y][x + 1].idx);
+                }
+                if (this.map_data[y][x - 1]) {
+                    Type2fun(this.map_data[y][x - 1].idx);
+                }
             }
         }
         this.refish_GoNum()
@@ -389,9 +399,6 @@ export class Editing extends Component {
                 if (type == 1 || type == 10) {
                     let min_arr = []
                     if (this.map_data[y - 1]) {
-                        // if (type == 2) {
-                        //     min_arr.push(this.map_data[y - 1][x].go_num)
-                        // } else 
                         if (this.map_data[y - 1][x].type == 1 || this.map_data[y - 1][x].type == 2 || this.map_data[y - 1][x].type == 10) {
                             min_arr.push(this.map_data[y - 1][x].go_num + 1)
                         }
@@ -399,27 +406,17 @@ export class Editing extends Component {
                         min_arr.push(0)
                     }
                     if (this.map_data[y + 1] && (y + 1) <= this.map_size.row) {
-                        // if (type == 2) {
-                        //     min_arr.push(this.map_data[y + 1][x].go_num)
-                        // }
-                        // else 
                         if (this.map_data[y + 1][x].type == 1 || this.map_data[y + 1][x].type == 2 || this.map_data[y + 1][x].type == 10) {
                             min_arr.push(this.map_data[y + 1][x].go_num + 1)
                         }
                     }
                     if (this.map_data[y][x + 1] && (x + 1) <= this.map_size.arrange) {
-                        // if (type == 2) {
-                        //     min_arr.push(this.map_data[y][x + 1].go_num)
-                        // } else 
                         if (this.map_data[y][x + 1].type == 1 || this.map_data[y][x + 1].type == 2 || this.map_data[y][x + 1].type == 10) {
                             min_arr.push(this.map_data[y][x + 1].go_num + 1)
                         }
 
                     }
                     if (this.map_data[y][x - 1]) {
-                        // if (type == 2) {
-                        //     min_arr.push(this.map_data[y][x - 1].go_num)
-                        // } else 
                         if (this.map_data[y][x - 1].type == 1 || this.map_data[y][x - 1].type == 2 || this.map_data[y][x - 1].type == 10) {
                             min_arr.push(this.map_data[y][x - 1].go_num + 1)
                         }
@@ -432,9 +429,6 @@ export class Editing extends Component {
                     this.map_data[y][x].child.getChildByName('go').getComponent(Label).string = minNum + ''
                     this.GoNumAll += minNum
                 }
-                // else if (this.map_data[y][x].type == 2) {
-                //     this.Type2ArrMin(this.map_data[y][x].idx)
-                // }
             }
         }
         this.allLabel[5].string = '角色步数总和：' + this.GoNumAll;
@@ -484,6 +478,7 @@ export class Editing extends Component {
             }
             console.log('----------数据导出----------');
             console.log(data);
+            console.log(this.map_data);
             // JSON.stringify(data)
             this.initDataGoNum()
         } else {
