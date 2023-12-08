@@ -260,19 +260,40 @@ export class Editing extends Component {
             count_label.string = String(Number(count_label.string) - 1);
             data.child.name = this.Piece[1] + '';
             data.child.getComponent(Sprite).color = this.Piece[0].getComponent(Sprite).color;
+
             if (this.Piece[1] == 11 || this.Piece[1] == 12 || this.Piece[1] == 13) {
                 // 左右出口
-                this.Piece = [this.dataParent.getChildByName('14'), 14]
-                this.ChooseKuang.setPosition(this.dataParent.getChildByName('14').getPosition());
-                this.ChooseKuang.active = true;
-                let next = (data.idx[1] > (this.map_data[1].length / 2)) ? data.idx[1] + 1 : data.idx[1] - 1
-                if (next < this.map_data[1].length && next > 0) {
-                    this.setNewData(this.map_data[data.idx[0]][(data.idx[1] > (this.map_data[1].length / 2)) ? data.idx[1] + 1 : data.idx[1] - 1])
-                } else {
+
+                let next = data.idx[1]
+                console.log('类型', this.Piece[1]);
+                if (this.Piece[1] == 11) {
+                    if (next > (this.map_data[1].length / 2)) {
+                        this.Piece = [this.dataParent.getChildByName('14'), 14]
+                        next = data.idx[1] + 1
+                        this.setNewData(this.map_data[data.idx[0]][next])
+                    }
+                } else if (this.Piece[1] == 12) {
+                    next = data.idx[1] - 1
+                    if (next > 0) {
+                        this.Piece = [this.dataParent.getChildByName('14'), 14]
+                        this.setNewData(this.map_data[data.idx[0]][next])
+                    }
+                    
+                } else if (this.Piece[1] == 13) {
                     if (this.map_data.length > data.idx[0] + 1) {
+                        this.Piece = [this.dataParent.getChildByName('14'), 14]
                         this.setNewData(this.map_data[data.idx[0] + 1][data.idx[1]])
                     }
                 }
+
+                this.ChooseKuang.setPosition(this.dataParent.getChildByName('14').getPosition());
+                this.ChooseKuang.active = true;
+                // next = (data.idx[1] > (this.map_data[1].length / 2)) ? data.idx[1] + 1 : data.idx[1] - 1
+                // if (next < this.map_data[1].length && next > 0) {
+
+                // } else {
+
+                // }
 
                 // onPiece(event: Event, id: string) {
                 //     let target: any = event.target;
@@ -287,14 +308,14 @@ export class Editing extends Component {
                 //     
                 // }
             } else if (this.Piece[1] == 14) {
-                let next = (data.idx[1] > (this.map_data[1].length / 2)) ? data.idx[1] + 1 : data.idx[1] - 1
-                if (next < this.map_data[1].length && next > 0) {
-                    this.setNewData(this.map_data[data.idx[0]][(data.idx[1] > (this.map_data[1].length / 2)) ? data.idx[1] + 1 : data.idx[1] - 1])
-                } else {
-                    if (this.map_data.length > data.idx[0] + 1) {
-                        this.setNewData(this.map_data[data.idx[0] + 1][data.idx[1]])
-                    }
+                // let next = (data.idx[1] > (this.map_data[1].length / 2)) ? data.idx[1] + 1 : data.idx[1] - 1
+                // if (next < this.map_data[1].length && next > 0) {
+                //     this.setNewData(this.map_data[data.idx[0]][(data.idx[1] > (this.map_data[1].length / 2)) ? data.idx[1] + 1 : data.idx[1] - 1])
+                // } else {
+                if (this.map_data.length > data.idx[0] + 1) {
+                    this.setNewData(this.map_data[data.idx[0] + 1][data.idx[1]])
                 }
+                // }
             }
             // if (data.child.children.length > 1) {
             //     data.child.children[1].destroy()
