@@ -86,11 +86,11 @@
                 <key>spriteOffset</key>
                 <string>{0,0}</string>
                 <key>spriteSize</key>
-                <string>{459,206}</string>
+                <string>{459,98}</string>
                 <key>spriteSourceSize</key>
-                <string>{459,206}</string>
+                <string>{459,98}</string>
                 <key>textureRect</key>
-                <string>{{67,266},{459,206}}</string>
+                <string>{{0,266},{459,98}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
@@ -105,7 +105,7 @@
                 <key>spriteSourceSize</key>
                 <string>{67,191}</string>
                 <key>textureRect</key>
-                <string>{{0,266},{67,191}}</string>
+                <string>{{459,266},{67,191}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
@@ -120,7 +120,7 @@
                 <key>spriteSourceSize</key>
                 <string>{69,302}</string>
                 <key>textureRect</key>
-                <string>{{526,266},{69,302}}</string>
+                <string>{{593,266},{69,302}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
@@ -135,7 +135,7 @@
                 <key>spriteSourceSize</key>
                 <string>{72,412}</string>
                 <key>textureRect</key>
-                <string>{{595,266},{72,412}}</string>
+                <string>{{731,266},{72,412}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
@@ -199,6 +199,51 @@
                 <key>textureRotated</key>
                 <false/>
             </dict>
+            <key>28.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{0,0}</string>
+                <key>spriteSize</key>
+                <string>{67,191}</string>
+                <key>spriteSourceSize</key>
+                <string>{67,191}</string>
+                <key>textureRect</key>
+                <string>{{526,266},{67,191}}</string>
+                <key>textureRotated</key>
+                <false/>
+            </dict>
+            <key>29.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{0,0}</string>
+                <key>spriteSize</key>
+                <string>{69,302}</string>
+                <key>spriteSourceSize</key>
+                <string>{69,302}</string>
+                <key>textureRect</key>
+                <string>{{662,266},{69,302}}</string>
+                <key>textureRotated</key>
+                <false/>
+            </dict>
+            <key>30.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{0,0}</string>
+                <key>spriteSize</key>
+                <string>{72,412}</string>
+                <key>spriteSourceSize</key>
+                <string>{72,412}</string>
+                <key>textureRect</key>
+                <string>{{803,266},{72,412}}</string>
+                <key>textureRotated</key>
+                <false/>
+            </dict>
         </dict>
         <key>metadata</key>
         <dict>
@@ -211,9 +256,9 @@
             <key>realTextureFileName</key>
             <string>article.png</string>
             <key>size</key>
-            <string>{860,678}</string>
+            <string>{875,678}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:0d6c1498b27d310166f74a6860a3b871:407b813af38ae4edc61bb15121912ef8:9666737de3143d2e8b08e570778c408b$</string>
+            <string>$TexturePacker:SmartUpdate:d457212b03834d234018e300ffa221ef:3352faac57b93b68ea8fe4b86ba92ced:9666737de3143d2e8b08e570778c408b$</string>
             <key>textureFileName</key>
             <string>article.png</string>
         </dict>

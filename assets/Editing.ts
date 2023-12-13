@@ -53,7 +53,7 @@ export class Editing extends Component {
     private RoleKey = [];
     private GoNumAll: number = 0;
     private obstacleOrther = {
-        18: [0, 3], 19: [0, 5], 20: [0, 7], 21: [1, 3], 22: [1, 5], 23: [1, 7], 24: [0, 3], 25: [0, 5], 26: [0, 7], 27: [0, 9]
+        18: [0, 3], 19: [0, 5], 20: [0, 7], 21: [1, 3], 22: [1, 5], 23: [1, 7], 24: [0, 3], 25: [0, 5], 26: [0, 7], 27: [0, 9], 28: [1, 3], 29: [1, 5], 30: [1, 7]
     }
     start() {
         // console.log();
@@ -65,9 +65,8 @@ export class Editing extends Component {
         //         console.log(file['text']);
         //     }
         // })
-
         this.MapChange('init')
-        this.mapSize = this.Map.getComponent(UITransform).contentSize
+        this.mapSize = this.Map.getComponent(UITransform).contentSize;
         this.Map.on(Node.EventType.TOUCH_START, this.onTouchStart, this)
         this.Map.on(Node.EventType.TOUCH_MOVE, this.onTouchMove, this)
 
@@ -110,6 +109,7 @@ export class Editing extends Component {
         this.Tip.active = true;
         let text = this.Tip.getChildByName('text').getComponent(Label)
         text.string = str;
+        this.Tip.setPosition(v3(0, 0))
         tween(this.Tip).
             by(0.4, { position: v3(0, 160) })
             .call(() => {
@@ -127,9 +127,14 @@ export class Editing extends Component {
         this.GoNumAll = 0
         let node = this.Map.children[0];
         let mapLayout = this.Map.getComponent(Layout)
-        let newWidth = (this.mapSize) ? (this.mapSize.width - mapLayout.paddingLeft - mapLayout.paddingRight - ((this.map_size.arrange - 1) * mapLayout.spacingX)) / this.map_size.arrange : null;
+        console.log();
+        if (this.mapSize) {
+            console.log(this.mapSize.width, mapLayout.paddingLeft, mapLayout.paddingRight, this.map_size.arrange, mapLayout.spacingX);
+        }
+        let newWidth = (this.mapSize) ? (this.mapSize.width - mapLayout.paddingLeft - mapLayout.paddingRight - ((this.map_size.arrange - 1) * mapLayout.spacingX)) / this.map_size.arrange - 0.5 : null;
         let newHeight = (this.mapSize) ? (this.mapSize.height - mapLayout.paddingTop - mapLayout.paddingBottom - ((this.map_size.row - 1) * mapLayout.spacingY)) / this.map_size.row : null;
         let newNodeSize = (this.mapSize) ? new Size(newWidth, newHeight) : null;
+        console.log(newNodeSize);
         if (newNodeSize) {
             node.getComponent(UITransform).setContentSize(newNodeSize);
         }
@@ -250,7 +255,7 @@ export class Editing extends Component {
         }
     }
     TypeorAddChild(Type) {
-        if (Type == 6 || Type == 7 || Type == 8 || Type == 9 || Type == 15 || Type == 16 || Type == 17 || Type == 18 || Type == 19 || Type == 20 || Type == 21 || Type == 22 || Type == 23 || Type == 24 || Type == 25 || Type == 26 || Type == 27) {
+        if (Type == 6 || Type == 7 || Type == 8 || Type == 9 || Type == 15 || Type == 16 || Type == 17 || Type == 18 || Type == 19 || Type == 20 || Type == 21 || Type == 22 || Type == 23 || Type == 24 || Type == 25 || Type == 26 || Type == 27 || Type == 28 || Type == 29 || Type == 30) {
             return true
         } else {
             false
@@ -268,31 +273,32 @@ export class Editing extends Component {
         if (DataType == 99) {
             let getObstacle = (idx) => {
                 let lift = this.map_data[idx[0]][idx[1] - 1]
-                let right = this.map_data[idx[0]][idx[1] - 1]
-                let up = this.map_data[idx[0]][idx[1] - 1]
-                let down = this.map_data[idx[0]][idx[1] - 1]
-                if (this.obstacleOrther[lift.type]) {
+                let right = this.map_data[idx[0]][idx[1] + 1]
+                let up = this.map_data[idx[0] - 1][idx[1] - 1]
+                let down = this.map_data[idx[0] + 1][idx[1] - 1]
+                if (lift && this.obstacleOrther[lift.type]) {
                     return lift
-                } else if (this.obstacleOrther[right.type]) {
+                } else if (right && this.obstacleOrther[right.type]) {
                     return right
-                } else if (this.obstacleOrther[up.type]) {
+                } else if (up && this.obstacleOrther[up.type]) {
                     return up
-                } else if (this.obstacleOrther[down.type]) {
+                } else if (down && this.obstacleOrther[down.type]) {
                     return down
                 }
 
-                if (lift.type == 99) {
+                if (lift && lift.type == 99) {
                     return getObstacle(lift.idx);
-                } else if (right.type == 99) {
+                } else if (right && right.type == 99) {
                     return getObstacle(right.idx);
-                } else if (up.type == 99) {
+                } else if (up && up.type == 99) {
                     return getObstacle(up.idx);
-                } else if (down.type == 99) {
+                } else if (down && down.type == 99) {
                     return getObstacle(down.idx);
                 }
             }
             let Obstacle = getObstacle(data.idx)
-            let orther = (this.obstacleOrther[Obstacle.type][1] - 1) / 2
+            console.log(Obstacle);
+            let orther = (this.obstacleOrther[Obstacle.type][1]) / 2
             let infeed = (this.obstacleOrther[Obstacle.type][0] == 0) ? true : false
             let count_label = this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label)
             for (let i = 1; i < orther; i++) {
@@ -316,51 +322,82 @@ export class Editing extends Component {
             Obstacle.child.getChildByName('go').active = true
             count_label.string = String(Number(count_label.string) + 1);
             this.setNewData(this.map_data[data.idx[0]][data.idx[1]])
+
         } else if (this.TypeorAddChild(this.Piece[1])) {
             let newChild = instantiate(this.Piece[0])
             newChild.getComponent(UITransform).setContentSize(data.node.getComponent(UITransform).contentSize);
+
             if (this.obstacleOrther[this.Piece[1]]) {
                 let orther = (this.obstacleOrther[this.Piece[1]][1]) / 2
                 let infeed = (this.obstacleOrther[this.Piece[1]][0] == 0) ? true : false
                 if (infeed) {
-                    if (data.idx[1] - orther < 0 || data.idx[1] + orther > this.map_size.arrange + 1) return
+                    if (data.idx[1] - orther < 0 || data.idx[1] + orther > this.map_size.arrange + 1) {
+                        this.TipTween('不可超过横向边界')
+                        return
+                    }
                     newChild.getComponent(UITransform).width = data.node.getComponent(UITransform).contentSize.width * Number(this.Piece[2])
                 } else {
                     infeed = false
-                    if (data.idx[0] - orther < 0 || data.idx[1] + orther > this.map_size.row + 1) return
+                    if ((data.idx[0] - orther) < 0 || (data.idx[0] + orther) > (this.map_size.row + 1)) {
+                        this.TipTween('不可超过竖向边界')
+                        return
+                    }
                     newChild.getComponent(UITransform).height = data.node.getComponent(UITransform).contentSize.height * Number(this.Piece[2])
                 }
                 for (let i = 1; i < orther; i++) {
-                    this.map_data[(infeed) ? data.idx[0] : data.idx[0] + i][(infeed) ? data.idx[1] + i : data.idx[1]].type = 99;
-                    this.map_data[(infeed) ? data.idx[0] : data.idx[0] + i][(infeed) ? data.idx[1] + i : data.idx[1]].child.getComponent(Sprite).enabled = false
-                    this.map_data[(infeed) ? data.idx[0] : data.idx[0] + i][(infeed) ? data.idx[1] + i : data.idx[1]].node.getComponent(Sprite).enabled = false
-                    this.map_data[(infeed) ? data.idx[0] : data.idx[0] + i][(infeed) ? data.idx[1] + i : data.idx[1]].child.getChildByName('go').active = false
-                    let count_labelA = this.dataParent.getChildByName(this.map_data[(infeed) ? data.idx[0] : data.idx[0] - i][(infeed) ? data.idx[1] + i : data.idx[1]].child.name).getChildByName('count').getComponent(Label)
-                    count_labelA.string = String(Number(count_labelA.string) - 1);
-                    this.map_data[(infeed) ? data.idx[0] : data.idx[0] + i][(infeed) ? data.idx[1] + i : data.idx[1]].child.name = '99'
-                    // this.map_data[(infeed)?data.idx[0]:data.idx[0]+i][(infeed)?data.idx[1] + i:data.idx[1]].child.getComponent(Sprite).color = new Color(0, 0, 0)
-                    this.map_data[(infeed) ? data.idx[0] : data.idx[0] - i][(infeed) ? data.idx[1] - i : data.idx[1]].type = 99
-                    this.map_data[(infeed) ? data.idx[0] : data.idx[0] - i][(infeed) ? data.idx[1] - i : data.idx[1]].child.getComponent(Sprite).enabled = false
-                    this.map_data[(infeed) ? data.idx[0] : data.idx[0] - i][(infeed) ? data.idx[1] - i : data.idx[1]].node.getComponent(Sprite).enabled = false
-                    this.map_data[(infeed) ? data.idx[0] : data.idx[0] - i][(infeed) ? data.idx[1] - i : data.idx[1]].child.getChildByName('go').active = false
-                    let count_labelB = this.dataParent.getChildByName(this.map_data[(infeed) ? data.idx[0] : data.idx[0] - i][(infeed) ? data.idx[1] - i : data.idx[1]].child.name).getChildByName('count').getComponent(Label)
-                    count_labelB.string = String(Number(count_labelB.string) - 1);
-                    this.map_data[(infeed) ? data.idx[0] : data.idx[0] - i][(infeed) ? data.idx[1] - i : data.idx[1]].child.name == '99'
+                    let DataA = this.map_data[(infeed) ? data.idx[0] : data.idx[0] + i][(infeed) ? data.idx[1] + i : data.idx[1]];
+                    if (DataA) {
+                        if (DataA.type == 99 || this.TypeorAddChild(DataA.type)) {
+                            this.TipTween('请先去除其他物品' + DataA.type)
+                            console.log();
+                            return
+                        }
+                        DataA.child.getComponent(Sprite).enabled = false
+                        DataA.node.getComponent(Sprite).enabled = false
+                        DataA.child.getChildByName('go').active = false
+                        if (DataA.type != 99) {
+                            let count_labelA = this.dataParent.getChildByName(DataA.child.name).getChildByName('count').getComponent(Label)
+                            count_labelA.string = String(Number(count_labelA.string) - 1);
+                        }
+                        DataA.child.name = '99'
+                        DataA.type = 99;
+                    }
+                    let DataB = this.map_data[(infeed) ? data.idx[0] : data.idx[0] - i][(infeed) ? data.idx[1] - i : data.idx[1]]
+                   
+                    if (DataB) {
+                        if (DataB.type == 99 || this.TypeorAddChild(DataB.type)) {
+                            this.TipTween('请先去除其他物品' + DataB.type)
+                            return
+                        }
+                        DataB.child.getComponent(Sprite).enabled = false
+                        DataB.node.getComponent(Sprite).enabled = false
+                        DataB.child.getChildByName('go').active = false
+                        if (DataB.type != 99) {
+                            console.log('---------');
+                            let count_labelB = this.dataParent.getChildByName(DataB.type+'').getChildByName('count').getComponent(Label)
+                            count_labelB.string = String(Number(count_labelB.string) - 1);
+                        }
+                        DataB.child.name = '99'
+                        DataB.type = 99
+                    }
                     // this.map_data[(infeed)?data.idx[0]:data.idx[0]-i][(infeed)?data.idx[1] - i:data.idx[1]].child.getComponent(Sprite).color = new Color(0, 0, 0)
                 }
+
                 // for(let i = data.idx[1];i<)
                 // data.child.getComponent(Sprite).spriteFrame = this.Piece[0].getComponent(Sprite).spriteFrame
                 // data.child.getComponent(Sprite).color = new Color(255, 255, 255)
             }
-            console.log(data);
+            if (DataType != 99) {
+                console.log('12312312');
+                let count_labelB = this.dataParent.getChildByName(String(DataType)).getChildByName('count').getComponent(Label)
+                count_labelB.string = String(Number(count_labelB.string) - 1);
+            }
             data.child.name = this.Piece[1] + '';
-
-            newChild.getChildByName('name').active = false;
-            newChild.getChildByName('count').active = false;
-
+            if (newChild.getChildByName('count')) {
+                newChild.getChildByName('count').active = false;
+                newChild.getChildByName('name').active = false;
+            }
             newChild.getComponent(Button).interactable = false
-
-
             data.child.addChild(newChild);
             newChild.setPosition(v3(0, 0));
         } else {
@@ -488,7 +525,6 @@ export class Editing extends Component {
                     }
                 } else {
                     type2Obj[y + '_' + x] = [y, x, 0]
-                    console.log('11111---:', y, x);
                 }
                 // 下
                 if (this.map_data[y + 1] && (y + 1) <= this.map_size.row) {
@@ -637,7 +673,7 @@ export class Editing extends Component {
     }
     private Obstacle = {
         'A': [18, 19, 20],
-        'B': [21, 22, 23],
+        'B': [21, 22, 23, 28, 29, 30],
         'C': [24, 25, 26, 27]
     }
     onObstaclePiece(event: Event, type: string) {
