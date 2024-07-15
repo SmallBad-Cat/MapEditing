@@ -297,7 +297,6 @@ export class Editing extends Component {
                 }
             }
             let Obstacle = getObstacle(data.idx)
-            console.log(Obstacle);
             let orther = (this.obstacleOrther[Obstacle.type][1]) / 2
             let infeed = (this.obstacleOrther[Obstacle.type][0] == 0) ? true : false
             let count_label = this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label)
