@@ -260,7 +260,7 @@ export class Editing extends Component {
             this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label).string = num + ''
             this.GoNumAll = all_gonum
         }
-        this.allLabel[5].string = '角色步数总和：' + this.GoNumAll;
+        // this.allLabel[5].string = '角色步数总和：' + this.GoNumAll;
         let people_num = 0
         let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 71, 72, 73, 74, 75]
         for (let k of PeopleKey) {
@@ -579,7 +579,7 @@ export class Editing extends Component {
         // this.map_data[data.idx[1]][data.idx[0]].type = 3
         // this.map_data[data.idx[0]][data.idx[1]].type = data
         // this.map_data[data.idx[1]][data.idx[0]] = data
-        this.GoNumRefirsh(data)
+        // this.GoNumRefirsh(data)
         this.Piece[0].getChildByName('count').getComponent(Label).string = String(Number(this.Piece[0].getChildByName('count').getComponent(Label).string) + 1);
 
         // + Number(this.dataParent.getChildByName('10').getChildByName('count').getComponent(Label).string)
@@ -757,7 +757,7 @@ export class Editing extends Component {
                 }
             }
         }
-        this.allLabel[5].string = '角色步数总和：' + this.GoNumAll;
+        // this.allLabel[5].string = '角色步数总和：' + this.GoNumAll;
         return this.GoNumAll;
     }
     // 判断侧边是否可以
@@ -857,7 +857,7 @@ export class Editing extends Component {
             console.log(data);
             console.log(this.map_data);
             JSON.stringify(data)
-            this.initDataGoNum()
+            // this.initDataGoNum()
         } else {
             this.dataJsonImport(this.ImportEditBox.string);
         }
@@ -1032,7 +1032,7 @@ export class Editing extends Component {
                 }
             }
         }
-        this.allLabel[5].string = '角色步数总和：' + this.GoNumAll;
+        // this.allLabel[5].string = '角色步数总和：' + this.GoNumAll;
         this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label).string = String(num)
         let people_num = 0
         let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 71, 72, 73, 74, 75]
