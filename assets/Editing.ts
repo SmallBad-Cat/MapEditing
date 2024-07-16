@@ -275,6 +275,10 @@ export class Editing extends Component {
                 data.child.getChildByName(String(data.type)).destroy()
             }
         }
+        if (this.Obstacle.F.indexOf(data.type) >= 0 || this.Obstacle['E'].indexOf(data.type) >= 0 || data.type == 11 || data.type == 12) {
+            data.child.getComponent(Sprite).spriteFrame = this.Map.children[0].getComponent(Sprite).spriteFrame
+            }
+            // console.log(this.map_data[data.idx[0]][data.idx[1]].type);
         let DataType = data.type
         data.type = this.Piece[1]
         // this.map_data[data.idx[1]][data.idx[0]].type = this.Piece[1]
@@ -323,8 +327,8 @@ export class Editing extends Component {
                 this.map_data[(infeed) ? Obstacle.idx[0] : Obstacle.idx[0] - i][(infeed) ? Obstacle.idx[1] - i : Obstacle.idx[1]].child.name = '1'
                 count_label.string = String(Number(count_label.string) + 2);
             }
-            Obstacle.child.getChildByName(String(Obstacle.type)).destroy()
             console.log(Obstacle);
+            Obstacle.child.getChildByName(String(Obstacle.type))&&Obstacle.child.getChildByName(String(Obstacle.type)).destroy()
             Obstacle.type = 1
             Obstacle.child.name = '1'
             Obstacle.child.getChildByName('go').active = true
@@ -332,8 +336,9 @@ export class Editing extends Component {
             this.setNewData(this.map_data[data.idx[0]][data.idx[1]])
 
         } else if (this.TypeorAddChild(this.Piece[1])) {
+            let size = data.node.getComponent(UITransform).contentSize
             let newChild = instantiate(this.Piece[0])
-            newChild.getComponent(UITransform).setContentSize(data.node.getComponent(UITransform).contentSize);
+            newChild.getComponent(UITransform).setContentSize(size);
             if (this.obstacleOrther[this.Piece[1]]) {
                 let orther = (this.obstacleOrther[this.Piece[1]][1]) / 2
                 let infeed = (this.obstacleOrther[this.Piece[1]][0] == 0) ? true : false
@@ -342,14 +347,15 @@ export class Editing extends Component {
                         this.TipTween('不可超过横向边界')
                         return
                     }
-                    newChild.getComponent(UITransform).width = data.node.getComponent(UITransform).contentSize.width * Number(this.Piece[2])
+                    
+                    newChild.getComponent(UITransform).setContentSize(new Size((size.width-5)*Number(this.Piece[2]),size.height))
                 } else {
                     infeed = false
                     if ((data.idx[0] - orther) < 0 || (data.idx[0] + orther) > (this.map_size.row + 1)) {
                         this.TipTween('不可超过竖向边界')
                         return
                     }
-                    newChild.getComponent(UITransform).height = data.node.getComponent(UITransform).contentSize.height * Number(this.Piece[2])
+                    newChild.getComponent(UITransform).height = size.height * Number(this.Piece[2])
                 }
                 for (let i = 1; i < orther; i++) {
                     let DataA = this.map_data[(infeed) ? data.idx[0] : data.idx[0] + i][(infeed) ? data.idx[1] + i : data.idx[1]];
@@ -463,6 +469,7 @@ export class Editing extends Component {
 
                 this.ChooseKuang.setPosition(this.dataParent.getChildByName('14').getPosition());
                 this.ChooseKuang.active = true;
+
                 // next = (data.idx[1] > (this.map_data[1].length / 2)) ? data.idx[1] + 1 : data.idx[1] - 1
                 // if (next < this.map_data[1].length && next > 0) {
 
@@ -492,6 +499,7 @@ export class Editing extends Component {
                 }
                 // }
             }
+            
             // if (data.child.children.length > 1) {
             //     data.child.children[1].destroy()
             // }
@@ -517,7 +525,7 @@ export class Editing extends Component {
         // this.map_data[data.idx[1]][data.idx[0]] = data
         this.GoNumRefirsh(data)
         this.Piece[0].getChildByName('count').getComponent(Label).string = String(Number(this.Piece[0].getChildByName('count').getComponent(Label).string) + 1);
-       
+
         // + Number(this.dataParent.getChildByName('10').getChildByName('count').getComponent(Label).string)
         let people_num = 0
         let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 71, 72, 73, 74, 75]
