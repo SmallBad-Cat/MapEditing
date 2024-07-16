@@ -414,9 +414,10 @@ export class Editing extends Component {
             data.child.getComponent(Sprite).color = this.Piece[0].getComponent(Sprite).color;
             if (this.Obstacle['F'].indexOf(this.Piece[1]) >= 0 || this.Obstacle['E'].indexOf(this.Piece[1]) >= 0) {
                 data.child.getComponent(Sprite).spriteFrame = this.Piece[0].getComponent(Sprite).spriteFrame;
-                if(this.Obstacle['F'].indexOf(this.Piece[1]) >= 0){
-                    for(let i = data.idx[0];i<data.idx[1]+(this.Piece[1]-67);i++ ){
-                        this.map_data[i][data.idx[1]].child.getComponent(Sprite).color = new Color('#FF8F53')
+                if (this.Obstacle['F'].indexOf(this.Piece[1]) >= 0) {
+                    for (let i = data.idx[0]; i <= data.idx[0] + (this.Piece[1] - 67); i++) {
+                        console.log(i);
+                        this.map_data[i][data.idx[1]] && (this.map_data[i][data.idx[1]].child.getComponent(Sprite).color = new Color('#FF8F53'))
                     }
                 }
             }
@@ -426,13 +427,23 @@ export class Editing extends Component {
                 let next = data.idx[1]
                 console.log('类型', this.Piece[1]);
                 if (this.Piece[1] == 11) {
+                    if (!this.broadsideOK(data.idx[0], data.idx[1] - 1)) {
+                        this.TipTween('出口方向不可以是两头露电梯')
+                        return
+                    }
+
                     data.child.getComponent(Sprite).spriteFrame = this.Piece[0].getComponent(Sprite).spriteFrame;
                     if (next > (this.map_data[1].length / 2)) {
                         this.Piece = [this.dataParent.getChildByName('14'), 14]
                         next = data.idx[1] + 1
                         this.setNewData(this.map_data[data.idx[0]][next])
                     }
+
                 } else if (this.Piece[1] == 12) {
+                    if (!this.broadsideOK(data.idx[0], data.idx[1] + 1)) {
+                        this.TipTween('出口方向不可以是两头露电梯')
+                        return
+                    }
                     data.child.getComponent(Sprite).spriteFrame = this.Piece[0].getComponent(Sprite).spriteFrame;
                     next = data.idx[1] - 1
                     if (next > 0) {
@@ -626,7 +637,7 @@ export class Editing extends Component {
         for (let y = 1; y <= this.map_size.row; y++) {
             for (let x = 1; x <= this.map_size.arrange; x++) {
                 let type = this.map_data[y][x].type
-                if (this.Obstacle['D'].indexOf(type) >= 0 || this.Obstacle['F'].indexOf(Number(this.map_data[y - 1][x].type)) >= 0) {
+                if (this.Obstacle['D'].indexOf(type) >= 0 || this.Obstacle['F'].indexOf(type) >= 0) {
                     let min_arr = []
                     if (this.map_data[y - 1]) {
                         // if (this.map_data[y - 1][x].type == 1 || this.map_data[y - 1][x].type == 2 || this.map_data[y - 1][x].type == 10) {
@@ -669,11 +680,11 @@ export class Editing extends Component {
 
                     let minNum = (min_arr.length <= 0) ? this.map_data[y][x].go_num : Math.min(...min_arr)
                     this.map_data[y][x].go_num = minNum
-                    if (y == 5 && x == 5) {
-                        this.map_data[y][x].child.getChildByName('go').getComponent(Label).string = '?'
-                    } else {
-                        this.map_data[y][x].child.getChildByName('go').getComponent(Label).string = minNum + ''
-                    }
+                    // if (y == 5 && x == 5) {
+                    //     this.map_data[y][x].child.getChildByName('go').getComponent(Label).string = '?'
+                    // } else {
+                    this.map_data[y][x].child.getChildByName('go').getComponent(Label).string = minNum + ''
+                    // }
 
                     this.GoNumAll += minNum
                 }
@@ -778,7 +789,7 @@ export class Editing extends Component {
             console.log('----------数据导出----------');
             console.log(data);
             console.log(this.map_data);
-            // JSON.stringify(data)
+            JSON.stringify(data)
             this.initDataGoNum()
         } else {
             this.dataJsonImport(this.ImportEditBox.string);
@@ -921,7 +932,7 @@ export class Editing extends Component {
             for (let x in this.map_data[row]) {
                 let arrange = Number(x)
                 let node = this.map_data[i][x].node;
-                if (this.Obstacle.F.indexOf(this.map_data[i][x].type) >= 0 || this.Obstacle['E'].indexOf(this.map_data[i][x].type) >= 0) {
+                if (this.Obstacle.F.indexOf(this.map_data[i][x].type) >= 0 || this.Obstacle['E'].indexOf(this.map_data[i][x].type) >= 0 || this.map_data[i][x].type == 11 || this.map_data[i][x].type == 12) {
                     this.map_data[row][arrange].child.getComponent(Sprite).spriteFrame = this.Map.children[0].getComponent(Sprite).spriteFrame
                 }
                 this.map_data[i][x].type = 1;
