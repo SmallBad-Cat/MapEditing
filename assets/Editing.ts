@@ -225,7 +225,11 @@ export class Editing extends Component {
             this.GoNumAll = all_gonum
         }
         this.allLabel[5].string = '角色步数总和：' + this.GoNumAll;
-        let people_num = Number(this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label).string) + Number(this.dataParent.getChildByName('10').getChildByName('count').getComponent(Label).string)
+        let people_num = 0
+        let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 71, 72, 73, 74, 75]
+        for (let k of PeopleKey) {
+            people_num += Number(this.dataParent.getChildByName(String(k)).getChildByName('count').getComponent(Label).string)
+        }
         this.PeopleStr.string = `当前人数为：${people_num}
         除3得数为：${(people_num / 3)}`
 
@@ -513,12 +517,12 @@ export class Editing extends Component {
         // this.map_data[data.idx[1]][data.idx[0]] = data
         this.GoNumRefirsh(data)
         this.Piece[0].getChildByName('count').getComponent(Label).string = String(Number(this.Piece[0].getChildByName('count').getComponent(Label).string) + 1);
-        let people_num = 0
+       
         // + Number(this.dataParent.getChildByName('10').getChildByName('count').getComponent(Label).string)
-        for (let k of this.Obstacle['D']) {
-            if (k != 2 && k != 5) {
-                people_num += Number(this.dataParent.getChildByName(String(k)).getChildByName('count').getComponent(Label).string)
-            }
+        let people_num = 0
+        let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 71, 72, 73, 74, 75]
+        for (let k of PeopleKey) {
+            people_num += Number(this.dataParent.getChildByName(String(k)).getChildByName('count').getComponent(Label).string)
         }
         this.PeopleStr.string = `当前人数为：${people_num}
         除3得数为：${(people_num / 3)}`
@@ -966,7 +970,11 @@ export class Editing extends Component {
         }
         this.allLabel[5].string = '角色步数总和：' + this.GoNumAll;
         this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label).string = String(num)
-        let people_num = Number(this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label).string) + Number(this.dataParent.getChildByName('10').getChildByName('count').getComponent(Label).string)
+        let people_num = 0
+        let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 71, 72, 73, 74, 75]
+        for (let k of PeopleKey) {
+            people_num += Number(this.dataParent.getChildByName(String(k)).getChildByName('count').getComponent(Label).string)
+        }
         this.PeopleStr.string = `当前人数为：${people_num}
         除3得数为：${(people_num / 3)}`
 
