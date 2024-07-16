@@ -90,9 +90,9 @@ export class Editing extends Component {
             node.getChildByName('text').getComponent(Label).string = key
             first = false;
         }
-        
-        this.scheduleOnce(()=>{
-            this.MapSize(null,'map4')
+
+        this.scheduleOnce(() => {
+            this.MapSize(null, 'map4')
         })
     }
     private MapType = {
@@ -118,6 +118,7 @@ export class Editing extends Component {
         this.CloseAll()
         this.scheduleOnce(() => {
             this.MapChange()
+            this.node.getChildByName('theMap').getComponent(Label).string = `当前地图：${this.map_size.arrange}x${this.map_size.row}`
         }, 0.05)
     }
     SizeChange(EditBox: EditBox, str: string) {
@@ -135,9 +136,9 @@ export class Editing extends Component {
             }
             this.map_size[str] = Number(EditBox.string);
             this.MapChange()
-        this.scheduleOnce(() => {
-            this.CloseAll()
-        }, 0.05)
+            this.scheduleOnce(() => {
+                this.CloseAll()
+            }, 0.05)
         }
     }
     TipTween(str) {
@@ -163,29 +164,28 @@ export class Editing extends Component {
         this.GoNumAll = 0
         let node = this.Map.children[0];
         let mapLayout = this.Map.getComponent(Layout)
-        if (this.mapSize) {
-            console.log(this.mapSize.width, mapLayout.paddingLeft, mapLayout.paddingRight, this.map_size.arrange, mapLayout.spacingX);
-        }
         let newWidth = (this.mapSize) ? (this.mapSize.width - mapLayout.paddingLeft - mapLayout.paddingRight - ((this.map_size.arrange - 1) * mapLayout.spacingX)) / this.map_size.arrange - 0.5 : null;
         let newHeight = (this.mapSize) ? (this.mapSize.height - mapLayout.paddingTop - mapLayout.paddingBottom - ((this.map_size.row - 1) * mapLayout.spacingY)) / this.map_size.row : null;
         let newNodeSize = (this.mapSize) ? new Size(newWidth, newHeight) : null;
         if (newNodeSize) {
             node.getComponent(UITransform).setContentSize(newNodeSize);
         }
-
-        for (let data of this.role_map) {
-            if (data.node.getChildByName('bear')) {
-                data.node.getChildByName('bear').active = false
+        if (!init) {
+            for (let data of this.role_map) {
+                if (data.node.getChildByName('bear')) {
+                    data.node.getChildByName('bear').active = false
+                }
             }
-        }
-        this.role_map = []
-        for (let item of this.dataParent.children) {
-            if (item.name != 'Mask') {
-                if (item.getChildByName('count')) {
-                    item.getChildByName('count').getComponent(Label).string = String(0);
+            this.role_map = []
+            for (let item of this.dataParent.children) {
+                if (item.name != 'Mask') {
+                    if (item.getChildByName('count')) {
+                        item.getChildByName('count').getComponent(Label).string = String(0);
+                    }
                 }
             }
         }
+
         for (let i in this.map_data) {
             let row = Number(i)
             for (let x in this.map_data[row]) {
@@ -294,7 +294,7 @@ export class Editing extends Component {
         }
     }
     // Type == 11 || Type == 12 ||
-    TypeArr = [42, 43, 44, 45, 46, 51, 52, 53, 3, 6, 7, 8, 9, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
+    TypeArr = [42, 43, 44, 45, 46, 51, 52, 53, 3, 6, 7, 8, 9, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 61, 62, 63, 64, 65]
     TypeorAddChild(Type) {
         if (this.TypeArr.indexOf(Type) >= 0 && Type != 2) {
             return true
@@ -374,7 +374,7 @@ export class Editing extends Component {
         } else if (this.TypeorAddChild(this.Piece[1])) {
             let size = data.node.getComponent(UITransform).contentSize
             let newChild = instantiate(this.Piece[0])
-            newChild.getComponent(UITransform).setContentSize(size);
+            newChild.getComponent(UITransform).setContentSize(new Size(size.width - 5, size.height - 5));
             if (this.obstacleOrther[this.Piece[1]]) {
                 let orther = (this.obstacleOrther[this.Piece[1]][1]) / 2
                 let infeed = (this.obstacleOrther[this.Piece[1]][0] == 0) ? true : false
