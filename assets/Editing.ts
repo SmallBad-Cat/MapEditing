@@ -416,7 +416,6 @@ export class Editing extends Component {
                 data.child.getComponent(Sprite).spriteFrame = this.Piece[0].getComponent(Sprite).spriteFrame;
                 if (this.Obstacle['F'].indexOf(this.Piece[1]) >= 0) {
                     for (let i = data.idx[0]; i <= data.idx[0] + (this.Piece[1] - 67); i++) {
-                        console.log(i);
                         this.map_data[i][data.idx[1]] && (this.map_data[i][data.idx[1]].child.getComponent(Sprite).color = new Color('#FF8F53'))
                     }
                 }
