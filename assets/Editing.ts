@@ -40,8 +40,8 @@ export class Editing extends Component {
     private Piece = [];
     // 地图大小
     private map_size = {
-        arrange: 12,
-        row: 13,
+        arrange: 11,
+        row: 11,
     }
     private mapSize: Size = null;
     // 拥有提示
@@ -54,6 +54,13 @@ export class Editing extends Component {
     private GoNumAll: number = 0;
     private obstacleOrther = {
         18: [0, 3], 19: [0, 5], 20: [0, 7], 21: [1, 3], 22: [1, 5], 23: [1, 7], 24: [0, 3], 25: [0, 5], 26: [0, 7], 27: [0, 9], 28: [1, 3], 29: [1, 5], 30: [1, 7]
+    }
+    private DoubleLiftType = {
+        71: [5, 5, 2],
+        72: [6, 6, 2],
+        73: [7, 7, 3],
+        74: [8, 8, 3],
+        75: [9, 9, 3],
     }
     start() {
         // console.log();
@@ -83,6 +90,35 @@ export class Editing extends Component {
             node.getChildByName('text').getComponent(Label).string = key
             first = false;
         }
+        
+        this.scheduleOnce(()=>{
+            this.MapSize(null,'map4')
+        })
+    }
+    private MapType = {
+        'map1': {
+            arrange: 5,
+            row: 8,
+        },
+        'map2': {
+            arrange: 7,
+            row: 9,
+        },
+        'map3': {
+            arrange: 9,
+            row: 10,
+        },
+        'map4': {
+            arrange: 11,
+            row: 11,
+        },
+    }
+    MapSize(E, t) {
+        this.map_size = this.MapType[t];
+        this.CloseAll()
+        this.scheduleOnce(() => {
+            this.MapChange()
+        }, 0.05)
     }
     SizeChange(EditBox: EditBox, str: string) {
         if (EditBox.string.length <= 0) return;
@@ -99,9 +135,9 @@ export class Editing extends Component {
             }
             this.map_size[str] = Number(EditBox.string);
             this.MapChange()
-            this.scheduleOnce(() => {
-                this.CloseAll()
-            }, 0.05)
+        this.scheduleOnce(() => {
+            this.CloseAll()
+        }, 0.05)
         }
     }
     TipTween(str) {
@@ -277,8 +313,8 @@ export class Editing extends Component {
         }
         if (this.Obstacle.F.indexOf(data.type) >= 0 || this.Obstacle['E'].indexOf(data.type) >= 0 || data.type == 11 || data.type == 12) {
             data.child.getComponent(Sprite).spriteFrame = this.Map.children[0].getComponent(Sprite).spriteFrame
-            }
-            // console.log(this.map_data[data.idx[0]][data.idx[1]].type);
+        }
+        // console.log(this.map_data[data.idx[0]][data.idx[1]].type);
         let DataType = data.type
         data.type = this.Piece[1]
         // this.map_data[data.idx[1]][data.idx[0]].type = this.Piece[1]
@@ -328,7 +364,7 @@ export class Editing extends Component {
                 count_label.string = String(Number(count_label.string) + 2);
             }
             console.log(Obstacle);
-            Obstacle.child.getChildByName(String(Obstacle.type))&&Obstacle.child.getChildByName(String(Obstacle.type)).destroy()
+            Obstacle.child.getChildByName(String(Obstacle.type)) && Obstacle.child.getChildByName(String(Obstacle.type)).destroy()
             Obstacle.type = 1
             Obstacle.child.name = '1'
             Obstacle.child.getChildByName('go').active = true
@@ -347,8 +383,8 @@ export class Editing extends Component {
                         this.TipTween('不可超过横向边界')
                         return
                     }
-                    
-                    newChild.getComponent(UITransform).setContentSize(new Size((size.width-5)*Number(this.Piece[2]),size.height))
+
+                    newChild.getComponent(UITransform).setContentSize(new Size((size.width - 5) * Number(this.Piece[2]), size.height))
                 } else {
                     infeed = false
                     if ((data.idx[0] - orther) < 0 || (data.idx[0] + orther) > (this.map_size.row + 1)) {
@@ -423,14 +459,34 @@ export class Editing extends Component {
             data.child.name = this.Piece[1] + '';
             data.child.getComponent(Sprite).color = this.Piece[0].getComponent(Sprite).color;
             if (this.Obstacle['F'].indexOf(this.Piece[1]) >= 0 || this.Obstacle['E'].indexOf(this.Piece[1]) >= 0) {
-                data.child.getComponent(Sprite).spriteFrame = this.Piece[0].getComponent(Sprite).spriteFrame;
+
+                // 双头电梯
                 if (this.Obstacle['F'].indexOf(this.Piece[1]) >= 0) {
-                    for (let i = data.idx[0]; i <= data.idx[0] + (this.Piece[1] - 67); i++) {
-                        this.map_data[i][data.idx[1]] && (this.map_data[i][data.idx[1]].child.getComponent(Sprite).color = new Color('#FF8F53'))
+                    let w = this.DoubleLiftType[this.Piece[1]][0]
+                    let h = this.DoubleLiftType[this.Piece[1]][1]
+                    if (data.idx[1] + w > this.map_size.arrange + 1) {
+                        this.TipTween('不可超过横向边界')
+                        return
                     }
+                    if ((data.idx[0] + h) > (this.map_size.row + 1)) {
+                        this.TipTween('不可超过竖向边界')
+                        return
+                    }
+                    this.DoubleLiftType[this.Piece[1]]
+                    data.type = 1
+                    for (let y = data.idx[0]; y < data.idx[0] + h; y++) {
+                        for (let x = data.idx[1]; x < data.idx[1] + w; x++) {
+                            this.map_data[y][x] && (this.map_data[y][x].child.getComponent(Sprite).color = new Color('#FF8F53'))
+                            if (y == (data.idx[0] + h) - 1) {
+                                this.map_data[y][x].type = this.Piece[1]
+                                this.map_data[y][x].child.getComponent(Sprite).spriteFrame = this.Piece[0].getComponent(Sprite).spriteFrame;
+                            }
+                        }
+                    }
+                } else {
+                    data.child.getComponent(Sprite).spriteFrame = this.Piece[0].getComponent(Sprite).spriteFrame;
                 }
-            }
-            if (this.Piece[1] == 11 || this.Piece[1] == 12 || this.Piece[1] == 13) {
+            } else if (this.Piece[1] == 11 || this.Piece[1] == 12 || this.Piece[1] == 13) {
                 // 左右出口
 
                 let next = data.idx[1]
@@ -499,7 +555,7 @@ export class Editing extends Component {
                 }
                 // }
             }
-            
+
             // if (data.child.children.length > 1) {
             //     data.child.children[1].destroy()
             // }
@@ -708,8 +764,8 @@ export class Editing extends Component {
     broadsideOK(y, x) {
         let leh = 67
         if (y > 1) {
-            for (let i = 1; i < y; i++) {
-                if (this.Obstacle['F'].indexOf(this.map_data[i][x].type) >= 0 && i + (this.map_data[i][x].type - leh) >= y) {
+            for (let i = this.map_size.row; i > y; i--) {
+                if (this.Obstacle['F'].indexOf(this.map_data[i][x].type) >= 0 && i - (this.map_data[i][x].type - leh) <= y) {
                     return false
                 }
             }
