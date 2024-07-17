@@ -53,7 +53,8 @@ export class Editing extends Component {
     private RoleKey = [];
     private GoNumAll: number = 0;
     private obstacleOrther = {
-        18: [0, 3], 19: [0, 5], 20: [0, 7], 21: [1, 3], 22: [1, 5], 23: [1, 7], 24: [0, 3], 25: [0, 5], 26: [0, 7], 27: [0, 9], 28: [1, 3], 29: [1, 5], 30: [1, 7]
+        18: [0, 3], 19: [0, 5], 20: [0, 7], 21: [1, 3], 22: [1, 5], 23: [1, 7], 24: [0, 3], 25: [0, 5], 26: [0, 7], 27: [0, 9], 28: [1, 3], 29: [1, 5], 30: [1, 7],
+        123:[0,3]
     }
     private DoubleLiftType = {
         71: [5, 5, 2],
@@ -292,9 +293,12 @@ export class Editing extends Component {
         if (data && data.type != this.Piece[1]) {
             this.setNewData(data)
         }
+        if (!this.broadsideOK(data.idx[0], data.idx[1])) {
+            this.setNewData(data)
+        }
     }
     // Type == 11 || Type == 12 ||
-    TypeArr = [42, 43, 44, 45, 46, 51, 52, 53, 3, 6, 7, 8, 9, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 61, 62, 63, 64, 65]
+    TypeArr = [42, 43, 44, 45, 46, 51, 52, 53, 3, 6, 7, 8, 9, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 61, 62, 63, 64, 65,123]
     TypeorAddChild(Type) {
         if (this.TypeArr.indexOf(Type) >= 0 && Type != 2) {
             return true
@@ -305,7 +309,10 @@ export class Editing extends Component {
             false
         }
     }
-    setNewData(data) {
+    setNewData(data, id?) {
+        if (id) {
+            this.Piece = [this.dataParent.getChildByName(id + ''), id]
+        }
         if (this.TypeorAddChild(data.type)) {
             if (data.child.getChildByName(String(data.type))) {
                 data.child.getChildByName(String(data.type)).destroy()
@@ -314,67 +321,23 @@ export class Editing extends Component {
         if (this.Obstacle.F.indexOf(data.type) >= 0 || this.Obstacle['E'].indexOf(data.type) >= 0 || data.type == 11 || data.type == 12) {
             data.child.getComponent(Sprite).spriteFrame = this.Map.children[0].getComponent(Sprite).spriteFrame
         }
+        // 双头梯
+        if (!this.broadsideOK(data.idx[0], data.idx[1])) {
+            this.ClearDoubleLadder(data.idx[0], data.idx[1])
+        }
         // console.log(this.map_data[data.idx[0]][data.idx[1]].type);
+
         let DataType = data.type
         data.type = this.Piece[1]
+
         // this.map_data[data.idx[1]][data.idx[0]].type = this.Piece[1]
-        if (DataType == 99) {
-            let getObstacle = (idx) => {
-                let lift = this.map_data[idx[0]][idx[1] - 1]
-                let right = this.map_data[idx[0]][idx[1] + 1]
-                let up = this.map_data[idx[0] - 1][idx[1] - 1]
-                let down = this.map_data[idx[0] + 1][idx[1] - 1]
-                if (lift && this.obstacleOrther[lift.type]) {
-                    return lift
-                } else if (right && this.obstacleOrther[right.type]) {
-                    return right
-                } else if (up && this.obstacleOrther[up.type]) {
-                    return up
-                } else if (down && this.obstacleOrther[down.type]) {
-                    return down
-                }
-
-                if (lift && lift.type == 99) {
-                    return getObstacle(lift.idx);
-                } else if (right && right.type == 99) {
-                    return getObstacle(right.idx);
-                } else if (up && up.type == 99) {
-                    return getObstacle(up.idx);
-                } else if (down && down.type == 99) {
-                    return getObstacle(down.idx);
-                }
-            }
-            let Obstacle = getObstacle(data.idx)
-            let orther = (this.obstacleOrther[Obstacle.type][1]) / 2
-            let infeed = (this.obstacleOrther[Obstacle.type][0] == 0) ? true : false
-            let count_label = this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label)
-            for (let i = 1; i < orther; i++) {
-                this.map_data[(infeed) ? Obstacle.idx[0] : Obstacle.idx[0] + i][(infeed) ? Obstacle.idx[1] + i : Obstacle.idx[1]].type = 1;
-                this.map_data[(infeed) ? Obstacle.idx[0] : Obstacle.idx[0] + i][(infeed) ? Obstacle.idx[1] + i : Obstacle.idx[1]].child.getComponent(Sprite).enabled = true
-                this.map_data[(infeed) ? Obstacle.idx[0] : Obstacle.idx[0] + i][(infeed) ? Obstacle.idx[1] + i : Obstacle.idx[1]].node.getComponent(Sprite).enabled = true
-                this.map_data[(infeed) ? Obstacle.idx[0] : Obstacle.idx[0] + i][(infeed) ? Obstacle.idx[1] + i : Obstacle.idx[1]].child.getChildByName('go').active = true
-                this.map_data[(infeed) ? Obstacle.idx[0] : Obstacle.idx[0] + i][(infeed) ? Obstacle.idx[1] + i : Obstacle.idx[1]].child.getComponent(Sprite).color = new Color('#DBEEF3')
-                this.map_data[(infeed) ? Obstacle.idx[0] : Obstacle.idx[0] + i][(infeed) ? Obstacle.idx[1] + i : Obstacle.idx[1]].child.name = '1'
-                this.map_data[(infeed) ? Obstacle.idx[0] : Obstacle.idx[0] - i][(infeed) ? Obstacle.idx[1] - i : Obstacle.idx[1]].type = 1
-                this.map_data[(infeed) ? Obstacle.idx[0] : Obstacle.idx[0] - i][(infeed) ? Obstacle.idx[1] - i : Obstacle.idx[1]].child.getComponent(Sprite).enabled = true
-                this.map_data[(infeed) ? Obstacle.idx[0] : Obstacle.idx[0] - i][(infeed) ? Obstacle.idx[1] - i : Obstacle.idx[1]].node.getComponent(Sprite).enabled = true
-                this.map_data[(infeed) ? Obstacle.idx[0] : Obstacle.idx[0] - i][(infeed) ? Obstacle.idx[1] - i : Obstacle.idx[1]].child.getChildByName('go').active = true
-                this.map_data[(infeed) ? Obstacle.idx[0] : Obstacle.idx[0] - i][(infeed) ? Obstacle.idx[1] - i : Obstacle.idx[1]].child.getComponent(Sprite).color = new Color('#DBEEF3')
-                this.map_data[(infeed) ? Obstacle.idx[0] : Obstacle.idx[0] - i][(infeed) ? Obstacle.idx[1] - i : Obstacle.idx[1]].child.name = '1'
-                count_label.string = String(Number(count_label.string) + 2);
-            }
-            console.log(Obstacle);
-            Obstacle.child.getChildByName(String(Obstacle.type)) && Obstacle.child.getChildByName(String(Obstacle.type)).destroy()
-            Obstacle.type = 1
-            Obstacle.child.name = '1'
-            Obstacle.child.getChildByName('go').active = true
-            count_label.string = String(Number(count_label.string) + 1);
-            this.setNewData(this.map_data[data.idx[0]][data.idx[1]])
-
+        if (DataType == 99 || this.obstacleOrther[DataType]) {
+            this.onFence(data, DataType)
+            return
         } else if (this.TypeorAddChild(this.Piece[1])) {
             let size = data.node.getComponent(UITransform).contentSize
             let newChild = instantiate(this.Piece[0])
-            newChild.getComponent(UITransform).setContentSize(new Size(size.width - 5, size.height - 5));
+            newChild.getComponent(UITransform).setContentSize(new Size(size.width + 5, size.height + 5));
             if (this.obstacleOrther[this.Piece[1]]) {
                 let orther = (this.obstacleOrther[this.Piece[1]][1]) / 2
                 let infeed = (this.obstacleOrther[this.Piece[1]][0] == 0) ? true : false
@@ -384,7 +347,7 @@ export class Editing extends Component {
                         return
                     }
 
-                    newChild.getComponent(UITransform).setContentSize(new Size((size.width - 5) * Number(this.Piece[2]), size.height))
+                    newChild.getComponent(UITransform).setContentSize(new Size((size.width + 5) * Number(this.Piece[2]), size.height))
                 } else {
                     infeed = false
                     if ((data.idx[0] - orther) < 0 || (data.idx[0] + orther) > (this.map_size.row + 1)) {
@@ -429,10 +392,8 @@ export class Editing extends Component {
                     }
                     // this.map_data[(infeed)?data.idx[0]:data.idx[0]-i][(infeed)?data.idx[1] - i:data.idx[1]].child.getComponent(Sprite).color = new Color(0, 0, 0)
                 }
-
                 // for(let i = data.idx[1];i<)
                 // data.child.getComponent(Sprite).spriteFrame = this.Piece[0].getComponent(Sprite).spriteFrame
-
             }
             if (DataType != 99) {
                 let count_labelB = this.dataParent.getChildByName(String(DataType)).getChildByName('count').getComponent(Label)
@@ -459,17 +420,20 @@ export class Editing extends Component {
             data.child.name = this.Piece[1] + '';
             data.child.getComponent(Sprite).color = this.Piece[0].getComponent(Sprite).color;
             if (this.Obstacle['F'].indexOf(this.Piece[1]) >= 0 || this.Obstacle['E'].indexOf(this.Piece[1]) >= 0) {
-
                 // 双头电梯
                 if (this.Obstacle['F'].indexOf(this.Piece[1]) >= 0) {
                     let w = this.DoubleLiftType[this.Piece[1]][0]
                     let h = this.DoubleLiftType[this.Piece[1]][1]
                     if (data.idx[1] + w > this.map_size.arrange + 1) {
                         this.TipTween('不可超过横向边界')
+                        data.type = 1
+                        data.child.getComponent(Sprite).color = new Color('DBEEF3')
                         return
                     }
                     if ((data.idx[0] + h) > (this.map_size.row + 1)) {
                         this.TipTween('不可超过竖向边界')
+                        data.type = 1
+                        data.child.getComponent(Sprite).color = new Color('DBEEF3')
                         return
                     }
                     this.DoubleLiftType[this.Piece[1]]
@@ -499,9 +463,11 @@ export class Editing extends Component {
 
                     data.child.getComponent(Sprite).spriteFrame = this.Piece[0].getComponent(Sprite).spriteFrame;
                     if (next > (this.map_data[1].length / 2)) {
-                        this.Piece = [this.dataParent.getChildByName('14'), 14]
                         next = data.idx[1] + 1
-                        this.setNewData(this.map_data[data.idx[0]][next])
+                        this.scheduleOnce(() => {
+                            this.setNewData(this.map_data[data.idx[0]][next], 14)
+                        })
+
                     }
 
                 } else if (this.Piece[1] == 12) {
@@ -512,14 +478,17 @@ export class Editing extends Component {
                     data.child.getComponent(Sprite).spriteFrame = this.Piece[0].getComponent(Sprite).spriteFrame;
                     next = data.idx[1] - 1
                     if (next > 0) {
-                        this.Piece = [this.dataParent.getChildByName('14'), 14]
-                        this.setNewData(this.map_data[data.idx[0]][next])
+                        this.scheduleOnce(() => {
+                            this.scheduleOnce(() => {
+                                this.setNewData(this.map_data[data.idx[0]][next], 14)
+                            })
+                        })
                     }
 
                 } else if (this.Piece[1] == 13) {
                     if (this.map_data.length > data.idx[0] + 1) {
-                        this.Piece = [this.dataParent.getChildByName('14'), 14]
-                        this.setNewData(this.map_data[data.idx[0] + 1][data.idx[1]])
+                        this.setNewData(this.map_data[data.idx[0] + 1][data.idx[1]], 14)
+
                     }
                 }
 
@@ -552,6 +521,8 @@ export class Editing extends Component {
                 // } else {
                 if (this.map_data.length > data.idx[0] + 1) {
                     this.setNewData(this.map_data[data.idx[0] + 1][data.idx[1]])
+                } else {
+                    this.Piece = [this.dataParent.getChildByName('1'), 1]
                 }
                 // }
             }
@@ -571,7 +542,7 @@ export class Editing extends Component {
         }
         if (this.Obstacle['D'].indexOf(data.type) < 0) {
             data.child.getChildByName('go').active = false
-            data.child.scale = v3(1.18, 1.18, 1.18)
+            // data.child.scale = v3(1.18, 1.18, 1.18)
         } else {
             data.child.getChildByName('go').active = true
             data.child.scale = v3(1, 1, 1)
@@ -763,8 +734,8 @@ export class Editing extends Component {
     // 判断侧边是否可以
     broadsideOK(y, x) {
         let leh = 67
-        if (y > 1) {
-            for (let i = this.map_size.row; i > y; i--) {
+        if (y < this.map_size.row) {
+            for (let i = this.map_size.row; i >= y; i--) {
                 if (this.Obstacle['F'].indexOf(this.map_data[i][x].type) >= 0 && i - (this.map_data[i][x].type - leh) <= y) {
                     return false
                 }
@@ -808,7 +779,7 @@ export class Editing extends Component {
         'B': [21, 22, 23, 28, 29, 30],
         'C': [24, 25, 26, 27, 6, 7, 8, 9],//电梯
         'D': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53],//角色
-        'E': [61, 62, 63, 64, 65],//滑动门
+        'E': [61, 62, 63, 64, 65, 123],//滑动门
         'F': [71, 72, 73, 74, 75]//双向电梯
     }
     onObstaclePiece(event: Event, type: string) {
@@ -1208,6 +1179,102 @@ export class Editing extends Component {
             node.setSiblingIndex(this.role_map[idx].node.children.length);
         }
         console.log(RoleArr);
+    }
+    /**点击围栏的区域*/
+    onFence(data, DataType) {
+        let getObstacle = (idx) => {
+            let lift = this.map_data[idx[0]][idx[1] - 1]
+            let right = this.map_data[idx[0]][idx[1] + 1]
+            let up = this.map_data[idx[0] - 1][idx[1] - 1]
+            let down = this.map_data[idx[0] + 1][idx[1] - 1]
+            if (lift && this.obstacleOrther[lift.type]) {
+                return lift
+            } else if (right && this.obstacleOrther[right.type]) {
+                return right
+            } else if (up && this.obstacleOrther[up.type]) {
+                return up
+            } else if (down && this.obstacleOrther[down.type]) {
+                return down
+            } else if (this.obstacleOrther[DataType]) {
+                return this.map_data[idx[0]][idx[1]]
+            }
+            if (lift && lift.type == 99) {
+                return getObstacle(lift.idx);
+            } else if (right && right.type == 99) {
+                return getObstacle(right.idx);
+            } else if (up && up.type == 99) {
+                return getObstacle(up.idx);
+            } else if (down && down.type == 99) {
+                return getObstacle(down.idx);
+            }
+        }
+        let Obstacle = getObstacle(data.idx)
+        if (!Obstacle) return
+        let KeyType = Obstacle.type
+        if (this.obstacleOrther[DataType]) {
+            KeyType = DataType
+        }
+        let orther = (this.obstacleOrther[KeyType][1]) / 2
+        let infeed = (this.obstacleOrther[KeyType][0] == 0) ? true : false
+        let count_label = this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label)
+        for (let i = 1; i < orther; i++) {
+            this.map_data[(infeed) ? Obstacle.idx[0] : Obstacle.idx[0] + i][(infeed) ? Obstacle.idx[1] + i : Obstacle.idx[1]].type = 1;
+            this.map_data[(infeed) ? Obstacle.idx[0] : Obstacle.idx[0] + i][(infeed) ? Obstacle.idx[1] + i : Obstacle.idx[1]].child.getComponent(Sprite).enabled = true
+            this.map_data[(infeed) ? Obstacle.idx[0] : Obstacle.idx[0] + i][(infeed) ? Obstacle.idx[1] + i : Obstacle.idx[1]].node.getComponent(Sprite).enabled = true
+            this.map_data[(infeed) ? Obstacle.idx[0] : Obstacle.idx[0] + i][(infeed) ? Obstacle.idx[1] + i : Obstacle.idx[1]].child.getChildByName('go').active = true
+            this.map_data[(infeed) ? Obstacle.idx[0] : Obstacle.idx[0] + i][(infeed) ? Obstacle.idx[1] + i : Obstacle.idx[1]].child.getComponent(Sprite).color = new Color('#DBEEF3')
+            this.map_data[(infeed) ? Obstacle.idx[0] : Obstacle.idx[0] + i][(infeed) ? Obstacle.idx[1] + i : Obstacle.idx[1]].child.name = '1'
+            this.map_data[(infeed) ? Obstacle.idx[0] : Obstacle.idx[0] - i][(infeed) ? Obstacle.idx[1] - i : Obstacle.idx[1]].type = 1
+            this.map_data[(infeed) ? Obstacle.idx[0] : Obstacle.idx[0] - i][(infeed) ? Obstacle.idx[1] - i : Obstacle.idx[1]].child.getComponent(Sprite).enabled = true
+            this.map_data[(infeed) ? Obstacle.idx[0] : Obstacle.idx[0] - i][(infeed) ? Obstacle.idx[1] - i : Obstacle.idx[1]].node.getComponent(Sprite).enabled = true
+            this.map_data[(infeed) ? Obstacle.idx[0] : Obstacle.idx[0] - i][(infeed) ? Obstacle.idx[1] - i : Obstacle.idx[1]].child.getChildByName('go').active = true
+            this.map_data[(infeed) ? Obstacle.idx[0] : Obstacle.idx[0] - i][(infeed) ? Obstacle.idx[1] - i : Obstacle.idx[1]].child.getComponent(Sprite).color = new Color('#DBEEF3')
+            this.map_data[(infeed) ? Obstacle.idx[0] : Obstacle.idx[0] - i][(infeed) ? Obstacle.idx[1] - i : Obstacle.idx[1]].child.name = '1'
+            count_label.string = String(Number(count_label.string) + 2);
+        }
+        Obstacle.child.getChildByName(String(KeyType)) && Obstacle.child.getChildByName(String(KeyType)).destroy()
+        Obstacle.type = 1
+        Obstacle.child.name = '1'
+        Obstacle.child.getChildByName('go').active = true
+        Obstacle.child.getComponent(Sprite).color = new Color('DBEEF3')
+        Obstacle.child.getComponent(Sprite).spriteFrame = this.Map.children[0].getComponent(Sprite).spriteFrame
+        let size = this.Map.children[0].getComponent(UITransform).contentSize
+        Obstacle.child.getComponent(UITransform).setContentSize(size);
+        count_label.string = String(Number(count_label.string) + 1);
+        this.setNewData(this.map_data[data.idx[0]][data.idx[1]])
+    }
+    /**清空双头梯*/
+    ClearDoubleLadder(y, x) {
+        let leh = 67
+        let getLastPos = (y, x) => {
+            let lastPos = (posY, posX, Type) => {
+                let nextX = posX + 1
+                if (!this.map_data[posY][nextX] || this.map_data[posY][nextX].type != Type) {
+                    return { y: posY, x: posX, type: Type }
+                } else if (this.map_data[posY][nextX].type == Type) {
+                    return lastPos(posY, nextX, Type)
+                }
+            }
+            if (y < this.map_size.row) {
+                for (let i = this.map_size.row; i >= y; i--) {
+                    if (this.Obstacle['F'].indexOf(this.map_data[i][x].type) >= 0 && i - (this.map_data[i][x].type - leh) <= y) {
+                        return lastPos(i, x, this.map_data[i][x].type)
+                    }
+                }
+            }
+        }
+        let LastPos = getLastPos(y, x)
+        let w = this.DoubleLiftType[LastPos.type][0]
+        let h = this.DoubleLiftType[LastPos.type][1]
+        for (let y = LastPos.y; y > LastPos.y - h; y--) {
+            for (let x = LastPos.x; x > LastPos.x - w; x--) {
+                this.map_data[y][x].type = 1
+                this.map_data[y][x].child.name = '1'
+                this.map_data[y][x].child.getChildByName('go').active = true
+                this.map_data[y][x].child.getComponent(Sprite).color = new Color('DBEEF3')
+                this.map_data[y][x].child.getComponent(Sprite).spriteFrame = this.Map.children[0].getComponent(Sprite).spriteFrame
+            }
+        }
     }
     update(deltaTime: number) {
 
