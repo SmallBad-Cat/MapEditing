@@ -303,7 +303,7 @@ export class Editing extends Component {
         this.enter_map = false;
         let worldPos = this.Map.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(localPos.x, localPos.y));
         let data = this.TouchData(worldPos);
-        if (!data.type) return
+        if (!data || !data.type) return
         if (this.Piece[1] == 68) {
             let have = false
             for (let i in this.JianPiaoKou) {
