@@ -609,8 +609,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 50,
-      "height": 50
+      "width": 55,
+      "height": 55
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1470,7 +1470,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 71.97935011444426,
+      "width": 71.96805832233835,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -1503,7 +1503,7 @@
     "_string": "普通角色",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 18.44527736131934,
+    "_actualFontSize": 18.048,
     "_fontSize": 18,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -1899,7 +1899,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 53.984512585833194,
+      "width": 53.97604374175376,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -1932,7 +1932,7 @@
     "_string": "无角色",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 18.44527736131934,
+    "_actualFontSize": 18.048,
     "_fontSize": 18,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -7050,7 +7050,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 53.984512585833194,
+      "width": 53.97604374175376,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -7083,7 +7083,7 @@
     "_string": "左出口",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 18.44527736131934,
+    "_actualFontSize": 18.048,
     "_fontSize": 18,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -7479,7 +7479,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 53.984512585833194,
+      "width": 53.97604374175376,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -7512,7 +7512,7 @@
     "_string": "右出口",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 18.44527736131934,
+    "_actualFontSize": 18.048,
     "_fontSize": 18,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -24668,8 +24668,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 139.97729572555664,
-      "height": 50.4
+      "width": 139.9866875181807,
+      "height": 50.400000000000006
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -24701,7 +24701,7 @@
     "_string": "导出数据",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 35.865817091454275,
+    "_actualFontSize": 35.093333333333334,
     "_fontSize": 35,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -25105,7 +25105,7 @@
     "_string": "数据导入...",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 20.494752623688157,
+    "_actualFontSize": 20.05333333333333,
     "_fontSize": 20,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -25346,7 +25346,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 123.99165171223481,
+      "width": 123.99994643191074,
       "height": 54.4
     },
     "_anchorPoint": {
@@ -25379,7 +25379,7 @@
     "_string": "清空格子",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 30.742128935532236,
+    "_actualFontSize": 30.08,
     "_fontSize": 30,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -28651,8 +28651,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 67.88275054953965,
-      "height": 54.39999999999999
+      "width": 67.88679463812646,
+      "height": 54.4
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -28684,7 +28684,7 @@
     "_string": "地图1",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 25.618440779610197,
+    "_actualFontSize": 25.066666666666666,
     "_fontSize": 25,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -28966,8 +28966,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 67.88275054953965,
-      "height": 54.39999999999999
+      "width": 67.88679463812646,
+      "height": 54.4
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -28999,7 +28999,7 @@
     "_string": "地图2",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 25.618440779610197,
+    "_actualFontSize": 25.066666666666666,
     "_fontSize": 25,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -29281,8 +29281,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 67.88275054953965,
-      "height": 54.39999999999999
+      "width": 67.88679463812646,
+      "height": 54.4
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -29314,7 +29314,7 @@
     "_string": "地图3",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 25.618440779610197,
+    "_actualFontSize": 25.066666666666666,
     "_fontSize": 25,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -29596,8 +29596,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 67.88275054953965,
-      "height": 54.39999999999999
+      "width": 67.88679463812646,
+      "height": 54.4
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -29629,7 +29629,7 @@
     "_string": "地图4",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 25.618440779610197,
+    "_actualFontSize": 25.066666666666666,
     "_fontSize": 25,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -30354,8 +30354,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 139.97729572555664,
-      "height": 50.4
+      "width": 139.9866875181807,
+      "height": 50.400000000000006
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -30387,7 +30387,7 @@
     "_string": "设置数据",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 35.865817091454275,
+    "_actualFontSize": 35.093333333333334,
     "_fontSize": 35,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -34530,7 +34530,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 234.09627795829854,
+      "width": 234.11215189669997,
       "height": 54.4
     },
     "_anchorPoint": {
@@ -34563,7 +34563,7 @@
     "_string": "当前地图：11x11",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 30.742128935532236,
+    "_actualFontSize": 30.08,
     "_fontSize": 30,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -34901,7 +34901,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 11.676974873518368,
+      "width": 11.677736931658806,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -34934,7 +34934,7 @@
     "_string": "<",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 20.494752623688157,
+    "_actualFontSize": 20.05333333333333,
     "_fontSize": 20,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -35195,7 +35195,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 11.676974873518368,
+      "width": 11.677736931658806,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -35228,7 +35228,7 @@
     "_string": ">",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 20.494752623688157,
+    "_actualFontSize": 20.05333333333333,
     "_fontSize": 20,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -35388,7 +35388,7 @@
     "_priority": 2,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 582.5881492318946,
+    "_orthoHeight": 375,
     "_near": 0,
     "_far": 1000,
     "_color": {

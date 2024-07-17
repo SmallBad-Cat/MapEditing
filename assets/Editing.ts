@@ -54,7 +54,7 @@ export class Editing extends Component {
     private GoNumAll: number = 0;
     private obstacleOrther = {
         18: [0, 3], 19: [0, 5], 20: [0, 7], 21: [1, 3], 22: [1, 5], 23: [1, 7], 24: [0, 3], 25: [0, 5], 26: [0, 7], 27: [0, 9], 28: [1, 3], 29: [1, 5], 30: [1, 7],
-        123:[0,3]
+        123: [0, 3]
     }
     private DoubleLiftType = {
         71: [5, 5, 2],
@@ -74,7 +74,7 @@ export class Editing extends Component {
         //     }
         // })
         this.MapChange('init')
-        this.mapSize = this.Map.getComponent(UITransform).contentSize;
+        this.mapSize = new Size(645, 645)
         this.Map.on(Node.EventType.TOUCH_START, this.onTouchStart, this)
         this.Map.on(Node.EventType.TOUCH_MOVE, this.onTouchMove, this)
 
@@ -92,9 +92,9 @@ export class Editing extends Component {
             first = false;
         }
 
-        this.scheduleOnce(() => {
-            this.MapSize(null, 'map4')
-        })
+        // this.scheduleOnce(() => {
+        //     this.MapSize(null, 'map4')
+        // })
     }
     private MapType = {
         'map1': {
@@ -165,8 +165,20 @@ export class Editing extends Component {
         this.GoNumAll = 0
         let node = this.Map.children[0];
         let mapLayout = this.Map.getComponent(Layout)
-        let newWidth = (this.mapSize) ? (this.mapSize.width - mapLayout.paddingLeft - mapLayout.paddingRight - ((this.map_size.arrange - 1) * mapLayout.spacingX)) / this.map_size.arrange - 0.5 : null;
-        let newHeight = (this.mapSize) ? (this.mapSize.height - mapLayout.paddingTop - mapLayout.paddingBottom - ((this.map_size.row - 1) * mapLayout.spacingY)) / this.map_size.row : null;
+        let newWidth = null;
+        let newHeight = null;
+        if (this.mapSize) {
+            newWidth = (this.mapSize.width - mapLayout.paddingLeft - mapLayout.paddingRight - ((this.map_size.arrange - 1) * mapLayout.spacingX)) / this.map_size.arrange - 0.5
+            newHeight = (this.mapSize.height - mapLayout.paddingTop - mapLayout.paddingBottom - ((this.map_size.row - 1) * mapLayout.spacingY)) / this.map_size.row
+        }
+        if (newWidth < newHeight) {
+            newHeight = newWidth
+        } else {
+            newWidth = newHeight
+        }
+        if (this.mapSize) {
+            this.Map.getComponent(UITransform).width = newWidth * this.map_size.arrange + (3 * (this.map_size.arrange - 1)) + 12
+        }
         let newNodeSize = (this.mapSize) ? new Size(newWidth, newHeight) : null;
         if (newNodeSize) {
             node.getComponent(UITransform).setContentSize(newNodeSize);
@@ -298,7 +310,7 @@ export class Editing extends Component {
         }
     }
     // Type == 11 || Type == 12 ||
-    TypeArr = [42, 43, 44, 45, 46, 51, 52, 53, 3, 6, 7, 8, 9, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 61, 62, 63, 64, 65,123]
+    TypeArr = [42, 43, 44, 45, 46, 51, 52, 53, 3, 6, 7, 8, 9, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 61, 62, 63, 64, 65, 123]
     TypeorAddChild(Type) {
         if (this.TypeArr.indexOf(Type) >= 0 && Type != 2) {
             return true
