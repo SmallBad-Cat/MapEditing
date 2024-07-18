@@ -850,7 +850,7 @@ export class Editing extends Component {
             for (let i in this.JianPiaoKou) {
                 if (this.JianPiaoKou[i].keyPos[0] == AJKeyRole[k].y && this.JianPiaoKou[i].keyPos[1] == AJKeyRole[k].x) {
                     let pos = this.JianPiaoKou[i].pos
-                    if (this.map_data[pos[0]][pos[1]].go_num!= AJKeyRole[k].go_num + 1) {
+                    if (this.map_data[pos[0]][pos[1]].go_num != AJKeyRole[k].go_num + 1) {
                         this.map_data[pos[0]][pos[1]].go_num = AJKeyRole[k].go_num + 1
                         return this.refish_GoNum(this.GoNumAll)
                     }
@@ -986,7 +986,7 @@ export class Editing extends Component {
                 item.active = true
             }
             for (let key in this.Obstacle) {
-                if (this.Obstacle[key]) {
+                if (key != 'Role' && key != 'JianPiaoKey') {
                     for (let id of this.Obstacle[key]) {
                         if (roleW.indexOf(id) < 0) {
                             this.dataParent.getChildByName(String(id)).active = false
