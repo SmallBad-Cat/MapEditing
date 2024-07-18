@@ -1009,7 +1009,7 @@ export class Editing extends Component {
                     this.TipTween('缺少钥匙熊')
                     return
                 }
-                JPKStr += `${this.JianPiaoKou[i].pos[0]},${this.JianPiaoKou[i].pos[1]},${this.JianPiaoKou[i].keyPos[0]},${this.JianPiaoKou[i].keyPos[1]};`
+                JPKStr += `${this.JianPiaoKou[i].pos[1]},${this.JianPiaoKou[i].pos[0]},${this.JianPiaoKou[i].keyPos[1]},${this.JianPiaoKou[i].keyPos[0]};`
             }
             // 导出数据
             let data = ''
