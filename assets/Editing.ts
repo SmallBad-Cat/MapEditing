@@ -296,7 +296,7 @@ export class Editing extends Component {
         }
         this.node.getChildByName('theMap').getComponent(Label).enabled = (this.YZZState) ? false : true;
         this.allLabel[5].enabled = (this.YZZState) ? true : false;
-        let anjian = [61,62,63,64,65,66,67,68]
+        let anjian = [61, 62, 63, 64, 65, 66, 67, 68]
         for (let i in this.map_data) {
             let row = Number(i)
             for (let x in this.map_data[row]) {
@@ -640,7 +640,7 @@ export class Editing extends Component {
             data.child.getChildByName('go').active = true
             data.child.scale = v3(1, 1, 1)
         }
-        if (data.type == 68 || data.type == 67) {
+        if (data.type == 68 || data.type == this.Obstacle.JianPiaoKey) {
             data.child.getChildByName('go').setSiblingIndex(data.child.children.length - 1)
             data.child.getChildByName('go').getComponent(Label).enabled = true
             data.child.getChildByName('go').getComponent(Label).string = data.idx[0] + '_' + data.idx[1]
@@ -649,6 +649,7 @@ export class Editing extends Component {
                 for (let i in this.JianPiaoKou) {
                     if (!this.JianPiaoKou[i].keyPos) {
                         this.JianPiaoKou[i].keyPos = [data.idx[0], data.idx[1]]
+
                         data.child.getChildByName('go').getComponent(Label).string = this.JianPiaoKou[i].pos[0] + '_' + this.JianPiaoKou[i].pos[1]
                         break
                     }
@@ -744,7 +745,7 @@ export class Editing extends Component {
         return min
     }
     GoNumRefirsh(data) {
-        if (data.type == 2 || this.Obstacle.F.indexOf(data.type) >= 0) {
+        if (data.type == 2) {
             this.Type2ArrMin(data.idx)
         } else {
             let y = data.idx[1];
@@ -754,7 +755,7 @@ export class Editing extends Component {
                 let min = this.map_data[y][x].go_num;
                 let Type2fun = (idx) => {
                     if (this.map_data[idx[1]] && this.map_data[idx[1]][idx[0]]) {
-                        if (this.map_data[idx[1]][idx[0]].type == 2 || (this.Obstacle.F.indexOf(this.map_data[idx[1]][idx[0]].type) >= 0 && idx[1] == y)) {
+                        if (this.map_data[idx[1]][idx[0]].type == 2) {
                             let newMin = this.Type2ArrMin(idx)
                             if (min > newMin + 1) {
                                 min = newMin + 1
@@ -807,6 +808,7 @@ export class Editing extends Component {
     refish_GoNum(count: number = 0) {
         this.GoNumAll = 0
         let HandKeyArr = [51, 52, 53]
+        let AJKeyRole = {}
         for (let y = 1; y <= this.map_size.row; y++) {
             for (let x = 1; x <= this.map_size.arrange; x++) {
                 let type = this.map_data[y][x].type
@@ -829,10 +831,13 @@ export class Editing extends Component {
                     }
                     if (type != 68) {
                         this.map_data[y][x].child.getChildByName('go').getComponent(Label).string = minNum + ''
+
+                    } else {
+                        if (!AJKeyRole[y + '_' + x]) {
+                            AJKeyRole[y + '_' + x] = { y: y, x: x, go_num: minNum }
+                        }
                     }
-
                     // }
-
                     this.GoNumAll += minNum
                 }
             }
@@ -840,6 +845,19 @@ export class Editing extends Component {
         if (this.GoNumAll != count) {
             return this.refish_GoNum(this.GoNumAll)
         }
+
+        for (let k in AJKeyRole) {
+            for (let i in this.JianPiaoKou) {
+                if (this.JianPiaoKou[i].keyPos[0] == AJKeyRole[k].y && this.JianPiaoKou[i].keyPos[1] == AJKeyRole[k].x) {
+                    let pos = this.JianPiaoKou[i].pos
+                    if (this.map_data[pos[0]][pos[1]].go_num!= AJKeyRole[k].go_num + 1) {
+                        this.map_data[pos[0]][pos[1]].go_num = AJKeyRole[k].go_num + 1
+                        return this.refish_GoNum(this.GoNumAll)
+                    }
+                }
+            }
+        }
+
         this.allLabel[5].string = '角色步数总和：' + this.GoNumAll;
         return this.GoNumAll;
     }
@@ -847,7 +865,8 @@ export class Editing extends Component {
         let min_arr = []
         if (this.map_data[y - 1]) {
             // if (this.map_data[y - 1][x].type == 1 || this.map_data[y - 1][x].type == 2 || this.map_data[y - 1][x].type == 10) {
-            if (this.Obstacle['Role'].indexOf(Number(this.map_data[y - 1][x].type)) >= 0 || this.map_data[y - 1][x].type == 2 || this.Obstacle['F'].indexOf(Number(this.map_data[y - 1][x].type)) >= 0) {
+            let upKey = Number(this.map_data[y - 1][x].type)
+            if (this.Obstacle['Role'].indexOf(upKey) >= 0 || upKey == 2 || this.Obstacle['F'].indexOf(upKey) >= 0 || upKey == this.Obstacle.JianPiaoKey) {
                 if (!selfSTTState) {
                     min_arr.push(this.map_data[y - 1][x].go_num + 1)
                 } else if (selfSTTState && this.broadsideOK(y - 1, x)) {
@@ -858,8 +877,9 @@ export class Editing extends Component {
             min_arr.push(0)
         }
         if (this.map_data[y + 1] && (y + 1) <= this.map_size.row) {
+            let downKey = Number(this.map_data[y + 1][x].type)
             // if (this.map_data[y + 1][x].type == 1 || this.map_data[y + 1][x].type == 2 || this.map_data[y + 1][x].type == 10) {
-            if (this.Obstacle['Role'].indexOf(Number(this.map_data[y + 1][x].type)) >= 0 || this.map_data[y + 1][x].type == 2) {
+            if (this.Obstacle['Role'].indexOf(downKey) >= 0 || downKey == 2 || downKey == this.Obstacle.JianPiaoKey) {
                 if (!selfSTTState && !this.broadsideOK(y + 1, x)) {
                     min_arr.push(this.map_data[y + 1][x].go_num + 1)
                 } else if (selfSTTState && this.broadsideOK(y, x)) {
@@ -869,8 +889,9 @@ export class Editing extends Component {
             }
         }
         if (this.map_data[y][x + 1] && (x + 1) <= this.map_size.arrange) {
+            let rightKey = Number(this.map_data[y][x + 1].type)
             // if (this.map_data[y][x + 1].type == 1 || this.map_data[y][x + 1].type == 2 || this.map_data[y][x + 1].type == 10) {
-            if (this.Obstacle['Role'].indexOf(Number(this.map_data[y][x + 1].type)) >= 0 || this.map_data[y][x + 1].type == 2) {
+            if (this.Obstacle['Role'].indexOf(rightKey) >= 0 || rightKey == 2 || rightKey == this.Obstacle.JianPiaoKey) {
                 if (!selfSTTState && !this.broadsideOK(y, x + 1)) {
                     min_arr.push(this.map_data[y][x + 1].go_num + 1)
                 } else if (selfSTTState && this.broadsideOK(y, x + 1)) {
@@ -880,8 +901,9 @@ export class Editing extends Component {
 
         }
         if (this.map_data[y][x - 1]) {
+            let leftKey = Number(this.map_data[y][x - 1].type)
             // if (this.map_data[y][x - 1].type == 1 || this.map_data[y][x - 1].type == 2 || this.map_data[y][x - 1].type == 10) {
-            if (this.Obstacle['Role'].indexOf(Number(this.map_data[y][x - 1].type)) >= 0 || this.map_data[y][x - 1].type == 2) {
+            if (this.Obstacle['Role'].indexOf(leftKey) >= 0 || leftKey == 2 || leftKey == this.Obstacle.JianPiaoKey) {
                 if (!selfSTTState && !this.broadsideOK(y, x - 1)) {
                     min_arr.push(this.map_data[y][x - 1].go_num + 1)
                 } else if (selfSTTState && this.broadsideOK(y, x - 1)) {
@@ -941,7 +963,8 @@ export class Editing extends Component {
         'D': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53],//角色
         'E': [61, 63, 64, 68],//检票口
         'F': [71, 72, 73, 74, 75],//双向电梯
-        'Role': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 68, 71, 72, 73, 74, 75]
+        'Role': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 68, 71, 72, 73, 74, 75],
+        'JianPiaoKey': 67
     }
     onObstaclePiece(event: Event, type: string) {
         let target: any = event.target;
@@ -963,9 +986,11 @@ export class Editing extends Component {
                 item.active = true
             }
             for (let key in this.Obstacle) {
-                for (let id of this.Obstacle[key]) {
-                    if (roleW.indexOf(id) < 0) {
-                        this.dataParent.getChildByName(String(id)).active = false
+                if (this.Obstacle[key]) {
+                    for (let id of this.Obstacle[key]) {
+                        if (roleW.indexOf(id) < 0) {
+                            this.dataParent.getChildByName(String(id)).active = false
+                        }
                     }
                 }
             }
@@ -1063,7 +1088,7 @@ export class Editing extends Component {
 
         if (!conf_data) {
             this.CloseAll(data)
-
+            console.log(new_data);
             for (let idx of new_data) {
                 row = (idx[1] > row) ? idx[1] : row;
                 arrange = (idx[0] > arrange) ? idx[0] : arrange;
@@ -1077,11 +1102,40 @@ export class Editing extends Component {
                     this.map_data[idx[1]][idx[0]].child.children[1].destroy()
                 }
                 this.map_data[idx[1]][idx[0]].child.getComponent(UITransform).setContentSize(node.getComponent(UITransform).contentSize);
-                if (idx[2] == 99) {
+                if (idx[2] == 99 || idx[2] == 62 || idx[2] == 65 || idx[2] == 66) {
                     this.map_data[idx[1]][idx[0]].node.getComponent(Sprite).enabled = false
                     this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).enabled = false
                 }
-                if (this.TypeorAddChild(idx[2])) {
+                if (67 >= idx[2] && idx[2] >= 61) {
+                    if (idx[2] == this.Obstacle.JianPiaoKey) {
+                        let newChild = null
+                        let k = this.map_data[idx[1] - 1][idx[0]].type
+                        if (this.Obstacle.E.indexOf(k) >= 0) {
+                            newChild = instantiate(this.dataParent.getChildByName(k + ''))
+                        } else if (this.Obstacle.E.indexOf(this.map_data[idx[1]][idx[0] - 1].type) >= 0) {
+                            k = 61
+                            newChild = instantiate(this.dataParent.getChildByName('61'))
+                        }
+                        if (newChild) {
+                            newChild.getChildByName('name').active = false;
+                            newChild.getChildByName('count').active = false;
+                            newChild.getComponent(Button).enabled = false;
+                            this.map_data[idx[1]][idx[0]].child.addChild(newChild);
+                            newChild.setPosition(v3(0, 0));
+                            if (this.obstacleOrther[k]) {
+                                let infeed = (this.obstacleOrther[k][0] == 0) ? true : false
+                                if (infeed) {
+                                    newChild.getComponent(UITransform).width = this.map_data[idx[1]][idx[0]].node.getComponent(UITransform).contentSize.width * Number(this.obstacleOrther[k][1])
+                                } else {
+                                    infeed = false
+                                    newChild.getComponent(UITransform).height = this.map_data[idx[1]][idx[0]].node.getComponent(UITransform).contentSize.height * Number(this.obstacleOrther[k][1])
+                                }
+                                newChild.scale = v3(1.18, 1.18, 1.18)
+                            }
+                            newChild.active = true
+                        }
+                    }
+                } else if (this.TypeorAddChild(idx[2])) {
                     let newChild = instantiate(this.dataParent.getChildByName(idx[2] + ''))
                     newChild.active = true
                     newChild.getChildByName('name').active = false;
@@ -1105,9 +1159,9 @@ export class Editing extends Component {
                         console.log(newChild.getComponent(UITransform).contentSize);
                     }
                     newChild.scale = v3(1.18, 1.18, 1.18)
+                } else if (this.Obstacle.E.indexOf(idx[2]) >= 0) {
+                    this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).spriteFrame = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).spriteFrame;
                 }
-
-
             }
         }
 
@@ -1208,6 +1262,7 @@ export class Editing extends Component {
             node.scale = v3(newscale, newscale, newscale);
             node.setPosition(v3(0, 0, 0))
             node.getComponent(Sprite).color = this.RoleColor[colorData[idx]]
+
         }
         this.enter_map = true;
     }
@@ -1470,7 +1525,7 @@ export class Editing extends Component {
         if (keyArr.indexOf(type) >= 0) {
             needKey.push([y, x])
             let Key = [y, x]
-            if (type == 67) {
+            if (type == this.Obstacle.JianPiaoKey) {
                 if (this.map_data[y - 1][x].type == 63 || this.map_data[y - 1][x].type == 64) {
                     needKey.push([y + 1, x])
                     needKey.push([y - 1, x])
