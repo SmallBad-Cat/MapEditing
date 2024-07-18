@@ -294,6 +294,8 @@ export class Editing extends Component {
             this.YZZState = false
             newLabel.string = '显示压制值'
         }
+        this.node.getChildByName('theMap').getComponent(Label).enabled = (this.YZZState) ? false : true;
+        this.allLabel[5].enabled = (this.YZZState) ? true : false;
         let anjian = [61,62,63,64,65,66,67,68]
         for (let i in this.map_data) {
             let row = Number(i)
