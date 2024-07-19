@@ -825,7 +825,7 @@ export class Editing extends Component {
                     }
                     if (type == 31) {
                         for (let i in min_arr) {
-                            min_arr[i] += 2
+                            (min_arr[i]>0)&&(min_arr[i] += 2)
                         }
                     }
 
