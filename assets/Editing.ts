@@ -290,6 +290,7 @@ export class Editing extends Component {
         if (newLabel.string == '显示压制值') {
             newLabel.string = '隐藏压制值'
             this.YZZState = true
+            this.refish_GoNum()
         } else {
             this.YZZState = false
             newLabel.string = '显示压制值'
@@ -662,7 +663,9 @@ export class Editing extends Component {
         // this.map_data[data.idx[1]][data.idx[0]].type = 3
         // this.map_data[data.idx[0]][data.idx[1]].type = data
         // this.map_data[data.idx[1]][data.idx[0]] = data
-        this.GoNumRefirsh(data)
+        if (this.YZZState) {
+            this.GoNumRefirsh(data)
+        }
         this.Piece[0].getChildByName('count').getComponent(Label).string = String(Number(this.Piece[0].getChildByName('count').getComponent(Label).string) + 1);
 
         // + Number(this.dataParent.getChildByName('10').getChildByName('count').getComponent(Label).string)
@@ -792,7 +795,7 @@ export class Editing extends Component {
         let HandArr = (ey, ex) => {
             let selfSTTState = this.broadsideOK(ey, ex)
             HandRoleArr = HandRoleArr.concat(this.getMinArr(selfSTTState, ey, ex))
-            if (HandKeyArr.indexOf(this.map_data[ey][ex + 1].type) >= 0) {
+            if (this.map_data[ey][ex + 1] && HandKeyArr.indexOf(this.map_data[ey][ex + 1].type) >= 0) {
                 return HandArr(ey, ex + 1)
             } else {
                 return HandRoleArr
@@ -820,6 +823,11 @@ export class Editing extends Component {
                     } else {
                         min_arr = this.getMinArr(selfSTTState, y, x)
                     }
+                    if (type == 31) {
+                        for (let i in min_arr) {
+                            min_arr[i] += 2
+                        }
+                    }
 
 
                     let minNum = (min_arr.length <= 0) ? this.map_data[y][x].go_num : Math.min(...min_arr)
@@ -842,6 +850,10 @@ export class Editing extends Component {
                 }
             }
         }
+        if (this.GoNumAll > 10000) {
+            this.TipTween('压制值计算出问题了')
+            return
+        }
         if (this.GoNumAll != count) {
             return this.refish_GoNum(this.GoNumAll)
         }
@@ -850,8 +862,8 @@ export class Editing extends Component {
             for (let i in this.JianPiaoKou) {
                 if (this.JianPiaoKou[i].keyPos[0] == AJKeyRole[k].y && this.JianPiaoKou[i].keyPos[1] == AJKeyRole[k].x) {
                     let pos = this.JianPiaoKou[i].pos
-                    if (this.map_data[pos[0]][pos[1]].go_num != AJKeyRole[k].go_num + 1) {
-                        this.map_data[pos[0]][pos[1]].go_num = AJKeyRole[k].go_num + 1
+                    if (this.map_data[pos[0]][pos[1]].go_num != AJKeyRole[k].go_num) {
+                        this.map_data[pos[0]][pos[1]].go_num = AJKeyRole[k].go_num
                         return this.refish_GoNum(this.GoNumAll)
                     }
                 }
