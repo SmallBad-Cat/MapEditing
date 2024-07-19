@@ -554,7 +554,7 @@ export class Editing extends Component {
                     }
 
                     data.child.getComponent(Sprite).spriteFrame = this.Piece[0].getComponent(Sprite).spriteFrame;
-                    if (next > (this.map_data[1].length / 2)) {
+                    if (next < this.map_data[1].length) {
                         next = data.idx[1] + 1
                         this.scheduleOnce(() => {
                             this.setNewData(this.map_data[data.idx[0]][next], 14)
@@ -612,7 +612,9 @@ export class Editing extends Component {
                 //     this.setNewData(this.map_data[data.idx[0]][(data.idx[1] > (this.map_data[1].length / 2)) ? data.idx[1] + 1 : data.idx[1] - 1])
                 // } else {
                 this.scheduleOnce(() => {
-                    if (this.map_data.length > data.idx[0] + 1) {
+                    
+                    // this.map_data.length
+                    if (this.map_size.row >= data.idx[0] + 1) {
                         this.setNewData(this.map_data[data.idx[0] + 1][data.idx[1]])
                     } else {
                         this.Piece = [this.dataParent.getChildByName('1'), 1]
