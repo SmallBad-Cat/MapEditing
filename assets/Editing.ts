@@ -612,7 +612,7 @@ export class Editing extends Component {
                 //     this.setNewData(this.map_data[data.idx[0]][(data.idx[1] > (this.map_data[1].length / 2)) ? data.idx[1] + 1 : data.idx[1] - 1])
                 // } else {
                 this.scheduleOnce(() => {
-                    
+
                     // this.map_data.length
                     if (this.map_size.row >= data.idx[0] + 1) {
                         this.setNewData(this.map_data[data.idx[0] + 1][data.idx[1]])
@@ -827,7 +827,7 @@ export class Editing extends Component {
                     }
                     if (type == 31) {
                         for (let i in min_arr) {
-                            (min_arr[i]>0)&&(min_arr[i] += 2)
+                            (min_arr[i] > 0) && (min_arr[i] += 2)
                         }
                     }
 
@@ -1103,6 +1103,8 @@ export class Editing extends Component {
         if (!conf_data) {
             this.CloseAll(data)
             console.log(new_data);
+            let STTKey = {}
+            let STTKeyArr = []
             for (let idx of new_data) {
                 row = (idx[1] > row) ? idx[1] : row;
                 arrange = (idx[0] > arrange) ? idx[0] : arrange;
@@ -1175,6 +1177,41 @@ export class Editing extends Component {
                     newChild.scale = v3(1.18, 1.18, 1.18)
                 } else if (this.Obstacle.E.indexOf(idx[2]) >= 0) {
                     this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).spriteFrame = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).spriteFrame;
+                } else if (this.Obstacle.F.indexOf(idx[2]) >= 0) {
+
+                    STTKeyArr.push({ y: idx[1], x: idx[0] })
+
+                }
+            }
+            if (STTKeyArr.length > 0) {
+                for (let pos of STTKeyArr) {
+                    let getlast_key = this.getLastDoublePos(pos.y, pos.x)
+                    if (!STTKey[getlast_key.y + '_' + getlast_key.x]) {
+                        STTKey[getlast_key.y + '_' + getlast_key.x] = {
+                            pos: { y: getlast_key.y, x: getlast_key.x },
+                            type: getlast_key.type
+                        }
+                    }
+                }
+
+                for (let k in STTKey) {
+                    let LastPos = STTKey[k].pos
+                    let w = this.DoubleLiftType[STTKey[k].type][0]
+                    let h = this.DoubleLiftType[STTKey[k].type][1]
+                    for (let y = LastPos.y; y > LastPos.y - h; y--) {
+                        for (let x = LastPos.x; x > LastPos.x - w; x--) {
+                            // this.map_data[y][x].type = 1
+                            // this.map_data[y][x].child.name = '1'
+                            // this.map_data[y][x].child.getChildByName('go').active = true
+                            // this.map_data[y][x].child.getComponent(Sprite).color = new Color('DBEEF3')
+                            // this.map_data[y][x].child.getComponent(Sprite).spriteFrame = this.Map.children[0].getComponent(Sprite).spriteFrame
+                            this.map_data[y][x] && (this.map_data[y][x].child.getComponent(Sprite).color = new Color('#FF8F53'))
+                            if (y == LastPos.y ) {
+                                this.map_data[y][x].child.getComponent(Sprite).spriteFrame = this.dataParent.getChildByName(STTKey[k].type + '').getComponent(Sprite).spriteFrame;
+                            }
+                        }
+                    }
+
                 }
             }
         }
@@ -1490,25 +1527,7 @@ export class Editing extends Component {
     }
     /**清空双头梯*/
     ClearDoubleLadder(y, x) {
-        let leh = 67
-        let getLastPos = (y, x) => {
-            let lastPos = (posY, posX, Type) => {
-                let nextX = posX + 1
-                if (!this.map_data[posY][nextX] || this.map_data[posY][nextX].type != Type) {
-                    return { y: posY, x: posX, type: Type }
-                } else if (this.map_data[posY][nextX].type == Type) {
-                    return lastPos(posY, nextX, Type)
-                }
-            }
-            if (y < this.map_size.row) {
-                for (let i = this.map_size.row; i >= y; i--) {
-                    if (this.Obstacle['F'].indexOf(this.map_data[i][x].type) >= 0 && i - (this.map_data[i][x].type - leh) <= y) {
-                        return lastPos(i, x, this.map_data[i][x].type)
-                    }
-                }
-            }
-        }
-        let LastPos = getLastPos(y, x)
+        let LastPos = this.getLastDoublePos(y, x)
         let w = this.DoubleLiftType[LastPos.type][0]
         let h = this.DoubleLiftType[LastPos.type][1]
         for (let y = LastPos.y; y > LastPos.y - h; y--) {
@@ -1518,6 +1537,23 @@ export class Editing extends Component {
                 this.map_data[y][x].child.getChildByName('go').active = true
                 this.map_data[y][x].child.getComponent(Sprite).color = new Color('DBEEF3')
                 this.map_data[y][x].child.getComponent(Sprite).spriteFrame = this.Map.children[0].getComponent(Sprite).spriteFrame
+            }
+        }
+    }
+    getLastDoublePos = (y, x) => {
+        let lastPos = (posY, posX, Type) => {
+            let nextX = posX + 1
+            if (!this.map_data[posY][nextX] || this.map_data[posY][nextX].type != Type) {
+                return { y: posY, x: posX, type: Type }
+            } else if (this.map_data[posY][nextX].type == Type) {
+                return lastPos(posY, nextX, Type)
+            }
+        }
+        if (y < this.map_size.row) {
+            for (let i = this.map_size.row; i >= y; i--) {
+                if (this.Obstacle['F'].indexOf(this.map_data[i][x].type) >= 0 && i - (this.map_data[i][x].type - 67) <= y) {
+                    return lastPos(i, x, this.map_data[i][x].type)
+                }
             }
         }
     }
