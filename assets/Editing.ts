@@ -2,6 +2,8 @@ import { _decorator, Button, Color, Component, EditBox, EventTouch, instantiate,
 import { MapLayoutIdConf } from './resources/Conf/MapLayoutIdConf';
 import { RoleConf } from './resources/Conf/RoleConf';
 import { CollectConf } from './resources/Conf/CollectConf';
+import List from './Scene/list/List';
+import { MapLayoutConf } from './resources/Conf/MapLayoutConf';
 const { ccclass, property } = _decorator;
 
 @ccclass('Editing')
@@ -34,6 +36,11 @@ export class Editing extends Component {
     private AddContent: Node[] = [];
     @property({ type: Label, displayName: "所有Label节点" })
     private allLabel: Label[] = [];
+    @property({ type: List, displayName: "布局列表" })
+    private LayoutList: List = null;
+    @property({ type: Node, displayName: "列表Item选择" })
+    private ChooseItem: Node = null;
+
     private nowContent = 0;
     private ScrollViewSelect = [0, 0, 0, 0];
     // 已选择地图块
@@ -93,10 +100,7 @@ export class Editing extends Component {
             node.getChildByName('text').getComponent(Label).string = key
             first = false;
         }
-
-        // this.scheduleOnce(() => {
-        //     this.MapSize(null, 'map4')
-        // })
+        this.LayoutList.numItems = Object.keys(MapLayoutConf.datas).length
     }
     private MapType = {
         'map1': {
@@ -121,7 +125,6 @@ export class Editing extends Component {
         this.CloseAll()
         this.scheduleOnce(() => {
             this.MapChange()
-            this.node.getChildByName('theMap').getComponent(Label).string = `当前地图：${this.map_size.arrange}x${this.map_size.row}`
         }, 0.05)
     }
     SizeChange(EditBox: EditBox, str: string) {
@@ -164,6 +167,7 @@ export class Editing extends Component {
     }
     // 地图更新
     MapChange(init?) {
+        this.node.getChildByName('theMap').getComponent(Label).string = `当前地图：${this.map_size.arrange}x${this.map_size.row}`
         this.GoNumAll = 0
         let node = this.Map.children[0];
         let mapLayout = this.Map.getComponent(Layout)
@@ -229,14 +233,20 @@ export class Editing extends Component {
                     }
                     if (newNodeSize) {
                         node.getComponent(UITransform).setContentSize(newNodeSize);
-                        data.child.getComponent(UITransform).setContentSize(node.getComponent(UITransform).contentSize)
+                        data.child.getComponent(UITransform).setContentSize(newNodeSize)
+                        for(let child of data.child.children){
+                            child.getComponent(UITransform).setContentSize(newNodeSize)
+                        }
                     }
                     node.active = true
                     this.map_data[row][arrange] = data;
                 } else {
                     if (newNodeSize) {
                         node.getComponent(UITransform).setContentSize(newNodeSize);
-                        this.map_data[row][arrange].child.getComponent(UITransform).setContentSize(node.getComponent(UITransform).contentSize)
+                        this.map_data[row][arrange].child.getComponent(UITransform).setContentSize(newNodeSize)
+                        for(let child of this.map_data[row][arrange].child.children){
+                            child.getComponent(UITransform).setContentSize(newNodeSize)
+                        }
                     }
                     node.active = false;
                     // let count_label = this.dataParent.getChildByName(this.map_data[row][arrange].child.name).getChildByName('count').getComponent(Label)
@@ -965,6 +975,9 @@ export class Editing extends Component {
                 return;
             }
         }
+        this.ChooseItemKey = null;
+        this.ChooseItem.active = false;
+        this.ChooseItem.parent = this.ContentNode[1]
         this.Piece = [target, Number(target.name), count];
         this.ChooseKuang.setPosition(target.getPosition());
         this.ChooseKuang.active = true;
@@ -1073,9 +1086,7 @@ export class Editing extends Component {
         this.dataJsonImport(EditBox.string);
         this.enter_map = true;
     }
-
-    // 数据Json导入
-    dataJsonImport(data: string, conf_data?) {
+    HandleConf(data) {
         if (data.length < 6) {
             this.ImportEditBox.string = '';
             return;
@@ -1097,12 +1108,30 @@ export class Editing extends Component {
         let new_data = JSON.parse(data)
         let row = 0;
         let arrange = 0;
+        for (let idx of new_data) {
+            row = (idx[1] > row) ? idx[1] : row;
+            arrange = (idx[0] > arrange) ? idx[0] : arrange;
+        }
+
+        return { map: new_data, size: { row: row, arrange: arrange } }
+
+    }
+    // 数据Json导入
+    dataJsonImport(data: string, conf_data?) {
+        if (data.length < 6) {
+            this.ImportEditBox.string = '';
+            return;
+        }
+        let handle = this.HandleConf(data)
+        let new_data = handle.map
+        console.log(handle);
+        let row = 0;
+        let arrange = 0;
         // console.log("data:",data);
 
 
         if (!conf_data) {
             this.CloseAll(data)
-            console.log(new_data);
             let STTKey = {}
             let STTKeyArr = []
             for (let idx of new_data) {
@@ -1200,13 +1229,8 @@ export class Editing extends Component {
                     let h = this.DoubleLiftType[STTKey[k].type][1]
                     for (let y = LastPos.y; y > LastPos.y - h; y--) {
                         for (let x = LastPos.x; x > LastPos.x - w; x--) {
-                            // this.map_data[y][x].type = 1
-                            // this.map_data[y][x].child.name = '1'
-                            // this.map_data[y][x].child.getChildByName('go').active = true
-                            // this.map_data[y][x].child.getComponent(Sprite).color = new Color('DBEEF3')
-                            // this.map_data[y][x].child.getComponent(Sprite).spriteFrame = this.Map.children[0].getComponent(Sprite).spriteFrame
                             this.map_data[y][x] && (this.map_data[y][x].child.getComponent(Sprite).color = new Color('#FF8F53'))
-                            if (y == LastPos.y ) {
+                            if (y == LastPos.y) {
                                 this.map_data[y][x].child.getComponent(Sprite).spriteFrame = this.dataParent.getChildByName(STTKey[k].type + '').getComponent(Sprite).spriteFrame;
                             }
                         }
@@ -1225,8 +1249,9 @@ export class Editing extends Component {
         this.ImportEditBox.string = '';
         if (!conf_data) {
             this.scheduleOnce(() => {
+                console.log('更新地图');
                 this.MapChange();
-            }, 0.03)
+            }, 0.05)
         }
     }
     replaceAll(str, find, replace) {
@@ -1325,12 +1350,220 @@ export class Editing extends Component {
         this.ContentNode[this.nowContent].active = false;
         this.nowContent = (this.nowContent == 1) ? 0 : 1;
         this.ContentNode[this.nowContent].active = true;
-        this.allLabel[4].string = (this.nowContent == 1) ? '编辑地图' : '设置数据';
+        this.allLabel[4].string = (this.nowContent == 1) ? '编辑地图' : '查看配置';
         if (this.nowContent == 0) {
             this.CloseAll()
         }
     }
-    // 点击选择
+    // 点击设置界面
+    onLocking() {
+        this.ContentNode[this.nowContent].active = false;
+        this.nowContent = (this.nowContent == 1) ? 0 : 1;
+        this.ContentNode[this.nowContent].active = true;
+        this.allLabel[4].string = (this.nowContent == 1) ? '编辑地图' : '查看配置数据';
+        if (this.nowContent == 0) {
+            // this.CloseAll()
+        } else {
+            if (!this.LayoutList.numItems || this.LayoutList.numItems <= 0) {
+                this.LayoutList.numItems = Object.keys(MapLayoutConf.datas).length
+            }
+        }
+    }
+    private ChooseItemKey = null
+    // 点击item
+    onItem(event: Event,) {
+        let target: any = event.target;
+        let data = MapLayoutConf.datas[target.name]
+        this.dataJsonImport(data.layout)
+        this.ChooseItemKey=target.name
+        this.ChooseItem.parent = target
+        this.ChooseItem.setPosition(v3(0, 0, 0))
+        this.ChooseItem.active = true
+    }
+    onList(item, idx) {
+        let k = Object.keys(MapLayoutConf.datas)[idx]
+        let data = MapLayoutConf.datas[k]
+        item.getChildByName('text').getComponent(Label).string = 'ID:' + data.id;
+        this.ItemSetMap(item, data.layout)
+        item.name = k
+        if (this.ChooseItemKey) {
+            if (k == this.ChooseItemKey) {
+                this.ChooseItem.parent = item
+                this.ChooseItem.setPosition(v3(0, 0, 0))
+                this.ChooseItem.active = true
+            } else if (item.getChildByName('ChooseItem') && k != this.ChooseItemKey) {
+                this.ChooseItem.active = false
+            }
+        }
+    }
+    // 
+    ItemSetMap(item, data) {
+        let handle = this.HandleConf(data)
+        let new_data = handle.map
+        let map_size = handle.size
+        let Map = item.getChildByName('Map')
+        let node = Map.children[0];
+        let mapLayout = Map.getComponent(Layout)
+        let newWidth = null;
+        let newHeight = null;
+        let mapSize = new Size(180, 180)
+        if (mapSize) {
+            newWidth = (mapSize.width - mapLayout.paddingLeft - mapLayout.paddingRight - ((map_size.arrange - 1) * mapLayout.spacingX)) / map_size.arrange - 0.5
+            newHeight = (mapSize.height - mapLayout.paddingTop - mapLayout.paddingBottom - ((map_size.row - 1) * mapLayout.spacingY)) / map_size.row
+        }
+        if (newWidth < newHeight) {
+            newHeight = newWidth
+        } else {
+            newWidth = newHeight
+        }
+        if (mapSize) {
+            Map.getComponent(UITransform).width = newWidth * map_size.arrange + (1 * (map_size.arrange - 1)) + 6
+        }
+        let newNodeSize = new Size(newWidth, newHeight)
+        if (newNodeSize) {
+            node.getComponent(UITransform).setContentSize(newNodeSize);
+        }
+        let STTKey = {}
+        let STTKeyArr = []
+        for (let child of Map.children) {
+            child.getComponent(Sprite).enabled = true
+            child.children[0].getComponent(Sprite).enabled = true
+            child.children[0].destroyAllChildren()
+            child.children[0].getComponent(Sprite).color = new Color('#FFFFFF')
+            child.children[0].name = '1'
+            child.active = false
+        }
+        let map_data = []
+        for (let y = 1; y <= map_size.row; y++) {
+            if (!map_data[y]) {
+                map_data[y] = []
+            }
+            for (let x = 1; x <= map_size.arrange; x++) {
+                let name_key = y + '_' + x;
+                if (!Map.getChildByName(name_key)) {
+                    node = instantiate(node);
+                    Map.addChild(node);
+                    node.name = name_key
+                } else {
+                    node = Map.getChildByName(name_key)
+                }
+                node.getComponent(UITransform).setContentSize(newNodeSize);
+                node.active = true;
+                let newChild = node.getChildByName('1')
+                newChild.getComponent(UITransform).setContentSize(newNodeSize);
+                newChild.setPosition(v3(0, 0));
+                let data = {
+                    node: node,
+                    idx: [y, x],
+                    type: 1,
+                    child: newChild,
+                }
+                map_data[y][x] = data;
+            }
+        }
+        for (let idx of new_data) {
+            map_data[idx[1]][idx[0]].type = idx[2];
+            let node = map_data[idx[1]][idx[0]].node;
+            map_data[idx[1]][idx[0]].child.name = idx[2] + '';
+            if (this.dataParent.getChildByName(idx[2] + '')) {
+                map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).color;
+            }
+            if (map_data[idx[1]][idx[0]].child.children.length > 1) {
+                map_data[idx[1]][idx[0]].child.children[1].destroy()
+            }
+            map_data[idx[1]][idx[0]].child.getComponent(UITransform).setContentSize(newNodeSize);
+            if (idx[2] == 99 || idx[2] == 62 || idx[2] == 65 || idx[2] == 66) {
+                map_data[idx[1]][idx[0]].node.getComponent(Sprite).enabled = false
+                map_data[idx[1]][idx[0]].child.getComponent(Sprite).enabled = false
+            }
+            if (67 >= idx[2] && idx[2] >= 61) {
+                if (idx[2] == this.Obstacle.JianPiaoKey) {
+                    let newChild = null
+                    let k = map_data[idx[1] - 1][idx[0]].type
+                    if (this.Obstacle.E.indexOf(k) >= 0) {
+                        newChild = instantiate(this.dataParent.getChildByName(k + ''))
+                    } else if (this.Obstacle.E.indexOf(map_data[idx[1]][idx[0] - 1].type) >= 0) {
+                        k = 61
+                        newChild = instantiate(this.dataParent.getChildByName('61'))
+                    }
+                    if (newChild) {
+                        newChild.getChildByName('name').active = false;
+                        newChild.getChildByName('count').active = false;
+                        newChild.getComponent(Button).enabled = false;
+                        map_data[idx[1]][idx[0]].child.addChild(newChild);
+                        newChild.setPosition(v3(0, 0));
+                        if (this.obstacleOrther[k]) {
+                            let infeed = (this.obstacleOrther[k][0] == 0) ? true : false
+                            if (infeed) {
+                                newChild.getComponent(UITransform).width = newNodeSize.width * Number(this.obstacleOrther[k][1])
+                            } else {
+                                infeed = false
+                                newChild.getComponent(UITransform).height = newNodeSize.height * Number(this.obstacleOrther[k][1])
+                            }
+                            newChild.scale = v3(1.18, 1.18, 1.18)
+                        }
+                        newChild.active = true
+                    }
+                }
+            } else if (this.TypeorAddChild(idx[2])) {
+                let newChild = instantiate(this.dataParent.getChildByName(idx[2] + ''))
+                newChild.active = true
+                newChild.getChildByName('name').active = false;
+                newChild.getChildByName('count').active = false;
+                newChild.getComponent(UITransform).setContentSize(newNodeSize);
+                newChild.getComponent(Button).enabled = false;
+
+                map_data[idx[1]][idx[0]].child.addChild(newChild);
+                newChild.setPosition(v3(0, 0));
+                map_data[idx[1]][idx[0]].child.getComponent(UITransform).setContentSize(newNodeSize);
+                if (this.obstacleOrther[idx[2]]) {
+
+                    let infeed = (this.obstacleOrther[idx[2]][0] == 0) ? true : false
+                    if (infeed) {
+                        newChild.getComponent(UITransform).width = newNodeSize.width * Number(this.obstacleOrther[idx[2]][1])
+                    } else {
+                        infeed = false
+                        newChild.getComponent(UITransform).height = newNodeSize.height * Number(this.obstacleOrther[idx[2]][1])
+                    }
+                    newChild.active = true
+                }
+                newChild.scale = v3(1.18, 1.18, 1.18)
+            } else if (this.Obstacle.E.indexOf(idx[2]) >= 0) {
+                map_data[idx[1]][idx[0]].child.getComponent(Sprite).spriteFrame = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).spriteFrame;
+            } else if (this.Obstacle.F.indexOf(idx[2]) >= 0) {
+
+                STTKeyArr.push({ y: idx[1], x: idx[0] })
+
+            }
+        }
+        if (STTKeyArr.length > 0) {
+            for (let pos of STTKeyArr) {
+                let getlast_key = this.getLastDoublePos(pos.y, pos.x)
+                if (!STTKey[getlast_key.y + '_' + getlast_key.x]) {
+                    STTKey[getlast_key.y + '_' + getlast_key.x] = {
+                        pos: { y: getlast_key.y, x: getlast_key.x },
+                        type: getlast_key.type
+                    }
+                }
+            }
+
+            for (let k in STTKey) {
+                let LastPos = STTKey[k].pos
+                let w = this.DoubleLiftType[STTKey[k].type][0]
+                let h = this.DoubleLiftType[STTKey[k].type][1]
+                for (let y = LastPos.y; y > LastPos.y - h; y--) {
+                    for (let x = LastPos.x; x > LastPos.x - w; x--) {
+                        map_data[y][x] && (map_data[y][x].child.getComponent(Sprite).color = new Color('#FF8F53'))
+                        if (y == LastPos.y) {
+                            map_data[y][x].child.getComponent(Sprite).spriteFrame = this.dataParent.getChildByName(STTKey[k].type + '').getComponent(Sprite).spriteFrame;
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+    // 点击选择{}
     onSelect(event: Event, id: string) {
         this.ScrollView[id].active = !this.ScrollView[id].active;
     }
