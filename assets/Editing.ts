@@ -234,9 +234,9 @@ export class Editing extends Component {
                     if (newNodeSize) {
                         node.getComponent(UITransform).setContentSize(newNodeSize);
                         data.child.getComponent(UITransform).setContentSize(newNodeSize)
-                        for(let child of data.child.children){
-                            child.getComponent(UITransform).setContentSize(newNodeSize)
-                        }
+                        // for(let child of data.child.children){
+                        //     child.getComponent(UITransform).setContentSize(newNodeSize)
+                        // }
                     }
                     node.active = true
                     this.map_data[row][arrange] = data;
@@ -244,9 +244,9 @@ export class Editing extends Component {
                     if (newNodeSize) {
                         node.getComponent(UITransform).setContentSize(newNodeSize);
                         this.map_data[row][arrange].child.getComponent(UITransform).setContentSize(newNodeSize)
-                        for(let child of this.map_data[row][arrange].child.children){
-                            child.getComponent(UITransform).setContentSize(newNodeSize)
-                        }
+                        // for(let child of this.map_data[row][arrange].child.children){
+                        //     child.getComponent(UITransform).setContentSize(newNodeSize)
+                        // }
                     }
                     node.active = false;
                     // let count_label = this.dataParent.getChildByName(this.map_data[row][arrange].child.name).getChildByName('count').getComponent(Label)
@@ -1124,9 +1124,25 @@ export class Editing extends Component {
         }
         let handle = this.HandleConf(data)
         let new_data = handle.map
-        console.log(handle);
         let row = 0;
         let arrange = 0;
+        this.map_size = handle.size
+        let mapLayout = this.Map.getComponent(Layout)
+        let newWidth = null;
+        let newHeight = null;
+        if (this.mapSize) {
+            newWidth = (this.mapSize.width - mapLayout.paddingLeft - mapLayout.paddingRight - ((this.map_size.arrange - 1) * mapLayout.spacingX)) / this.map_size.arrange - 0.5
+            newHeight = (this.mapSize.height - mapLayout.paddingTop - mapLayout.paddingBottom - ((this.map_size.row - 1) * mapLayout.spacingY)) / this.map_size.row
+        }
+        if (newWidth < newHeight) {
+            newHeight = newWidth
+        } else {
+            newWidth = newHeight
+        }
+        if (this.mapSize) {
+            this.Map.getComponent(UITransform).width = newWidth * this.map_size.arrange + (3 * (this.map_size.arrange - 1)) + 12
+        }
+        let newNodeSize = (this.mapSize) ? new Size(newWidth, newHeight) : null;
         // console.log("data:",data);
 
 
@@ -1146,7 +1162,7 @@ export class Editing extends Component {
                 if (this.map_data[idx[1]][idx[0]].child.children.length > 1) {
                     this.map_data[idx[1]][idx[0]].child.children[1].destroy()
                 }
-                this.map_data[idx[1]][idx[0]].child.getComponent(UITransform).setContentSize(node.getComponent(UITransform).contentSize);
+                this.map_data[idx[1]][idx[0]].child.getComponent(UITransform).setContentSize(newNodeSize);
                 if (idx[2] == 99 || idx[2] == 62 || idx[2] == 65 || idx[2] == 66) {
                     this.map_data[idx[1]][idx[0]].node.getComponent(Sprite).enabled = false
                     this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).enabled = false
@@ -1170,10 +1186,10 @@ export class Editing extends Component {
                             if (this.obstacleOrther[k]) {
                                 let infeed = (this.obstacleOrther[k][0] == 0) ? true : false
                                 if (infeed) {
-                                    newChild.getComponent(UITransform).width = this.map_data[idx[1]][idx[0]].node.getComponent(UITransform).contentSize.width * Number(this.obstacleOrther[k][1])
+                                    newChild.getComponent(UITransform).width = newNodeSize.width * Number(this.obstacleOrther[k][1])
                                 } else {
                                     infeed = false
-                                    newChild.getComponent(UITransform).height = this.map_data[idx[1]][idx[0]].node.getComponent(UITransform).contentSize.height * Number(this.obstacleOrther[k][1])
+                                    newChild.getComponent(UITransform).height = newNodeSize.height * Number(this.obstacleOrther[k][1])
                                 }
                                 newChild.scale = v3(1.18, 1.18, 1.18)
                             }
@@ -1185,23 +1201,22 @@ export class Editing extends Component {
                     newChild.active = true
                     newChild.getChildByName('name').active = false;
                     newChild.getChildByName('count').active = false;
-                    newChild.getComponent(UITransform).setContentSize(this.map_data[idx[1]][idx[0]].node.getComponent(UITransform).contentSize);
+                    newChild.getComponent(UITransform).setContentSize(newNodeSize);
                     newChild.getComponent(Button).enabled = false;
 
                     this.map_data[idx[1]][idx[0]].child.addChild(newChild);
                     newChild.setPosition(v3(0, 0));
-                    this.map_data[idx[1]][idx[0]].child.getComponent(UITransform).setContentSize(node.getComponent(UITransform).contentSize);
+                    this.map_data[idx[1]][idx[0]].child.getComponent(UITransform).setContentSize(newNodeSize);
                     if (this.obstacleOrther[idx[2]]) {
 
                         let infeed = (this.obstacleOrther[idx[2]][0] == 0) ? true : false
                         if (infeed) {
-                            newChild.getComponent(UITransform).width = this.map_data[idx[1]][idx[0]].node.getComponent(UITransform).contentSize.width * Number(this.obstacleOrther[idx[2]][1])
+                            newChild.getComponent(UITransform).width = newNodeSize.width * Number(this.obstacleOrther[idx[2]][1])
                         } else {
                             infeed = false
-                            newChild.getComponent(UITransform).height = this.map_data[idx[1]][idx[0]].node.getComponent(UITransform).contentSize.height * Number(this.obstacleOrther[idx[2]][1])
+                            newChild.getComponent(UITransform).height = newNodeSize.height * Number(this.obstacleOrther[idx[2]][1])
                         }
                         newChild.active = true
-                        console.log(newChild.getComponent(UITransform).contentSize);
                     }
                     newChild.scale = v3(1.18, 1.18, 1.18)
                 } else if (this.Obstacle.E.indexOf(idx[2]) >= 0) {
@@ -1249,7 +1264,6 @@ export class Editing extends Component {
         this.ImportEditBox.string = '';
         if (!conf_data) {
             this.scheduleOnce(() => {
-                console.log('更新地图');
                 this.MapChange();
             }, 0.05)
         }
@@ -1420,26 +1434,37 @@ export class Editing extends Component {
             Map.getComponent(UITransform).width = newWidth * map_size.arrange + (1 * (map_size.arrange - 1)) + 6
         }
         let newNodeSize = new Size(newWidth, newHeight)
-        if (newNodeSize) {
-            node.getComponent(UITransform).setContentSize(newNodeSize);
-        }
+        
         let STTKey = {}
         let STTKeyArr = []
+        let first = true
         for (let child of Map.children) {
+            // if(!first){
+            //     child.destroy()
+            // }else{
+                
+            //     first = false
+            // }
             child.getComponent(Sprite).enabled = true
             child.children[0].getComponent(Sprite).enabled = true
             child.children[0].destroyAllChildren()
             child.children[0].getComponent(Sprite).color = new Color('#FFFFFF')
             child.children[0].name = '1'
             child.active = false
+            // 
+        }
+        
+        if (newNodeSize) {
+            node.getComponent(UITransform).setContentSize(newNodeSize);
         }
         let map_data = []
+        let nodeIdx = 0
         for (let y = 1; y <= map_size.row; y++) {
             if (!map_data[y]) {
                 map_data[y] = []
             }
             for (let x = 1; x <= map_size.arrange; x++) {
-                let name_key = y + '_' + x;
+                let name_key = nodeIdx+'';
                 if (!Map.getChildByName(name_key)) {
                     node = instantiate(node);
                     Map.addChild(node);
@@ -1459,6 +1484,7 @@ export class Editing extends Component {
                     child: newChild,
                 }
                 map_data[y][x] = data;
+                nodeIdx+=1
             }
         }
         for (let idx of new_data) {
