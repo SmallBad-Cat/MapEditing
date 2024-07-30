@@ -98,11 +98,11 @@ export class Editing extends Component {
             }
         });
     }
-    private LevelConf =[1,2,30001]
+    private LevelConf = [1, 2, 30001]
     initGameData() {
-        for(let k in this.provinceLevelJsonData){
+        for (let k in this.provinceLevelJsonData) {
             let level = this.getLevel(this.provinceLevelJsonData[k].level)
-            for(let arr of level){
+            for (let arr of level) {
                 this.LevelConf.push(arr[0])
             }
         }
@@ -1441,7 +1441,7 @@ export class Editing extends Component {
         let data = MapLayoutConf.datas[k]
         item.getChildByName('text').getComponent(Label).string = 'ID:' + data.id;
         let mapSize = new Size(180, 180)
-        this.ItemSetMap(item, data.layout,mapSize)
+        this.ItemSetMap(item, data.layout, mapSize)
         item.name = k
         if (this.ChooseItemKey) {
             if (k == this.ChooseItemKey) {
@@ -1453,22 +1453,31 @@ export class Editing extends Component {
             }
         }
     }
-    onGameListBack(){
+    onGameListBack() {
         this.GameList.node.active = false
     }
-    onLookGameList(){
+    onLookGameList() {
         this.GameList.node.active = true
     }
-    onGameList(item,idx){
-        
+    setListMoveTo(EditBox: EditBox) {
+        let count = Number(EditBox.string)
+        if (!isNaN(count)) {
+            this.GameList.scrollTo(count-1)
+            EditBox.string = ''
+        } else {
+            EditBox.string = ''
+        }
+    }
+    onGameList(item, idx) {
+
         let k = this.levelJsonData[this.LevelConf[idx]].mapLayoutID;
-        let data =this.mapLayoutData[k]
-        item.getChildByName('text').getComponent(Label).string = 'Lv.'+(idx+1)+'-ID:' + data.id;
-        let mapSize = new Size(246,236)
-        this.ItemSetMap(item, data.layout,mapSize)
+        let data = this.mapLayoutData[k]
+        item.getChildByName('text').getComponent(Label).string = 'Lv.' + (idx + 1) + '-ID:' + data.id;
+        let mapSize = new Size(246, 236)
+        this.ItemSetMap(item, data.layout, mapSize)
     }
     // 
-    ItemSetMap(item, data,mapSize) {
+    ItemSetMap(item, data, mapSize) {
         let handle = this.HandleConf(data)
         let new_data = handle.map
         let map_size = handle.size
