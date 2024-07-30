@@ -1,4 +1,4 @@
-import { _decorator, Button, Color, Component, EditBox, EventTouch, instantiate, Label, Layout, loader, Node, resources, ScrollView, Size, Sprite, TextAsset, tween, UITransform, v3, Vec3 } from 'cc';
+import { _decorator, Button, Color, Component, EditBox, error, EventTouch, instantiate, JsonAsset, Label, Layout, loader, Node, resources, ScrollView, Size, Sprite, TextAsset, tween, UITransform, v3, Vec3 } from 'cc';
 import { MapLayoutIdConf } from './resources/Conf/MapLayoutIdConf';
 import { RoleConf } from './resources/Conf/RoleConf';
 import { CollectConf } from './resources/Conf/CollectConf';
@@ -40,6 +40,8 @@ export class Editing extends Component {
     private LayoutList: List = null;
     @property({ type: Node, displayName: "列表Item选择" })
     private ChooseItem: Node = null;
+    @property({ type: List, displayName: "游戏中布局列表" })
+    private GameList: List = null;
 
     private nowContent = 0;
     private ScrollViewSelect = [0, 0, 0, 0];
@@ -72,7 +74,47 @@ export class Editing extends Component {
         75: [9, 9, 3],
     }
     private JianPiaoKou = {}
+
+    public loadJson() {
+        this._loadJson("data/LevelConfig", "levelJsonData");
+        this._loadJson("data/MapLayoutId", "mapLayoutData");
+        this._loadJson("data/ProvinceLevel", "provinceLevelJsonData");
+    }
+    readonly mapLayoutData: any = null;//地图数据
+    readonly levelJsonData: any = null;
+    readonly provinceLevelJsonData: any = null;//关卡数据
+    private loadMaxJsonNum = 0
+    private loadJsonNum = 0
+    private _loadJson(str: string, loadName: string) {
+        this.loadMaxJsonNum++;
+        resources.load(str, (err, jsonAsset: JsonAsset) => {
+            if (err) { error(err); return; }
+            this[loadName] = jsonAsset.json;
+            this.loadJsonNum++;
+            if (this.loadJsonNum == this.loadMaxJsonNum) {
+                // this.initData();
+                // console.log(this.provinceLevelJsonData);
+                this.initGameData()
+            }
+        });
+    }
+    private LevelConf =[1,2,30001]
+    initGameData() {
+        for(let k in this.provinceLevelJsonData){
+            let level = this.getLevel(this.provinceLevelJsonData[k].level)
+            for(let arr of level){
+                this.LevelConf.push(arr[0])
+            }
+        }
+        this.GameList.numItems = this.LevelConf.length
+    }
+    getLevel(str) {
+        str = str.replaceAll(';', '],[')
+        str = `[[${str}]]`;
+        return JSON.parse(str)
+    }
     start() {
+        this.loadJson()
         // console.log();
         // resources.load('Csv/MapLayoutId', function (err, file) {
         //     if (err != null) {
@@ -1389,7 +1431,7 @@ export class Editing extends Component {
         let target: any = event.target;
         let data = MapLayoutConf.datas[target.name]
         this.dataJsonImport(data.layout)
-        this.ChooseItemKey=target.name
+        this.ChooseItemKey = target.name
         this.ChooseItem.parent = target
         this.ChooseItem.setPosition(v3(0, 0, 0))
         this.ChooseItem.active = true
@@ -1398,7 +1440,8 @@ export class Editing extends Component {
         let k = Object.keys(MapLayoutConf.datas)[idx]
         let data = MapLayoutConf.datas[k]
         item.getChildByName('text').getComponent(Label).string = 'ID:' + data.id;
-        this.ItemSetMap(item, data.layout)
+        let mapSize = new Size(180, 180)
+        this.ItemSetMap(item, data.layout,mapSize)
         item.name = k
         if (this.ChooseItemKey) {
             if (k == this.ChooseItemKey) {
@@ -1410,8 +1453,22 @@ export class Editing extends Component {
             }
         }
     }
+    onGameListBack(){
+        this.GameList.node.active = false
+    }
+    onLookGameList(){
+        this.GameList.node.active = true
+    }
+    onGameList(item,idx){
+        
+        let k = this.levelJsonData[this.LevelConf[idx]].mapLayoutID;
+        let data =this.mapLayoutData[k]
+        item.getChildByName('text').getComponent(Label).string = 'Lv.'+(idx+1)+'-ID:' + data.id;
+        let mapSize = new Size(246,236)
+        this.ItemSetMap(item, data.layout,mapSize)
+    }
     // 
-    ItemSetMap(item, data) {
+    ItemSetMap(item, data,mapSize) {
         let handle = this.HandleConf(data)
         let new_data = handle.map
         let map_size = handle.size
@@ -1420,7 +1477,6 @@ export class Editing extends Component {
         let mapLayout = Map.getComponent(Layout)
         let newWidth = null;
         let newHeight = null;
-        let mapSize = new Size(180, 180)
         if (mapSize) {
             newWidth = (mapSize.width - mapLayout.paddingLeft - mapLayout.paddingRight - ((map_size.arrange - 1) * mapLayout.spacingX)) / map_size.arrange - 0.5
             newHeight = (mapSize.height - mapLayout.paddingTop - mapLayout.paddingBottom - ((map_size.row - 1) * mapLayout.spacingY)) / map_size.row
@@ -1434,7 +1490,7 @@ export class Editing extends Component {
             Map.getComponent(UITransform).width = newWidth * map_size.arrange + (1 * (map_size.arrange - 1)) + 6
         }
         let newNodeSize = new Size(newWidth, newHeight)
-        
+
         let STTKey = {}
         let STTKeyArr = []
         let first = true
@@ -1442,7 +1498,7 @@ export class Editing extends Component {
             // if(!first){
             //     child.destroy()
             // }else{
-                
+
             //     first = false
             // }
             child.getComponent(Sprite).enabled = true
@@ -1453,7 +1509,7 @@ export class Editing extends Component {
             child.active = false
             // 
         }
-        
+
         if (newNodeSize) {
             node.getComponent(UITransform).setContentSize(newNodeSize);
         }
@@ -1464,7 +1520,7 @@ export class Editing extends Component {
                 map_data[y] = []
             }
             for (let x = 1; x <= map_size.arrange; x++) {
-                let name_key = nodeIdx+'';
+                let name_key = nodeIdx + '';
                 if (!Map.getChildByName(name_key)) {
                     node = instantiate(node);
                     Map.addChild(node);
@@ -1484,7 +1540,7 @@ export class Editing extends Component {
                     child: newChild,
                 }
                 map_data[y][x] = data;
-                nodeIdx+=1
+                nodeIdx += 1
             }
         }
         for (let idx of new_data) {
@@ -1892,6 +1948,7 @@ export class Editing extends Component {
         }
         return false
     }
+    // 
     update(deltaTime: number) {
 
     }
