@@ -101,6 +101,9 @@ export class Editing extends Component {
         });
     }
     private LevelConf = [1, 2, 30001]
+    private allMapDataType = {
+        'all': {}
+    }
     initGameData() {
         for (let k in this.provinceLevelJsonData) {
             let level = this.getLevel(this.provinceLevelJsonData[k].level)
@@ -108,7 +111,15 @@ export class Editing extends Component {
                 this.LevelConf.push(arr[0])
             }
         }
-        this.GameList.numItems = this.LevelConf.length
+        for (let k in this.allMapData) {
+            let data = this.allMapData[k]
+            this.allMapDataType['all'][data.id] = data
+            if (!this.allMapDataType[data.list]) {
+                this.allMapDataType[data.list] = {}
+            }
+            this.allMapDataType[data.list][data.id] = data;
+        }
+        // this.GameList.numItems = this.LevelConf.length
     }
     getLevel(str) {
         str = str.replaceAll(';', '],[')
@@ -1458,37 +1469,69 @@ export class Editing extends Component {
     onGameListBack() {
         this.GameList.node.active = false
         this.ShowType = null
-        this.GameList.node.getChildByName('EditBox').active = false
     }
     onLookGameList() {
         this.GameList.node.active = true
         this.GameList.numItems = this.LevelConf.length;
         this.ShowType = 'LevelConf'
-        this.GameList.node.getChildByName('EditBox').active = true
+         this.GameList.node.getChildByName('EditBox').getComponent(EditBox).placeholder = '关卡数'
     }
     private ShowType = null
     onAllMapDataList() {
         this.GameList.node.active = !this.GameList.node.active
         this.ShowType = (this.GameList.node.active) ? 'allMapData' : null;
-        this.GameList.numItems = Object.keys(this.allMapData).length;
+        this.GameList.numItems = Object.keys(this.allMapDataType[this.nowLookMapSize]).length;
+        this.GameList.node.getChildByName('AllType').active = (this.GameList.node.active) ? true : false;
+        this.GameList.node.getChildByName('EditBox').getComponent(EditBox).placeholder = '配置id'
+
+    }
+    private nowLookMapSize = 'all'
+    setLookMapSize(e, str) {
+        if (str != 'all') {
+            str = Number(str)
+        }
+        this.nowLookMapSize = str;
+        this.GameList.numItems = Object.keys(this.allMapDataType[this.nowLookMapSize]).length;
+        this.GameList.scrollTo(0)
     }
     setListMoveTo(EditBox: EditBox) {
         let count = Number(EditBox.string)
         if (!isNaN(count)) {
-            this.GameList.scrollTo(count - 1)
+            if (this.ShowType == 'LevelConf') {
+                this.GameList.scrollTo(count - 1)
+            } else {
+                if (this.allMapDataType[this.nowLookMapSize][count]) {
+                    let idx = Object.keys(this.allMapDataType[this.nowLookMapSize]).indexOf(count+'')
+                    this.GameList.scrollTo(idx - 1)
+                } else {
+                    if (!this.allMapDataType['all'][count]) {
+                        this.TipTween('当前id表中未存在')
+                        EditBox.string = ''
+                        return
+                    } else {
+                        this.nowLookMapSize = 'all';
+                        this.GameList.numItems = Object.keys(this.allMapDataType[this.nowLookMapSize]).length;
+                        let idx = Object.keys(this.allMapDataType[this.nowLookMapSize]).indexOf(count+'')
+                        this.GameList.scrollTo(0)
+                        this.scheduleOnce(()=>{
+                            this.GameList.scrollTo(idx - 1)
+                        })
+                    }
+                }
+            }
             EditBox.string = ''
         } else {
             EditBox.string = ''
         }
     }
     onGameList(item, idx) {
-        let k = (this.ShowType == 'LevelConf') ? this.levelJsonData[this.LevelConf[idx]].mapLayoutID : Object.keys(this.allMapData)[idx];
-        let data = (this.ShowType == 'LevelConf') ? this.mapLayoutData[k] : this.allMapData[k]
+        let k = (this.ShowType == 'LevelConf') ? this.levelJsonData[this.LevelConf[idx]].mapLayoutID : Object.keys(this.allMapDataType[this.nowLookMapSize])[idx];
+        let data = (this.ShowType == 'LevelConf') ? this.mapLayoutData[k] : this.allMapDataType[this.nowLookMapSize][k]
         let str = ''
         if (this.ShowType == 'LevelConf') {
             str = 'Lv.' + (idx + 1) + '-ID:' + data.id
         } else {
-            str = 'id:'+data.id
+            str = 'id:' + data.id
         }
         item.getChildByName('text').getComponent(Label).string = str;
         let mapSize = new Size(246, 236)
