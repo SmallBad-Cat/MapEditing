@@ -1475,6 +1475,7 @@ export class Editing extends Component {
         this.GameList.numItems = this.LevelConf.length;
         this.ShowType = 'LevelConf'
          this.GameList.node.getChildByName('EditBox').getComponent(EditBox).placeholder = '关卡数'
+         this.GameList.scrollTo(0)
     }
     private ShowType = null
     onAllMapDataList() {
@@ -1483,6 +1484,7 @@ export class Editing extends Component {
         this.GameList.numItems = Object.keys(this.allMapDataType[this.nowLookMapSize]).length;
         this.GameList.node.getChildByName('AllType').active = (this.GameList.node.active) ? true : false;
         this.GameList.node.getChildByName('EditBox').getComponent(EditBox).placeholder = '配置id'
+        this.GameList.scrollTo(0)
 
     }
     private nowLookMapSize = 'all'
