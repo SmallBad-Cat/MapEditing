@@ -1527,6 +1527,26 @@ export class Editing extends Component {
         }
     }
     onGameList(item, idx) {
+        if(this.ShowType == 'LevelConf'&&!this.levelJsonData[this.LevelConf[idx]]){
+            item.getChildByName('text').getComponent(Label).string =`level表中${this.LevelConf[idx]}不存在`;
+            let Map = item.getChildByName('Map')
+            for (let child of Map.children) {
+                // if(!first){
+                //     child.destroy()
+                // }else{
+    
+                //     first = false
+                // }
+                child.getComponent(Sprite).enabled = true
+                child.children[0].getComponent(Sprite).enabled = true
+                child.children[0].destroyAllChildren()
+                child.children[0].getComponent(Sprite).color = new Color('#FFFFFF')
+                child.children[0].name = '1'
+                child.active = false
+                // 
+            }
+            return
+        }
         let k = (this.ShowType == 'LevelConf') ? this.levelJsonData[this.LevelConf[idx]].mapLayoutID : Object.keys(this.allMapDataType[this.nowLookMapSize])[idx];
         let data = (this.ShowType == 'LevelConf') ? this.mapLayoutData[k] : this.allMapDataType[this.nowLookMapSize][k]
         let str = ''
