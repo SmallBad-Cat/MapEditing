@@ -39153,7 +39153,7 @@
     "component": "",
     "_componentId": "3f52bkwmLtLe4xJmfjn74+h",
     "handler": "setLookMapSize",
-    "customEventData": "5"
+    "customEventData": "1"
   },
   {
     "__type__": "cc.Node",
@@ -39468,7 +39468,7 @@
     "component": "",
     "_componentId": "3f52bkwmLtLe4xJmfjn74+h",
     "handler": "setLookMapSize",
-    "customEventData": "7"
+    "customEventData": "2"
   },
   {
     "__type__": "cc.Node",
@@ -39783,7 +39783,7 @@
     "component": "",
     "_componentId": "3f52bkwmLtLe4xJmfjn74+h",
     "handler": "setLookMapSize",
-    "customEventData": "9"
+    "customEventData": "3"
   },
   {
     "__type__": "cc.Node",
@@ -40098,7 +40098,7 @@
     "component": "",
     "_componentId": "3f52bkwmLtLe4xJmfjn74+h",
     "handler": "setLookMapSize",
-    "customEventData": "11"
+    "customEventData": "4"
   },
   {
     "__type__": "cc.Node",
@@ -40807,7 +40807,7 @@
     "_priority": 2,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 396.97425897035885,
+    "_orthoHeight": 456.02240143369175,
     "_near": 0,
     "_far": 1000,
     "_color": {

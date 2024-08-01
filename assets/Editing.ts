@@ -1475,7 +1475,7 @@ export class Editing extends Component {
         this.GameList.node.getChildByName('AllType').active = false
         this.GameList.node.active = true
         this.GameList.numItems = this.LevelConf.length;
-       
+
         this.GameList.node.getChildByName('EditBox').getComponent(EditBox).placeholder = '关卡数'
         this.GameList.scrollTo(0)
     }
@@ -1505,7 +1505,7 @@ export class Editing extends Component {
                 this.GameList.scrollTo(count - 1)
             } else {
                 if (this.allMapDataType[this.nowLookMapSize][count]) {
-                    let idx = Object.keys(this.allMapDataType[this.nowLookMapSize]).indexOf(count+'')
+                    let idx = Object.keys(this.allMapDataType[this.nowLookMapSize]).indexOf(count + '')
                     this.GameList.scrollTo(idx - 1)
                 } else {
                     if (!this.allMapDataType['all'][count]) {
@@ -1515,9 +1515,9 @@ export class Editing extends Component {
                     } else {
                         this.nowLookMapSize = 'all';
                         this.GameList.numItems = Object.keys(this.allMapDataType[this.nowLookMapSize]).length;
-                        let idx = Object.keys(this.allMapDataType[this.nowLookMapSize]).indexOf(count+'')
+                        let idx = Object.keys(this.allMapDataType[this.nowLookMapSize]).indexOf(count + '')
                         this.GameList.scrollTo(0)
-                        this.scheduleOnce(()=>{
+                        this.scheduleOnce(() => {
                             this.GameList.scrollTo(idx - 1)
                         })
                     }
@@ -1529,16 +1529,16 @@ export class Editing extends Component {
         }
     }
     onGameList(item, idx) {
-        if(this.ShowType == 'LevelConf'){
+        if (this.ShowType == 'LevelConf') {
             let next = true
-            if(!this.levelJsonData[this.LevelConf[idx]]){
-                item.getChildByName('text').getComponent(Label).string =`level表中${this.LevelConf[idx]}不存在`;
+            if (!this.levelJsonData[this.LevelConf[idx]]) {
+                item.getChildByName('text').getComponent(Label).string = `level表中${this.LevelConf[idx]}不存在`;
                 next = false
-            }else if(!this.mapLayoutData[this.levelJsonData[this.LevelConf[idx]].mapLayoutID]){
-                item.getChildByName('text').getComponent(Label).string =`Layout表中${this.levelJsonData[this.LevelConf[idx]].mapLayoutID}不存在`;
+            } else if (!this.mapLayoutData[this.levelJsonData[this.LevelConf[idx]].mapLayoutID]) {
+                item.getChildByName('text').getComponent(Label).string = `Layout表中${this.levelJsonData[this.LevelConf[idx]].mapLayoutID}不存在`;
                 next = false
             }
-            if(!next){
+            if (!next) {
                 let Map = item.getChildByName('Map')
                 for (let child of Map.children) {
                     child.getComponent(Sprite).enabled = true
@@ -1550,7 +1550,7 @@ export class Editing extends Component {
                 }
                 return
             }
-           
+
         }
         let k = (this.ShowType == 'LevelConf') ? this.levelJsonData[this.LevelConf[idx]].mapLayoutID : Object.keys(this.allMapDataType[this.nowLookMapSize])[idx];
         let data = (this.ShowType == 'LevelConf') ? this.mapLayoutData[k] : this.allMapDataType[this.nowLookMapSize][k]
@@ -1562,7 +1562,24 @@ export class Editing extends Component {
         }
         item.getChildByName('text').getComponent(Label).string = str;
         let mapSize = new Size(246, 236)
-        this.ItemSetMap(item, data.layout, mapSize)
+        let layout = data.layout
+        // if (this.ShowType != 'LevelConf') {
+        //     if (!this.mapLayoutData[data.layout]) {
+        //         item.getChildByName('text').getComponent(Label).string = `Layout表中${data.layout}不存在`;
+        //         let Map = item.getChildByName('Map')
+        //         for (let child of Map.children) {
+        //             child.getComponent(Sprite).enabled = true
+        //             child.children[0].getComponent(Sprite).enabled = true
+        //             child.children[0].destroyAllChildren()
+        //             child.children[0].getComponent(Sprite).color = new Color('#FFFFFF')
+        //             child.children[0].name = '1'
+        //             child.active = false
+        //         }
+        //         return
+        //     }
+        //     layout = this.mapLayoutData[data.layout].layout
+        // }
+        this.ItemSetMap(item, layout, mapSize)
     }
     // 
     ItemSetMap(item, data, mapSize) {
