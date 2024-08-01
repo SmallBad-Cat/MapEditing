@@ -100,7 +100,7 @@ export class Editing extends Component {
             }
         });
     }
-    private LevelConf = [1, 2, 30001]
+    private LevelConf = [1098, 1099, 1100]
     private allMapDataType = {
         'all': {}
     }
@@ -1471,11 +1471,13 @@ export class Editing extends Component {
         this.ShowType = null
     }
     onLookGameList() {
+        this.ShowType = 'LevelConf'
+        this.GameList.node.getChildByName('AllType').active = false
         this.GameList.node.active = true
         this.GameList.numItems = this.LevelConf.length;
-        this.ShowType = 'LevelConf'
-         this.GameList.node.getChildByName('EditBox').getComponent(EditBox).placeholder = '关卡数'
-         this.GameList.scrollTo(0)
+       
+        this.GameList.node.getChildByName('EditBox').getComponent(EditBox).placeholder = '关卡数'
+        this.GameList.scrollTo(0)
     }
     private ShowType = null
     onAllMapDataList() {
@@ -1527,25 +1529,28 @@ export class Editing extends Component {
         }
     }
     onGameList(item, idx) {
-        if(this.ShowType == 'LevelConf'&&!this.levelJsonData[this.LevelConf[idx]]){
-            item.getChildByName('text').getComponent(Label).string =`level表中${this.LevelConf[idx]}不存在`;
-            let Map = item.getChildByName('Map')
-            for (let child of Map.children) {
-                // if(!first){
-                //     child.destroy()
-                // }else{
-    
-                //     first = false
-                // }
-                child.getComponent(Sprite).enabled = true
-                child.children[0].getComponent(Sprite).enabled = true
-                child.children[0].destroyAllChildren()
-                child.children[0].getComponent(Sprite).color = new Color('#FFFFFF')
-                child.children[0].name = '1'
-                child.active = false
-                // 
+        if(this.ShowType == 'LevelConf'){
+            let next = true
+            if(!this.levelJsonData[this.LevelConf[idx]]){
+                item.getChildByName('text').getComponent(Label).string =`level表中${this.LevelConf[idx]}不存在`;
+                next = false
+            }else if(!this.mapLayoutData[this.levelJsonData[this.LevelConf[idx]].mapLayoutID]){
+                item.getChildByName('text').getComponent(Label).string =`Layout表中${this.levelJsonData[this.LevelConf[idx]].mapLayoutID}不存在`;
+                next = false
             }
-            return
+            if(!next){
+                let Map = item.getChildByName('Map')
+                for (let child of Map.children) {
+                    child.getComponent(Sprite).enabled = true
+                    child.children[0].getComponent(Sprite).enabled = true
+                    child.children[0].destroyAllChildren()
+                    child.children[0].getComponent(Sprite).color = new Color('#FFFFFF')
+                    child.children[0].name = '1'
+                    child.active = false
+                }
+                return
+            }
+           
         }
         let k = (this.ShowType == 'LevelConf') ? this.levelJsonData[this.LevelConf[idx]].mapLayoutID : Object.keys(this.allMapDataType[this.nowLookMapSize])[idx];
         let data = (this.ShowType == 'LevelConf') ? this.mapLayoutData[k] : this.allMapDataType[this.nowLookMapSize][k]
