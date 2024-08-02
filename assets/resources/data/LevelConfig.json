@@ -2402,7 +2402,7 @@
  "2050": {
   "id": 2050,
   "mapSize": 2,
-  "mapLayoutID": "2036",
+  "mapLayoutID": 2036,
   "number": "",
   "difficultylevel": 275,
   "levelLayout": "A,A,A,B,A,D,F,C,E,A,B,E,F,D,B,D,E,C,C,F,A,A,D,E,F,B,B,D,E,F,C,A,B,D,C,C,A,F,E",
@@ -7600,8 +7600,8 @@
   "elevator2Layout": "",
   "elevator3Layout": "",
   "elevator4Layout": "",
-  "vipLevator1": "",
-  "vipLevator2": "A,C,A,D,C,E,G,F,B",
+  "vipLevator1": "A,C,A,D,C,E,G,F,B",
+  "vipLevator2": "",
   "string": ""
  },
  "3254": {
@@ -7615,8 +7615,8 @@
   "elevator2Layout": "",
   "elevator3Layout": "",
   "elevator4Layout": "",
-  "vipLevator1": "",
-  "vipLevator2": "E,A,C,B,D,F,G,E,H",
+  "vipLevator1": "E,A,C,B,D,F,G,E,H",
+  "vipLevator2": "",
   "string": ""
  },
  "3255": {
@@ -7630,8 +7630,8 @@
   "elevator2Layout": "",
   "elevator3Layout": "",
   "elevator4Layout": "",
-  "vipLevator1": "",
-  "vipLevator2": "G,B,A,E,D,F,H,C,G",
+  "vipLevator1": "G,B,A,E,D,F,H,C,G",
+  "vipLevator2": "",
   "string": ""
  },
  "3256": {
@@ -7645,8 +7645,8 @@
   "elevator2Layout": "",
   "elevator3Layout": "",
   "elevator4Layout": "",
-  "vipLevator1": "",
-  "vipLevator2": "B,A,D,C,A,C,E,D,B,H,G,F",
+  "vipLevator1": "B,A,D,C,A,C,E,D,B,H,G,F",
+  "vipLevator2": "",
   "string": ""
  },
  "3257": {
@@ -7660,8 +7660,8 @@
   "elevator2Layout": "",
   "elevator3Layout": "",
   "elevator4Layout": "",
-  "vipLevator1": "",
-  "vipLevator2": "D,E,A,F,B,D,C,A,E,G,F,H",
+  "vipLevator1": "D,E,A,F,B,D,C,A,E,G,F,H",
+  "vipLevator2": "",
   "string": ""
  },
  "3258": {
@@ -7675,8 +7675,8 @@
   "elevator2Layout": "",
   "elevator3Layout": "",
   "elevator4Layout": "",
-  "vipLevator1": "",
-  "vipLevator2": "E,C,G,H,C,A,B,D,G,E,F,H",
+  "vipLevator1": "E,C,G,H,C,A,B,D,G,E,F,H",
+  "vipLevator2": "",
   "string": ""
  },
  "3259": {
@@ -7690,8 +7690,8 @@
   "elevator2Layout": "",
   "elevator3Layout": "",
   "elevator4Layout": "",
-  "vipLevator1": "",
-  "vipLevator2": "A,B,D,C,F,E,G,A,D,C,F,G,E,H,B",
+  "vipLevator1": "A,B,D,C,F,E,G,A,D,C,F,G,E,H,B",
+  "vipLevator2": "",
   "string": ""
  },
  "3260": {
@@ -7705,8 +7705,8 @@
   "elevator2Layout": "",
   "elevator3Layout": "",
   "elevator4Layout": "",
-  "vipLevator1": "",
-  "vipLevator2": "B,C,A,D,E,G,F,C,A,B,D,E,F,H,G",
+  "vipLevator1": "B,C,A,D,E,G,F,C,A,B,D,E,F,H,G",
+  "vipLevator2": "",
   "string": ""
  },
  "3261": {
@@ -7720,8 +7720,8 @@
   "elevator2Layout": "",
   "elevator3Layout": "",
   "elevator4Layout": "",
-  "vipLevator1": "",
-  "vipLevator2": "B,A,E,D,G,F,H,A,D,E,F,G,C,B,H",
+  "vipLevator1": "B,A,E,D,G,F,H,A,D,E,F,G,C,B,H",
+  "vipLevator2": "",
   "string": ""
  },
  "3262": {
@@ -7735,7 +7735,7 @@
   "elevator2Layout": "C,E,A",
   "elevator3Layout": "F,G,H",
   "elevator4Layout": "",
-  "vipLevator1": "D,A,D,C,B,G,F,H,E",
+  "vipLevator1": "B,A,B,D,C,E,A,F,G",
   "vipLevator2": "",
   "string": ""
  },
@@ -7750,7 +7750,7 @@
   "elevator2Layout": "E,G,H,F,A,B",
   "elevator3Layout": "D,C,A,G,H,F",
   "elevator4Layout": "",
-  "vipLevator1": "E,A,B,E,C,D,G,F,H",
+  "vipLevator1": "F,C,B,A,D,F,E,G,H",
   "vipLevator2": "",
   "string": ""
  },
@@ -7765,7 +7765,7 @@
   "elevator2Layout": "A,D,B,C,F,H,G,I,E",
   "elevator3Layout": "C,D,A,F,B,G,E,I,H",
   "elevator4Layout": "",
-  "vipLevator1": "A,C,D,E,B,F,I,G,H",
+  "vipLevator1": "G,B,D,A,C,F,G,H,E",
   "vipLevator2": "",
   "string": ""
  },
@@ -7780,7 +7780,7 @@
   "elevator2Layout": "C,D,B",
   "elevator3Layout": "D,C,F",
   "elevator4Layout": "",
-  "vipLevator1": "A,G,E,H,C,D,B,F,E,H,G,A",
+  "vipLevator1": "B,A,C,D,C,B,E,D,A,H,F,G",
   "vipLevator2": "",
   "string": ""
  },
@@ -7795,7 +7795,7 @@
   "elevator2Layout": "E,F,G,D,H,I",
   "elevator3Layout": "C,D,B,F,E,H",
   "elevator4Layout": "",
-  "vipLevator1": "I,A,G,B,C,A,F,G,E,I,D,H",
+  "vipLevator1": "C,D,E,F,B,C,A,D,E,F,G,H",
   "vipLevator2": "",
   "string": ""
  },
@@ -7810,7 +7810,7 @@
   "elevator2Layout": "E,G,I,A,C,E,F,D,H",
   "elevator3Layout": "I,B,G,A,B,D,E,G,F",
   "elevator4Layout": "",
-  "vipLevator1": "H,C,I,C,D,A,E,G,F,I,B,H",
+  "vipLevator1": "E,G,A,H,C,B,E,F,D,A,H,G",
   "vipLevator2": "",
   "string": ""
  },
@@ -7825,7 +7825,7 @@
   "elevator2Layout": "E,F,C",
   "elevator3Layout": "D,G,C",
   "elevator4Layout": "",
-  "vipLevator1": "A,E,B,D,H,G,F,B,A,D,E,F,H,C,G",
+  "vipLevator1": "A,B,D,F,C,E,G,C,B,E,A,D,H,G,F",
   "vipLevator2": "",
   "string": ""
  },
@@ -7840,7 +7840,7 @@
   "elevator2Layout": "C,D,A,E,F,G",
   "elevator3Layout": "I,H,B,C,A,E",
   "elevator4Layout": "",
-  "vipLevator1": "B,G,H,I,D,F,C,B,E,A,G,F,D,H,I",
+  "vipLevator1": "A,D,B,E,C,G,F,B,A,C,F,G,H,E,D",
   "vipLevator2": "",
   "string": ""
  },
@@ -7855,7 +7855,7 @@
   "elevator2Layout": "F,G,B,H,A,I,B,C,A",
   "elevator3Layout": "E,D,G,H,F,I,A,B,D",
   "elevator4Layout": "",
-  "vipLevator1": "E,F,H,C,G,I,C,A,E,D,G,H,I,B,F",
+  "vipLevator1": "C,E,F,A,G,H,D,A,C,E,B,F,D,H,G",
   "vipLevator2": "",
   "string": ""
  },
@@ -21047,7 +21047,7 @@
  "20018": {
   "id": 20018,
   "mapSize": 3,
-  "mapLayoutID": "7003",
+  "mapLayoutID": 7003,
   "number": "",
   "difficultylevel": 692,
   "levelLayout": "F,E,D,E,D,F,B,D,C,E,A,C,E,G,E,G,E,G,E,G,F,B,A,F,A,D,C,B,D,C,E,G,F,C,B,A,B,C,D,F,F,A,C,D,B,F,A,D",
@@ -21055,8 +21055,8 @@
   "elevator2Layout": "",
   "elevator3Layout": "",
   "elevator4Layout": "",
-  "vipLevator1": "",
-  "vipLevator2": "B,A,B,D,C,E,A,F,G",
+  "vipLevator1": "B,A,B,D,C,E,A,F,G",
+  "vipLevator2": "",
   "string": ""
  },
  "20019": {
@@ -21070,8 +21070,8 @@
   "elevator2Layout": "",
   "elevator3Layout": "",
   "elevator4Layout": "",
-  "vipLevator1": "",
-  "vipLevator2": "F,C,B,A,D,F,E,G,H",
+  "vipLevator1": "F,C,B,A,D,F,E,G,H",
+  "vipLevator2": "",
   "string": ""
  },
  "20020": {
@@ -21085,8 +21085,8 @@
   "elevator2Layout": "",
   "elevator3Layout": "",
   "elevator4Layout": "",
-  "vipLevator1": "",
-  "vipLevator2": "G,B,D,A,C,F,G,H,E",
+  "vipLevator1": "G,B,D,A,C,F,G,H,E",
+  "vipLevator2": "",
   "string": ""
  },
  "20021": {
@@ -21100,8 +21100,8 @@
   "elevator2Layout": "",
   "elevator3Layout": "",
   "elevator4Layout": "",
-  "vipLevator1": "",
-  "vipLevator2": "B,A,C,D,C,B,E,D,A,H,F,G",
+  "vipLevator1": "B,A,C,D,C,B,E,D,A,H,F,G",
+  "vipLevator2": "",
   "string": ""
  },
  "20022": {
@@ -21115,8 +21115,8 @@
   "elevator2Layout": "",
   "elevator3Layout": "",
   "elevator4Layout": "",
-  "vipLevator1": "",
-  "vipLevator2": "C,D,E,F,B,C,A,D,E,F,G,H",
+  "vipLevator1": "C,D,E,F,B,C,A,D,E,F,G,H",
+  "vipLevator2": "",
   "string": ""
  },
  "20023": {
@@ -21130,8 +21130,8 @@
   "elevator2Layout": "",
   "elevator3Layout": "",
   "elevator4Layout": "",
-  "vipLevator1": "",
-  "vipLevator2": "E,G,A,H,C,B,E,F,D,A,H,G",
+  "vipLevator1": "E,G,A,H,C,B,E,F,D,A,H,G",
+  "vipLevator2": "",
   "string": ""
  },
  "20024": {
@@ -21145,8 +21145,8 @@
   "elevator2Layout": "",
   "elevator3Layout": "",
   "elevator4Layout": "",
-  "vipLevator1": "",
-  "vipLevator2": "A,B,D,F,C,E,G,C,B,E,A,D,H,G,F",
+  "vipLevator1": "A,B,D,F,C,E,G,C,B,E,A,D,H,G,F",
+  "vipLevator2": "",
   "string": ""
  },
  "20025": {
@@ -21160,8 +21160,8 @@
   "elevator2Layout": "",
   "elevator3Layout": "",
   "elevator4Layout": "",
-  "vipLevator1": "",
-  "vipLevator2": "A,D,B,E,C,G,F,B,A,C,F,G,H,E,D",
+  "vipLevator1": "A,D,B,E,C,G,F,B,A,C,F,G,H,E,D",
+  "vipLevator2": "",
   "string": ""
  },
  "20026": {
@@ -21175,8 +21175,8 @@
   "elevator2Layout": "",
   "elevator3Layout": "",
   "elevator4Layout": "",
-  "vipLevator1": "",
-  "vipLevator2": "C,E,F,A,G,H,D,A,C,E,B,F,D,H,G",
+  "vipLevator1": "C,E,F,A,G,H,D,A,C,E,B,F,D,H,G",
+  "vipLevator2": "",
   "string": ""
  },
  "20027": {
@@ -22085,7 +22085,7 @@
   "mapLayoutID": "8001",
   "number": "",
   "difficultylevel": 19,
-  "levelLayout": "A,A,B",
+  "levelLayout": "A,A,A,B,B,B",
   "elevator1Layout": "",
   "elevator2Layout": "",
   "elevator3Layout": "",
@@ -22186,7 +22186,7 @@
  },
  "30008": {
   "id": 30008,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "8008",
   "number": "",
   "difficultylevel": 290,
@@ -22201,7 +22201,7 @@
  },
  "30009": {
   "id": 30009,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "8009",
   "number": "",
   "difficultylevel": 776,
@@ -22216,7 +22216,7 @@
  },
  "30010": {
   "id": 30010,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "8010",
   "number": "",
   "difficultylevel": 248,
@@ -22231,7 +22231,7 @@
  },
  "30011": {
   "id": 30011,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "8011",
   "number": "",
   "difficultylevel": 932,
@@ -22246,7 +22246,7 @@
  },
  "30012": {
   "id": 30012,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "8012",
   "number": "",
   "difficultylevel": 290,
@@ -22261,7 +22261,7 @@
  },
  "30013": {
   "id": 30013,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "8013",
   "number": "",
   "difficultylevel": 203,
@@ -22276,7 +22276,7 @@
  },
  "30014": {
   "id": 30014,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "8014",
   "number": "",
   "difficultylevel": 260,
@@ -22291,7 +22291,7 @@
  },
  "30015": {
   "id": 30015,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "8015",
   "number": "",
   "difficultylevel": 749,
@@ -22306,7 +22306,7 @@
  },
  "30016": {
   "id": 30016,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "8016",
   "number": "",
   "difficultylevel": 155,
@@ -22321,7 +22321,7 @@
  },
  "30017": {
   "id": 30017,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "8017",
   "number": "",
   "difficultylevel": 809,
@@ -22336,7 +22336,7 @@
  },
  "30018": {
   "id": 30018,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "8018",
   "number": "",
   "difficultylevel": 959,
@@ -22351,7 +22351,7 @@
  },
  "30019": {
   "id": 30019,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "8019",
   "number": "",
   "difficultylevel": 1154,
@@ -22366,7 +22366,7 @@
  },
  "30020": {
   "id": 30020,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "8020",
   "number": "",
   "difficultylevel": 1289,
@@ -22381,7 +22381,7 @@
  },
  "30021": {
   "id": 30021,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "8021",
   "number": "",
   "difficultylevel": 440,
@@ -22396,7 +22396,7 @@
  },
  "30022": {
   "id": 30022,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "8022",
   "number": "",
   "difficultylevel": 1127,
@@ -22501,7 +22501,7 @@
  },
  "30029": {
   "id": 30029,
-  "mapSize": 2,
+  "mapSize": 1,
   "mapLayoutID": "8028",
   "number": "",
   "difficultylevel": 285,
@@ -22531,7 +22531,7 @@
  },
  "30031": {
   "id": 30031,
-  "mapSize": 2,
+  "mapSize": 1,
   "mapLayoutID": "8029",
   "number": "",
   "difficultylevel": 420,
@@ -22546,7 +22546,7 @@
  },
  "30032": {
   "id": 30032,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "8030",
   "number": "",
   "difficultylevel": 831,
@@ -22576,7 +22576,7 @@
  },
  "30034": {
   "id": 30034,
-  "mapSize": 3,
+  "mapSize": 2,
   "mapLayoutID": "8030",
   "number": "",
   "difficultylevel": 831,
@@ -22591,7 +22591,7 @@
  },
  "30035": {
   "id": 30035,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "8031",
   "number": "",
   "difficultylevel": 792,
@@ -22621,7 +22621,7 @@
  },
  "30037": {
   "id": 30037,
-  "mapSize": 3,
+  "mapSize": 2,
   "mapLayoutID": "8031",
   "number": "",
   "difficultylevel": 792,
@@ -22636,7 +22636,7 @@
  },
  "30038": {
   "id": 30038,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "8032",
   "number": "",
   "difficultylevel": 342,
@@ -22666,7 +22666,7 @@
  },
  "30040": {
   "id": 30040,
-  "mapSize": 3,
+  "mapSize": 2,
   "mapLayoutID": "8032",
   "number": "",
   "difficultylevel": 342,
@@ -22681,7 +22681,7 @@
  },
  "30041": {
   "id": 30041,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "8033",
   "number": "",
   "difficultylevel": 738,
@@ -22696,7 +22696,7 @@
  },
  "30042": {
   "id": 30042,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "8034",
   "number": "",
   "difficultylevel": 615,
@@ -22726,7 +22726,7 @@
  },
  "30044": {
   "id": 30044,
-  "mapSize": 3,
+  "mapSize": 2,
   "mapLayoutID": "8034",
   "number": "",
   "difficultylevel": 609,
@@ -22741,7 +22741,7 @@
  },
  "30045": {
   "id": 30045,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "8035",
   "number": "",
   "difficultylevel": 618,
@@ -22756,7 +22756,7 @@
  },
  "30046": {
   "id": 30046,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "8036",
   "number": "",
   "difficultylevel": 306,
@@ -22786,7 +22786,7 @@
  },
  "30048": {
   "id": 30048,
-  "mapSize": 3,
+  "mapSize": 2,
   "mapLayoutID": "8036",
   "number": "",
   "difficultylevel": 306,
@@ -22801,7 +22801,7 @@
  },
  "30049": {
   "id": 30049,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "8037",
   "number": "",
   "difficultylevel": 165,
@@ -22831,7 +22831,7 @@
  },
  "30051": {
   "id": 30051,
-  "mapSize": 3,
+  "mapSize": 2,
   "mapLayoutID": "8037",
   "number": "",
   "difficultylevel": 165,
@@ -22846,7 +22846,7 @@
  },
  "30052": {
   "id": 30052,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "8038",
   "number": "",
   "difficultylevel": 720,
@@ -22876,7 +22876,7 @@
  },
  "30054": {
   "id": 30054,
-  "mapSize": 3,
+  "mapSize": 2,
   "mapLayoutID": "8038",
   "number": "",
   "difficultylevel": 720,
@@ -22891,7 +22891,7 @@
  },
  "30055": {
   "id": 30055,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "8039",
   "number": "",
   "difficultylevel": 771,
@@ -22921,7 +22921,7 @@
  },
  "30057": {
   "id": 30057,
-  "mapSize": 3,
+  "mapSize": 2,
   "mapLayoutID": "8039",
   "number": "",
   "difficultylevel": 771,
@@ -22936,7 +22936,7 @@
  },
  "30058": {
   "id": 30058,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "8040",
   "number": "",
   "difficultylevel": 354,
@@ -22951,7 +22951,7 @@
  },
  "30059": {
   "id": 30059,
-  "mapSize": 2,
+  "mapSize": 3,
   "mapLayoutID": "8040",
   "number": "",
   "difficultylevel": 354,
@@ -22981,7 +22981,7 @@
  },
  "30061": {
   "id": 30061,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "8041",
   "number": "",
   "difficultylevel": 1245,
@@ -22996,7 +22996,7 @@
  },
  "30062": {
   "id": 30062,
-  "mapSize": 2,
+  "mapSize": 3,
   "mapLayoutID": "8041",
   "number": "",
   "difficultylevel": 1245,
@@ -23026,7 +23026,7 @@
  },
  "30064": {
   "id": 30064,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "8042",
   "number": "",
   "difficultylevel": 1068,
@@ -23041,7 +23041,7 @@
  },
  "30065": {
   "id": 30065,
-  "mapSize": 2,
+  "mapSize": 3,
   "mapLayoutID": "8042",
   "number": "",
   "difficultylevel": 1068,
@@ -23071,7 +23071,7 @@
  },
  "30067": {
   "id": 30067,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "8043",
   "number": "",
   "difficultylevel": 795,
@@ -23086,7 +23086,7 @@
  },
  "30068": {
   "id": 30068,
-  "mapSize": 2,
+  "mapSize": 3,
   "mapLayoutID": "8043",
   "number": "",
   "difficultylevel": 795,
@@ -23116,7 +23116,7 @@
  },
  "30070": {
   "id": 30070,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "8044",
   "number": "",
   "difficultylevel": 840,
@@ -23131,7 +23131,7 @@
  },
  "30071": {
   "id": 30071,
-  "mapSize": 2,
+  "mapSize": 3,
   "mapLayoutID": "8044",
   "number": "",
   "difficultylevel": 840,
@@ -23161,7 +23161,7 @@
  },
  "30073": {
   "id": 30073,
-  "mapSize": 4,
+  "mapSize": 3,
   "mapLayoutID": "8044",
   "number": "",
   "difficultylevel": 840,
@@ -23176,7 +23176,7 @@
  },
  "30074": {
   "id": 30074,
-  "mapSize": 5,
+  "mapSize": 3,
   "mapLayoutID": "8044",
   "number": "",
   "difficultylevel": 840,
@@ -23191,7 +23191,7 @@
  },
  "30075": {
   "id": 30075,
-  "mapSize": 6,
+  "mapSize": 3,
   "mapLayoutID": "8044",
   "number": "",
   "difficultylevel": 840,
@@ -23206,7 +23206,7 @@
  },
  "30076": {
   "id": 30076,
-  "mapSize": 7,
+  "mapSize": 3,
   "mapLayoutID": "8044",
   "number": "",
   "difficultylevel": 840,
@@ -23221,7 +23221,7 @@
  },
  "30077": {
   "id": 30077,
-  "mapSize": 8,
+  "mapSize": 3,
   "mapLayoutID": "8044",
   "number": "",
   "difficultylevel": 840,
@@ -23236,7 +23236,7 @@
  },
  "30078": {
   "id": 30078,
-  "mapSize": 9,
+  "mapSize": 3,
   "mapLayoutID": "8044",
   "number": "",
   "difficultylevel": 840,
@@ -23251,7 +23251,7 @@
  },
  "30079": {
   "id": 30079,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "8045",
   "number": "",
   "difficultylevel": 1107,
@@ -23266,7 +23266,7 @@
  },
  "30080": {
   "id": 30080,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "8046",
   "number": "",
   "difficultylevel": 924,
@@ -23281,7 +23281,7 @@
  },
  "30081": {
   "id": 30081,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "8047",
   "number": "",
   "difficultylevel": 825,
@@ -23296,7 +23296,7 @@
  },
  "30082": {
   "id": 30082,
-  "mapSize": 2,
+  "mapSize": 4,
   "mapLayoutID": "8047",
   "number": "",
   "difficultylevel": 825,
@@ -23311,7 +23311,7 @@
  },
  "30083": {
   "id": 30083,
-  "mapSize": 3,
+  "mapSize": 4,
   "mapLayoutID": "8047",
   "number": "",
   "difficultylevel": 825,
@@ -23326,7 +23326,7 @@
  },
  "30084": {
   "id": 30084,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "8048",
   "number": "",
   "difficultylevel": 696,
@@ -23341,7 +23341,7 @@
  },
  "30085": {
   "id": 30085,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "8049",
   "number": "",
   "difficultylevel": 684,
@@ -23356,7 +23356,7 @@
  },
  "30086": {
   "id": 30086,
-  "mapSize": 2,
+  "mapSize": 4,
   "mapLayoutID": "8049",
   "number": "",
   "difficultylevel": 684,
@@ -23371,7 +23371,7 @@
  },
  "30087": {
   "id": 30087,
-  "mapSize": 3,
+  "mapSize": 4,
   "mapLayoutID": "8049",
   "number": "",
   "difficultylevel": 684,
@@ -23386,7 +23386,7 @@
  },
  "30088": {
   "id": 30088,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "8050",
   "number": "",
   "difficultylevel": 684,
@@ -23401,7 +23401,7 @@
  },
  "30089": {
   "id": 30089,
-  "mapSize": 2,
+  "mapSize": 4,
   "mapLayoutID": "8050",
   "number": "",
   "difficultylevel": 684,
@@ -23416,7 +23416,7 @@
  },
  "30090": {
   "id": 30090,
-  "mapSize": 3,
+  "mapSize": 4,
   "mapLayoutID": "8050",
   "number": "",
   "difficultylevel": 684,
@@ -23431,7 +23431,7 @@
  },
  "30091": {
   "id": 30091,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "8051",
   "number": "",
   "difficultylevel": 558,
@@ -23446,7 +23446,7 @@
  },
  "30092": {
   "id": 30092,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "8052",
   "number": "",
   "difficultylevel": 648,
@@ -23461,7 +23461,7 @@
  },
  "30093": {
   "id": 30093,
-  "mapSize": 2,
+  "mapSize": 4,
   "mapLayoutID": "8052",
   "number": "",
   "difficultylevel": 648,
@@ -23476,7 +23476,7 @@
  },
  "30094": {
   "id": 30094,
-  "mapSize": 3,
+  "mapSize": 4,
   "mapLayoutID": "8052",
   "number": "",
   "difficultylevel": 648,
@@ -23491,7 +23491,7 @@
  },
  "30095": {
   "id": 30095,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "8053",
   "number": "",
   "difficultylevel": 1263,
@@ -23506,7 +23506,7 @@
  },
  "30096": {
   "id": 30096,
-  "mapSize": 2,
+  "mapSize": 4,
   "mapLayoutID": "8053",
   "number": "",
   "difficultylevel": 1263,
@@ -23521,7 +23521,7 @@
  },
  "30097": {
   "id": 30097,
-  "mapSize": 3,
+  "mapSize": 4,
   "mapLayoutID": "8053",
   "number": "",
   "difficultylevel": 1263,
@@ -23536,7 +23536,7 @@
  },
  "30098": {
   "id": 30098,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "8054",
   "number": "",
   "difficultylevel": 1146,
@@ -23551,7 +23551,7 @@
  },
  "30099": {
   "id": 30099,
-  "mapSize": 2,
+  "mapSize": 4,
   "mapLayoutID": "8054",
   "number": "",
   "difficultylevel": 1146,
@@ -23566,7 +23566,7 @@
  },
  "30100": {
   "id": 30100,
-  "mapSize": 3,
+  "mapSize": 4,
   "mapLayoutID": "8054",
   "number": "",
   "difficultylevel": 1146,
@@ -23596,7 +23596,7 @@
  },
  "30102": {
   "id": 30102,
-  "mapSize": 5,
+  "mapSize": 4,
   "mapLayoutID": "8054",
   "number": "",
   "difficultylevel": 1146,
@@ -23611,7 +23611,7 @@
  },
  "30103": {
   "id": 30103,
-  "mapSize": 6,
+  "mapSize": 4,
   "mapLayoutID": "8054",
   "number": "",
   "difficultylevel": 1146,
@@ -23626,7 +23626,7 @@
  },
  "30104": {
   "id": 30104,
-  "mapSize": 7,
+  "mapSize": 4,
   "mapLayoutID": "8054",
   "number": "",
   "difficultylevel": 1146,
@@ -23641,7 +23641,7 @@
  },
  "30105": {
   "id": 30105,
-  "mapSize": 8,
+  "mapSize": 4,
   "mapLayoutID": "8054",
   "number": "",
   "difficultylevel": 1146,
@@ -23656,7 +23656,7 @@
  },
  "30106": {
   "id": 30106,
-  "mapSize": 9,
+  "mapSize": 4,
   "mapLayoutID": "8054",
   "number": "",
   "difficultylevel": 1146,
@@ -23671,7 +23671,7 @@
  },
  "30107": {
   "id": 30107,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "8055",
   "number": "",
   "difficultylevel": 1308,
@@ -23686,7 +23686,7 @@
  },
  "30108": {
   "id": 30108,
-  "mapSize": 2,
+  "mapSize": 4,
   "mapLayoutID": "8055",
   "number": "",
   "difficultylevel": 1308,
@@ -23701,7 +23701,7 @@
  },
  "30109": {
   "id": 30109,
-  "mapSize": 3,
+  "mapSize": 4,
   "mapLayoutID": "8055",
   "number": "",
   "difficultylevel": 1308,
@@ -23731,7 +23731,7 @@
  },
  "30111": {
   "id": 30111,
-  "mapSize": 5,
+  "mapSize": 4,
   "mapLayoutID": "8055",
   "number": "",
   "difficultylevel": 1308,
@@ -23746,7 +23746,7 @@
  },
  "30112": {
   "id": 30112,
-  "mapSize": 6,
+  "mapSize": 4,
   "mapLayoutID": "8055",
   "number": "",
   "difficultylevel": 1308,
@@ -23761,7 +23761,7 @@
  },
  "30113": {
   "id": 30113,
-  "mapSize": 7,
+  "mapSize": 4,
   "mapLayoutID": "8055",
   "number": "",
   "difficultylevel": 1308,
@@ -23776,7 +23776,7 @@
  },
  "30114": {
   "id": 30114,
-  "mapSize": 8,
+  "mapSize": 4,
   "mapLayoutID": "8055",
   "number": "",
   "difficultylevel": 1308,
@@ -23791,7 +23791,7 @@
  },
  "30115": {
   "id": 30115,
-  "mapSize": 9,
+  "mapSize": 4,
   "mapLayoutID": "8055",
   "number": "",
   "difficultylevel": 1308,
@@ -23806,7 +23806,7 @@
  },
  "30116": {
   "id": 30116,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "8056",
   "number": "",
   "difficultylevel": 1101,
@@ -23821,7 +23821,7 @@
  },
  "30117": {
   "id": 30117,
-  "mapSize": 2,
+  "mapSize": 4,
   "mapLayoutID": "8056",
   "number": "",
   "difficultylevel": 1101,
@@ -23836,7 +23836,7 @@
  },
  "30118": {
   "id": 30118,
-  "mapSize": 3,
+  "mapSize": 4,
   "mapLayoutID": "8056",
   "number": "",
   "difficultylevel": 1101,
@@ -23866,7 +23866,7 @@
  },
  "30120": {
   "id": 30120,
-  "mapSize": 5,
+  "mapSize": 4,
   "mapLayoutID": "8056",
   "number": "",
   "difficultylevel": 1101,
@@ -23881,7 +23881,7 @@
  },
  "30121": {
   "id": 30121,
-  "mapSize": 6,
+  "mapSize": 4,
   "mapLayoutID": "8056",
   "number": "",
   "difficultylevel": 1101,
@@ -23896,7 +23896,7 @@
  },
  "30122": {
   "id": 30122,
-  "mapSize": 7,
+  "mapSize": 4,
   "mapLayoutID": "8056",
   "number": "",
   "difficultylevel": 1101,
@@ -23911,7 +23911,7 @@
  },
  "30123": {
   "id": 30123,
-  "mapSize": 8,
+  "mapSize": 4,
   "mapLayoutID": "8056",
   "number": "",
   "difficultylevel": 1101,
@@ -23926,7 +23926,7 @@
  },
  "30124": {
   "id": 30124,
-  "mapSize": 9,
+  "mapSize": 4,
   "mapLayoutID": "8056",
   "number": "",
   "difficultylevel": 1101,
@@ -23941,7 +23941,7 @@
  },
  "30125": {
   "id": 30125,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "8057",
   "number": "",
   "difficultylevel": 1107,
@@ -23956,7 +23956,7 @@
  },
  "30126": {
   "id": 30126,
-  "mapSize": 2,
+  "mapSize": 4,
   "mapLayoutID": "8057",
   "number": "",
   "difficultylevel": 1107,
@@ -23971,7 +23971,7 @@
  },
  "30127": {
   "id": 30127,
-  "mapSize": 3,
+  "mapSize": 4,
   "mapLayoutID": "8057",
   "number": "",
   "difficultylevel": 1107,
@@ -24001,7 +24001,7 @@
  },
  "30129": {
   "id": 30129,
-  "mapSize": 5,
+  "mapSize": 4,
   "mapLayoutID": "8057",
   "number": "",
   "difficultylevel": 1107,
@@ -24016,7 +24016,7 @@
  },
  "30130": {
   "id": 30130,
-  "mapSize": 6,
+  "mapSize": 4,
   "mapLayoutID": "8057",
   "number": "",
   "difficultylevel": 1107,
@@ -24031,7 +24031,7 @@
  },
  "30131": {
   "id": 30131,
-  "mapSize": 7,
+  "mapSize": 4,
   "mapLayoutID": "8057",
   "number": "",
   "difficultylevel": 1107,
@@ -24046,7 +24046,7 @@
  },
  "30132": {
   "id": 30132,
-  "mapSize": 8,
+  "mapSize": 4,
   "mapLayoutID": "8057",
   "number": "",
   "difficultylevel": 1107,
@@ -24061,7 +24061,7 @@
  },
  "30133": {
   "id": 30133,
-  "mapSize": 9,
+  "mapSize": 4,
   "mapLayoutID": "8057",
   "number": "",
   "difficultylevel": 1107,
@@ -24091,7 +24091,7 @@
  },
  "35002": {
   "id": 35002,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "9002",
   "number": "",
   "difficultylevel": 107,
@@ -24181,7 +24181,7 @@
  },
  "35008": {
   "id": 35008,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "9008",
   "number": "",
   "difficultylevel": 146,
@@ -24196,7 +24196,7 @@
  },
  "35009": {
   "id": 35009,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "9009",
   "number": "",
   "difficultylevel": 578,
@@ -24211,7 +24211,7 @@
  },
  "35010": {
   "id": 35010,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "9010",
   "number": "",
   "difficultylevel": 890,
@@ -24226,7 +24226,7 @@
  },
  "35011": {
   "id": 35011,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "9011",
   "number": "",
   "difficultylevel": 893,
@@ -24241,7 +24241,7 @@
  },
  "35012": {
   "id": 35012,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "9012",
   "number": "",
   "difficultylevel": 281,
@@ -24256,7 +24256,7 @@
  },
  "35013": {
   "id": 35013,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "9013",
   "number": "",
   "difficultylevel": 263,
@@ -24271,7 +24271,7 @@
  },
  "35014": {
   "id": 35014,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "9014",
   "number": "",
   "difficultylevel": 260,
@@ -24286,7 +24286,7 @@
  },
  "35015": {
   "id": 35015,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "9015",
   "number": "",
   "difficultylevel": 296,
@@ -24301,7 +24301,7 @@
  },
  "35016": {
   "id": 35016,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "9016",
   "number": "",
   "difficultylevel": 254,
@@ -24316,7 +24316,7 @@
  },
  "35017": {
   "id": 35017,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "9017",
   "number": "",
   "difficultylevel": 293,
@@ -24331,7 +24331,7 @@
  },
  "35018": {
   "id": 35018,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "9018",
   "number": "",
   "difficultylevel": 248,
@@ -24346,7 +24346,7 @@
  },
  "35019": {
   "id": 35019,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "9019",
   "number": "",
   "difficultylevel": 497,
@@ -24361,7 +24361,7 @@
  },
  "35020": {
   "id": 35020,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "9020",
   "number": "",
   "difficultylevel": 1109,
@@ -24376,7 +24376,7 @@
  },
  "35021": {
   "id": 35021,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "9021",
   "number": "",
   "difficultylevel": 1274,
@@ -24391,7 +24391,7 @@
  },
  "35022": {
   "id": 35022,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "9022",
   "number": "",
   "difficultylevel": 230,
@@ -24406,7 +24406,7 @@
  },
  "35023": {
   "id": 35023,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "9023",
   "number": "",
   "difficultylevel": 368,
@@ -24436,7 +24436,7 @@
  },
  "35025": {
   "id": 35025,
-  "mapSize": 3,
+  "mapSize": 2,
   "mapLayoutID": "9023",
   "number": "",
   "difficultylevel": 368,
@@ -24451,7 +24451,7 @@
  },
  "35026": {
   "id": 35026,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "9024",
   "number": "",
   "difficultylevel": 989,
@@ -24481,7 +24481,7 @@
  },
  "35028": {
   "id": 35028,
-  "mapSize": 3,
+  "mapSize": 2,
   "mapLayoutID": "9024",
   "number": "",
   "difficultylevel": 1007,
@@ -24496,7 +24496,7 @@
  },
  "35029": {
   "id": 35029,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "9025",
   "number": "",
   "difficultylevel": 827,
@@ -24526,7 +24526,7 @@
  },
  "35031": {
   "id": 35031,
-  "mapSize": 3,
+  "mapSize": 2,
   "mapLayoutID": "9025",
   "number": "",
   "difficultylevel": 827,
@@ -24541,7 +24541,7 @@
  },
  "35032": {
   "id": 35032,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "9026",
   "number": "",
   "difficultylevel": 722,
@@ -24571,7 +24571,7 @@
  },
  "35034": {
   "id": 35034,
-  "mapSize": 3,
+  "mapSize": 2,
   "mapLayoutID": "9026",
   "number": "",
   "difficultylevel": 722,
@@ -24586,7 +24586,7 @@
  },
  "35035": {
   "id": 35035,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "9027",
   "number": "",
   "difficultylevel": 920,
@@ -24616,7 +24616,7 @@
  },
  "35037": {
   "id": 35037,
-  "mapSize": 3,
+  "mapSize": 2,
   "mapLayoutID": "9027",
   "number": "",
   "difficultylevel": 938,
@@ -24631,7 +24631,7 @@
  },
  "35038": {
   "id": 35038,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "9028",
   "number": "",
   "difficultylevel": 731,
@@ -24661,7 +24661,7 @@
  },
  "35040": {
   "id": 35040,
-  "mapSize": 3,
+  "mapSize": 2,
   "mapLayoutID": "9028",
   "number": "",
   "difficultylevel": 731,
@@ -24676,7 +24676,7 @@
  },
  "35041": {
   "id": 35041,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "9029",
   "number": "",
   "difficultylevel": 513,
@@ -24691,7 +24691,7 @@
  },
  "35042": {
   "id": 35042,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "9030",
   "number": "",
   "difficultylevel": 690,
@@ -24706,7 +24706,7 @@
  },
  "35043": {
   "id": 35043,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "9031",
   "number": "",
   "difficultylevel": 885,
@@ -24721,7 +24721,7 @@
  },
  "35044": {
   "id": 35044,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "9032",
   "number": "",
   "difficultylevel": 690,
@@ -24736,7 +24736,7 @@
  },
  "35045": {
   "id": 35045,
-  "mapSize": 1,
+  "mapSize": 2,
   "mapLayoutID": "9033",
   "number": "",
   "difficultylevel": 588,
@@ -24751,7 +24751,7 @@
  },
  "35046": {
   "id": 35046,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "9034",
   "number": "",
   "difficultylevel": 1161,
@@ -24766,7 +24766,7 @@
  },
  "35047": {
   "id": 35047,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "9035",
   "number": "",
   "difficultylevel": 921,
@@ -24781,7 +24781,7 @@
  },
  "35048": {
   "id": 35048,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "9036",
   "number": "",
   "difficultylevel": 1044,
@@ -24796,7 +24796,7 @@
  },
  "35049": {
   "id": 35049,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "9037",
   "number": "",
   "difficultylevel": 1212,
@@ -24811,7 +24811,7 @@
  },
  "35050": {
   "id": 35050,
-  "mapSize": 2,
+  "mapSize": 3,
   "mapLayoutID": "9037",
   "number": "",
   "difficultylevel": 1212,
@@ -24841,7 +24841,7 @@
  },
  "35052": {
   "id": 35052,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "9038",
   "number": "",
   "difficultylevel": 1209,
@@ -24856,7 +24856,7 @@
  },
  "35053": {
   "id": 35053,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "9039",
   "number": "",
   "difficultylevel": 1329,
@@ -24871,7 +24871,7 @@
  },
  "35054": {
   "id": 35054,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "9040",
   "number": "",
   "difficultylevel": 939,
@@ -24886,7 +24886,7 @@
  },
  "35055": {
   "id": 35055,
-  "mapSize": 2,
+  "mapSize": 3,
   "mapLayoutID": "9040",
   "number": "",
   "difficultylevel": 939,
@@ -24916,7 +24916,7 @@
  },
  "35057": {
   "id": 35057,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "9041",
   "number": "",
   "difficultylevel": 1143,
@@ -24931,7 +24931,7 @@
  },
  "35058": {
   "id": 35058,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "9042",
   "number": "",
   "difficultylevel": 1179,
@@ -24946,7 +24946,7 @@
  },
  "35059": {
   "id": 35059,
-  "mapSize": 2,
+  "mapSize": 3,
   "mapLayoutID": "9042",
   "number": "",
   "difficultylevel": 1179,
@@ -24976,7 +24976,7 @@
  },
  "35061": {
   "id": 35061,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "9043",
   "number": "",
   "difficultylevel": 1389,
@@ -24991,7 +24991,7 @@
  },
  "35062": {
   "id": 35062,
-  "mapSize": 2,
+  "mapSize": 3,
   "mapLayoutID": "9043",
   "number": "",
   "difficultylevel": 1389,
@@ -25021,7 +25021,7 @@
  },
  "35064": {
   "id": 35064,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "9044",
   "number": "",
   "difficultylevel": 912,
@@ -25036,7 +25036,7 @@
  },
  "35065": {
   "id": 35065,
-  "mapSize": 2,
+  "mapSize": 3,
   "mapLayoutID": "9044",
   "number": "",
   "difficultylevel": 912,
@@ -25066,7 +25066,7 @@
  },
  "35067": {
   "id": 35067,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "9045",
   "number": "",
   "difficultylevel": 879,
@@ -25081,7 +25081,7 @@
  },
  "35068": {
   "id": 35068,
-  "mapSize": 2,
+  "mapSize": 3,
   "mapLayoutID": "9045",
   "number": "",
   "difficultylevel": 888,
@@ -25111,7 +25111,7 @@
  },
  "35070": {
   "id": 35070,
-  "mapSize": 4,
+  "mapSize": 3,
   "mapLayoutID": "9045",
   "number": "",
   "difficultylevel": 879,
@@ -25126,7 +25126,7 @@
  },
  "35071": {
   "id": 35071,
-  "mapSize": 5,
+  "mapSize": 3,
   "mapLayoutID": "9045",
   "number": "",
   "difficultylevel": 888,
@@ -25141,7 +25141,7 @@
  },
  "35072": {
   "id": 35072,
-  "mapSize": 6,
+  "mapSize": 3,
   "mapLayoutID": "9045",
   "number": "",
   "difficultylevel": 897,
@@ -25156,7 +25156,7 @@
  },
  "35073": {
   "id": 35073,
-  "mapSize": 7,
+  "mapSize": 3,
   "mapLayoutID": "9045",
   "number": "",
   "difficultylevel": 879,
@@ -25171,7 +25171,7 @@
  },
  "35074": {
   "id": 35074,
-  "mapSize": 8,
+  "mapSize": 3,
   "mapLayoutID": "9045",
   "number": "",
   "difficultylevel": 888,
@@ -25186,7 +25186,7 @@
  },
  "35075": {
   "id": 35075,
-  "mapSize": 9,
+  "mapSize": 3,
   "mapLayoutID": "9045",
   "number": "",
   "difficultylevel": 897,
@@ -25201,7 +25201,7 @@
  },
  "35076": {
   "id": 35076,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "9046",
   "number": "",
   "difficultylevel": 690,
@@ -25216,7 +25216,7 @@
  },
  "35077": {
   "id": 35077,
-  "mapSize": 2,
+  "mapSize": 3,
   "mapLayoutID": "9046",
   "number": "",
   "difficultylevel": 690,
@@ -25246,7 +25246,7 @@
  },
  "35079": {
   "id": 35079,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "9047",
   "number": "",
   "difficultylevel": 795,
@@ -25261,7 +25261,7 @@
  },
  "35080": {
   "id": 35080,
-  "mapSize": 2,
+  "mapSize": 3,
   "mapLayoutID": "9047",
   "number": "",
   "difficultylevel": 795,
@@ -25291,7 +25291,7 @@
  },
  "35082": {
   "id": 35082,
-  "mapSize": 4,
+  "mapSize": 3,
   "mapLayoutID": "9047",
   "number": "",
   "difficultylevel": 795,
@@ -25306,7 +25306,7 @@
  },
  "35083": {
   "id": 35083,
-  "mapSize": 5,
+  "mapSize": 3,
   "mapLayoutID": "9047",
   "number": "",
   "difficultylevel": 795,
@@ -25321,7 +25321,7 @@
  },
  "35084": {
   "id": 35084,
-  "mapSize": 6,
+  "mapSize": 3,
   "mapLayoutID": "9047",
   "number": "",
   "difficultylevel": 795,
@@ -25336,7 +25336,7 @@
  },
  "35085": {
   "id": 35085,
-  "mapSize": 7,
+  "mapSize": 3,
   "mapLayoutID": "9047",
   "number": "",
   "difficultylevel": 795,
@@ -25351,7 +25351,7 @@
  },
  "35086": {
   "id": 35086,
-  "mapSize": 8,
+  "mapSize": 3,
   "mapLayoutID": "9047",
   "number": "",
   "difficultylevel": 795,
@@ -25366,7 +25366,7 @@
  },
  "35087": {
   "id": 35087,
-  "mapSize": 9,
+  "mapSize": 3,
   "mapLayoutID": "9047",
   "number": "",
   "difficultylevel": 795,
@@ -25381,7 +25381,7 @@
  },
  "35088": {
   "id": 35088,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "9048",
   "number": "",
   "difficultylevel": 540,
@@ -25396,7 +25396,7 @@
  },
  "35089": {
   "id": 35089,
-  "mapSize": 2,
+  "mapSize": 3,
   "mapLayoutID": "9048",
   "number": "",
   "difficultylevel": 540,
@@ -25426,7 +25426,7 @@
  },
  "35091": {
   "id": 35091,
-  "mapSize": 4,
+  "mapSize": 3,
   "mapLayoutID": "9048",
   "number": "",
   "difficultylevel": 540,
@@ -25441,7 +25441,7 @@
  },
  "35092": {
   "id": 35092,
-  "mapSize": 5,
+  "mapSize": 3,
   "mapLayoutID": "9048",
   "number": "",
   "difficultylevel": 540,
@@ -25456,7 +25456,7 @@
  },
  "35093": {
   "id": 35093,
-  "mapSize": 6,
+  "mapSize": 3,
   "mapLayoutID": "9048",
   "number": "",
   "difficultylevel": 540,
@@ -25471,7 +25471,7 @@
  },
  "35094": {
   "id": 35094,
-  "mapSize": 7,
+  "mapSize": 3,
   "mapLayoutID": "9048",
   "number": "",
   "difficultylevel": 540,
@@ -25486,7 +25486,7 @@
  },
  "35095": {
   "id": 35095,
-  "mapSize": 8,
+  "mapSize": 3,
   "mapLayoutID": "9048",
   "number": "",
   "difficultylevel": 540,
@@ -25501,7 +25501,7 @@
  },
  "35096": {
   "id": 35096,
-  "mapSize": 9,
+  "mapSize": 3,
   "mapLayoutID": "9048",
   "number": "",
   "difficultylevel": 540,
@@ -25516,7 +25516,7 @@
  },
  "35097": {
   "id": 35097,
-  "mapSize": 1,
+  "mapSize": 3,
   "mapLayoutID": "9049",
   "number": "",
   "difficultylevel": 738,
@@ -25531,7 +25531,7 @@
  },
  "35098": {
   "id": 35098,
-  "mapSize": 2,
+  "mapSize": 3,
   "mapLayoutID": "9049",
   "number": "",
   "difficultylevel": 738,
@@ -25561,7 +25561,7 @@
  },
  "35100": {
   "id": 35100,
-  "mapSize": 4,
+  "mapSize": 3,
   "mapLayoutID": "9049",
   "number": "",
   "difficultylevel": 738,
@@ -25576,7 +25576,7 @@
  },
  "35101": {
   "id": 35101,
-  "mapSize": 5,
+  "mapSize": 3,
   "mapLayoutID": "9049",
   "number": "",
   "difficultylevel": 738,
@@ -25591,7 +25591,7 @@
  },
  "35102": {
   "id": 35102,
-  "mapSize": 6,
+  "mapSize": 3,
   "mapLayoutID": "9049",
   "number": "",
   "difficultylevel": 738,
@@ -25606,7 +25606,7 @@
  },
  "35103": {
   "id": 35103,
-  "mapSize": 7,
+  "mapSize": 3,
   "mapLayoutID": "9049",
   "number": "",
   "difficultylevel": 738,
@@ -25621,7 +25621,7 @@
  },
  "35104": {
   "id": 35104,
-  "mapSize": 8,
+  "mapSize": 3,
   "mapLayoutID": "9049",
   "number": "",
   "difficultylevel": 738,
@@ -25636,7 +25636,7 @@
  },
  "35105": {
   "id": 35105,
-  "mapSize": 9,
+  "mapSize": 3,
   "mapLayoutID": "9049",
   "number": "",
   "difficultylevel": 738,
@@ -25651,7 +25651,7 @@
  },
  "35106": {
   "id": 35106,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "9050",
   "number": "",
   "difficultylevel": 1803,
@@ -25666,7 +25666,7 @@
  },
  "35107": {
   "id": 35107,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "9051",
   "number": "",
   "difficultylevel": 1098,
@@ -25681,7 +25681,7 @@
  },
  "35108": {
   "id": 35108,
-  "mapSize": 2,
+  "mapSize": 4,
   "mapLayoutID": "9051",
   "number": "",
   "difficultylevel": 1098,
@@ -25696,7 +25696,7 @@
  },
  "35109": {
   "id": 35109,
-  "mapSize": 3,
+  "mapSize": 4,
   "mapLayoutID": "9051",
   "number": "",
   "difficultylevel": 1098,
@@ -25711,7 +25711,7 @@
  },
  "35110": {
   "id": 35110,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "9052",
   "number": "",
   "difficultylevel": 1422,
@@ -25726,7 +25726,7 @@
  },
  "35111": {
   "id": 35111,
-  "mapSize": 2,
+  "mapSize": 4,
   "mapLayoutID": "9052",
   "number": "",
   "difficultylevel": 1422,
@@ -25741,7 +25741,7 @@
  },
  "35112": {
   "id": 35112,
-  "mapSize": 3,
+  "mapSize": 4,
   "mapLayoutID": "9052",
   "number": "",
   "difficultylevel": 1422,
@@ -25756,7 +25756,7 @@
  },
  "35113": {
   "id": 35113,
-  "mapSize": 1,
+  "mapSize": 4,
   "mapLayoutID": "9053",
   "number": "",
   "difficultylevel": 1248,
@@ -25771,7 +25771,7 @@
  },
  "35114": {
   "id": 35114,
-  "mapSize": 2,
+  "mapSize": 4,
   "mapLayoutID": "9053",
   "number": "",
   "difficultylevel": 1248,
@@ -25786,7 +25786,7 @@
  },
  "35115": {
   "id": 35115,
-  "mapSize": 3,
+  "mapSize": 4,
   "mapLayoutID": "9053",
   "number": "",
   "difficultylevel": 1248,
