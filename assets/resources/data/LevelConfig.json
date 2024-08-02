@@ -7735,7 +7735,7 @@
   "elevator2Layout": "C,E,A",
   "elevator3Layout": "F,G,H",
   "elevator4Layout": "",
-  "vipLevator1": "B,A,B,D,C,E,A,F,G",
+  "vipLevator1": "D,A,D,C,B,G,F,H,E",
   "vipLevator2": "",
   "string": ""
  },
@@ -7750,7 +7750,7 @@
   "elevator2Layout": "E,G,H,F,A,B",
   "elevator3Layout": "D,C,A,G,H,F",
   "elevator4Layout": "",
-  "vipLevator1": "F,C,B,A,D,F,E,G,H",
+  "vipLevator1": "E,A,B,E,C,D,G,F,H",
   "vipLevator2": "",
   "string": ""
  },
@@ -7765,7 +7765,7 @@
   "elevator2Layout": "A,D,B,C,F,H,G,I,E",
   "elevator3Layout": "C,D,A,F,B,G,E,I,H",
   "elevator4Layout": "",
-  "vipLevator1": "G,B,D,A,C,F,G,H,E",
+  "vipLevator1": "A,C,D,E,B,F,I,G,H",
   "vipLevator2": "",
   "string": ""
  },
@@ -7780,7 +7780,7 @@
   "elevator2Layout": "C,D,B",
   "elevator3Layout": "D,C,F",
   "elevator4Layout": "",
-  "vipLevator1": "B,A,C,D,C,B,E,D,A,H,F,G",
+  "vipLevator1": "A,G,E,H,C,D,B,F,E,H,G,A",
   "vipLevator2": "",
   "string": ""
  },
@@ -7795,7 +7795,7 @@
   "elevator2Layout": "E,F,G,D,H,I",
   "elevator3Layout": "C,D,B,F,E,H",
   "elevator4Layout": "",
-  "vipLevator1": "C,D,E,F,B,C,A,D,E,F,G,H",
+  "vipLevator1": "I,A,G,B,C,A,F,G,E,I,D,H",
   "vipLevator2": "",
   "string": ""
  },
@@ -7810,7 +7810,7 @@
   "elevator2Layout": "E,G,I,A,C,E,F,D,H",
   "elevator3Layout": "I,B,G,A,B,D,E,G,F",
   "elevator4Layout": "",
-  "vipLevator1": "E,G,A,H,C,B,E,F,D,A,H,G",
+  "vipLevator1": "H,C,I,C,D,A,E,G,F,I,B,H",
   "vipLevator2": "",
   "string": ""
  },
@@ -7825,7 +7825,7 @@
   "elevator2Layout": "E,F,C",
   "elevator3Layout": "D,G,C",
   "elevator4Layout": "",
-  "vipLevator1": "A,B,D,F,C,E,G,C,B,E,A,D,H,G,F",
+  "vipLevator1": "A,E,B,D,H,G,F,B,A,D,E,F,H,C,G",
   "vipLevator2": "",
   "string": ""
  },
@@ -7840,7 +7840,7 @@
   "elevator2Layout": "C,D,A,E,F,G",
   "elevator3Layout": "I,H,B,C,A,E",
   "elevator4Layout": "",
-  "vipLevator1": "A,D,B,E,C,G,F,B,A,C,F,G,H,E,D",
+  "vipLevator1": "B,G,H,I,D,F,C,B,E,A,G,F,D,H,I",
   "vipLevator2": "",
   "string": ""
  },
@@ -7855,7 +7855,7 @@
   "elevator2Layout": "F,G,B,H,A,I,B,C,A",
   "elevator3Layout": "E,D,G,H,F,I,A,B,D",
   "elevator4Layout": "",
-  "vipLevator1": "C,E,F,A,G,H,D,A,C,E,B,F,D,H,G",
+  "vipLevator1": "E,F,H,C,G,I,C,A,E,D,G,H,I,B,F",
   "vipLevator2": "",
   "string": ""
  },
