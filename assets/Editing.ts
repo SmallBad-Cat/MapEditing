@@ -105,8 +105,16 @@ export class Editing extends Component {
         'all': {}
     }
     initGameData() {
+        let provinceLevel = {}
         for (let k in this.provinceLevelJsonData) {
-            let level = this.getLevel(this.provinceLevelJsonData[k].level)
+            provinceLevel[this.provinceLevelJsonData[k].provinceSort] = this.provinceLevelJsonData[k]
+            // let level = this.getLevel(this.provinceLevelJsonData[k].level)
+            // for (let arr of level) {
+            //     this.LevelConf.push(arr[0])
+            // }
+        }
+        for (let k in provinceLevel) {
+            let level = this.getLevel(provinceLevel[k].level)
             for (let arr of level) {
                 this.LevelConf.push(arr[0])
             }
