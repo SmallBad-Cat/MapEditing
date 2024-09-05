@@ -119,13 +119,14 @@ export class Editing extends Component {
                 this.LevelConf.push(arr[0])
             }
         }
-        for (let k in this.allMapData) {
-            let data = this.allMapData[k]
+        for (let k in this.levelJsonData) {
+            let data = this.levelJsonData[k]
+            data['layout'] = this.mapLayoutData[data.mapLayoutID].layout
             this.allMapDataType['all'][data.id] = data
-            if (!this.allMapDataType[data.list]) {
-                this.allMapDataType[data.list] = {}
+            if (!this.allMapDataType[data.mapSize]) {
+                this.allMapDataType[data.mapSize] = {}
             }
-            this.allMapDataType[data.list][data.id] = data;
+            this.allMapDataType[data.mapSize][data.id] = data;
         }
         // this.GameList.numItems = this.LevelConf.length
     }
