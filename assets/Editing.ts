@@ -1565,9 +1565,9 @@ export class Editing extends Component {
         let data = (this.ShowType == 'LevelConf') ? this.mapLayoutData[k] : this.allMapDataType[this.nowLookMapSize][k]
         let str = ''
         if (this.ShowType == 'LevelConf') {
-            str = 'Lv.' + (idx + 1) + '-ID:' + data.id
+            str = 'Lv.' + (idx + 1) + '-ID:' + this.levelJsonData[this.LevelConf[idx]].id
         } else {
-            str = 'id:' + data.id
+            str = 'id:' + this.levelJsonData[this.LevelConf[idx]].id
         }
         item.getChildByName('text').getComponent(Label).string = str;
         let mapSize = new Size(246, 236)
