@@ -15222,7 +15222,10 @@
       "b": 124,
       "a": 255
     },
-    "_normalSprite": null,
+    "_normalSprite": {
+      "__uuid__": "7712fee4-e631-4e06-92af-141327cbb757@3bd1f",
+      "__expectedType__": "cc.SpriteFrame"
+    },
     "_hoverSprite": null,
     "_pressedSprite": null,
     "_disabledSprite": null,
@@ -17534,7 +17537,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "电梯(上)",
+    "_string": "电梯(下)",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 18,
@@ -17748,7 +17751,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "7712fee4-e631-4e06-92af-141327cbb757@c959d",
+      "__uuid__": "7712fee4-e631-4e06-92af-141327cbb757@4ce76",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
@@ -17811,10 +17814,7 @@
       "b": 124,
       "a": 255
     },
-    "_normalSprite": {
-      "__uuid__": "7712fee4-e631-4e06-92af-141327cbb757@c959d",
-      "__expectedType__": "cc.SpriteFrame"
-    },
+    "_normalSprite": null,
     "_hoverSprite": null,
     "_pressedSprite": null,
     "_disabledSprite": null,
@@ -17986,7 +17986,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "电梯(下)",
+    "_string": "电梯(上)",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 18,
@@ -18200,7 +18200,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "7712fee4-e631-4e06-92af-141327cbb757@4ce76",
+      "__uuid__": "7712fee4-e631-4e06-92af-141327cbb757@c959d",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
@@ -18263,10 +18263,7 @@
       "b": 124,
       "a": 255
     },
-    "_normalSprite": {
-      "__uuid__": "7712fee4-e631-4e06-92af-141327cbb757@4ce76",
-      "__expectedType__": "cc.SpriteFrame"
-    },
+    "_normalSprite": null,
     "_hoverSprite": null,
     "_pressedSprite": null,
     "_disabledSprite": null,
