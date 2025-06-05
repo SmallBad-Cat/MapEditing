@@ -353,17 +353,12 @@ export class CarEditing extends Component {
                     num++
                 }
             }
+            console.log(num);
             this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label).string = num + ''
             this.GoNumAll = all_gonum
         }
         this.allLabel[5].string = '角色步数总和：' + this.GoNumAll;
-        let people_num = 0
-        let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 71, 72, 73, 74, 75, 68]
-        for (let k of PeopleKey) {
-            people_num += Number(this.dataParent.getChildByName(String(k)).getChildByName('count').getComponent(Label).string)
-        }
-        this.PeopleStr.string = `当前人数为：${people_num}
-        除3得数为：${(people_num / 3)}`
+        this.setPeopleCount()
 
     }
     YzzBtn() {
@@ -588,6 +583,10 @@ export class CarEditing extends Component {
             if (data.child.name != '99') {
                 let count_label = this.dataParent.getChildByName(data.child.name).getChildByName('count').getComponent(Label)
                 let count = (Number(count_label.string) - 1) * 1
+                if (this.Obstacle['DTJ'].indexOf(this.Piece[1]) >= 0) {
+                    let num = this.Piece[1] - 100 + 1
+                    count = (Number(count_label.string) - (num * num)) * 1
+                }
                 count_label.string = count + '';
             }
             data.child.name = this.Piece[1] + '';
@@ -733,12 +732,20 @@ export class CarEditing extends Component {
             this.GoNumRefirsh(data)
         }
         this.Piece[0].getChildByName('count').getComponent(Label).string = String(Number(this.Piece[0].getChildByName('count').getComponent(Label).string) + 1);
-
+        this.setPeopleCount()
         // + Number(this.dataParent.getChildByName('10').getChildByName('count').getComponent(Label).string)
+
+    }
+    setPeopleCount() {
         let people_num = 0
-        let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 71, 72, 73, 74, 75, 68]
+        let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 71, 72, 73, 74, 75, 68, 101, 102, 103]
         for (let k of PeopleKey) {
-            people_num += Number(this.dataParent.getChildByName(String(k)).getChildByName('count').getComponent(Label).string)
+            if (this.Obstacle.DTJ.indexOf(k) >= 0) {
+                let num = Number(k) - 100 + 1
+                people_num += Number(this.dataParent.getChildByName(String(k)).getChildByName('count').getComponent(Label).string) * ((num * num) * 2)
+            } else {
+                people_num += Number(this.dataParent.getChildByName(String(k)).getChildByName('count').getComponent(Label).string)
+            }
         }
         this.PeopleStr.string = `当前人数为：${people_num}
         除3得数为：${(people_num / 3)}`
@@ -881,13 +888,13 @@ export class CarEditing extends Component {
         for (let y = 1; y <= this.map_size.row; y++) {
             for (let x = 1; x <= this.map_size.arrange; x++) {
                 let type = this.map_data[y][x].type
-                if (this.Obstacle['Role'].indexOf(type) >= 0 || this.Obstacle['F'].indexOf(type) >= 0) {
+                if (this.Obstacle['Role'].indexOf(type) >= 0 || this.Obstacle['F'].indexOf(type) >= 0 || this.Obstacle['DTJ'].indexOf(type) >= 0) {
                     let selfSTTState = this.broadsideOK(y, x)
                     let min_arr = []
                     if (HandKeyArr.indexOf(type) >= 0) {
                         min_arr = this.getHandArr(y, x, type)
                     } else {
-                        min_arr = this.getMinArr(selfSTTState, y, x)
+                        min_arr = this.getMinArr(selfSTTState, y, x, type)
                     }
                     if (type == 31) {
                         for (let i in min_arr) {
@@ -895,8 +902,9 @@ export class CarEditing extends Component {
                         }
                     }
 
-
                     let minNum = (min_arr.length <= 0) ? this.map_data[y][x].go_num : Math.min(...min_arr)
+
+
                     this.map_data[y][x].go_num = minNum
                     //  else {
                     if (y == 9 && x == 5) {
@@ -939,56 +947,78 @@ export class CarEditing extends Component {
         this.allLabel[5].string = '角色步数总和：' + this.GoNumAll;
         return this.GoNumAll;
     }
-    getMinArr(selfSTTState, y, x) {
+    getMinArr(selfSTTState, y, x, type?) {
         let min_arr = []
+        let DTJAdd = 0
+        if (type && this.Obstacle['DTJ'].indexOf(type) >= 0) {
+            let num = (type - 100 + 1)
+            DTJAdd = num * num;
+        }
         if (this.map_data[y - 1]) {
             // if (this.map_data[y - 1][x].type == 1 || this.map_data[y - 1][x].type == 2 || this.map_data[y - 1][x].type == 10) {
             let upKey = Number(this.map_data[y - 1][x].type)
+            let add = DTJAdd
+            if (this.Obstacle['DTJ'].indexOf(upKey) >= 0) {
+                add = 0
+            }
             if (this.Obstacle['Role'].indexOf(upKey) >= 0 || upKey == 2 || this.Obstacle['F'].indexOf(upKey) >= 0 || upKey == this.Obstacle.JianPiaoKey) {
                 if (!selfSTTState) {
-                    min_arr.push(this.map_data[y - 1][x].go_num + 1)
+                    min_arr.push(this.map_data[y - 1][x].go_num + 1 + add)
                 } else if (selfSTTState && this.broadsideOK(y - 1, x)) {
-                    min_arr.push(this.map_data[y - 1][x].go_num + 1)
+                    min_arr.push(this.map_data[y - 1][x].go_num + 1 + add)
                 }
             }
         } else {
-            min_arr.push(0)
+            min_arr.push(0 + DTJAdd)
         }
         if (this.map_data[y + 1] && (y + 1) <= this.map_size.row) {
             let downKey = Number(this.map_data[y + 1][x].type)
+            let add = DTJAdd
+            if (this.Obstacle['DTJ'].indexOf(downKey) >= 0) {
+                add = 0
+            }
             // if (this.map_data[y + 1][x].type == 1 || this.map_data[y + 1][x].type == 2 || this.map_data[y + 1][x].type == 10) {
             if (this.Obstacle['Role'].indexOf(downKey) >= 0 || downKey == 2 || downKey == this.Obstacle.JianPiaoKey) {
                 if (!selfSTTState && !this.broadsideOK(y + 1, x)) {
-                    min_arr.push(this.map_data[y + 1][x].go_num + 1)
+                    min_arr.push(this.map_data[y + 1][x].go_num + 1 + add)
                 } else if (selfSTTState && this.broadsideOK(y, x)) {
-                    min_arr.push(this.map_data[y + 1][x].go_num + 1)
+                    min_arr.push(this.map_data[y + 1][x].go_num + 1 + add)
                 }
 
             }
         }
         if (this.map_data[y][x + 1] && (x + 1) <= this.map_size.arrange) {
             let rightKey = Number(this.map_data[y][x + 1].type)
+            let add = DTJAdd
+            if (this.Obstacle['DTJ'].indexOf(rightKey) >= 0) {
+                add = 0
+            }
             // if (this.map_data[y][x + 1].type == 1 || this.map_data[y][x + 1].type == 2 || this.map_data[y][x + 1].type == 10) {
             if (this.Obstacle['Role'].indexOf(rightKey) >= 0 || rightKey == 2 || rightKey == this.Obstacle.JianPiaoKey) {
                 if (!selfSTTState && !this.broadsideOK(y, x + 1)) {
-                    min_arr.push(this.map_data[y][x + 1].go_num + 1)
+                    min_arr.push(this.map_data[y][x + 1].go_num + 1 + add)
                 } else if (selfSTTState && this.broadsideOK(y, x + 1)) {
-                    min_arr.push(this.map_data[y][x + 1].go_num + 1)
+                    min_arr.push(this.map_data[y][x + 1].go_num + 1 + add)
                 }
             }
 
         }
         if (this.map_data[y][x - 1]) {
             let leftKey = Number(this.map_data[y][x - 1].type)
+            let add = DTJAdd
+            if (this.Obstacle['DTJ'].indexOf(leftKey) >= 0) {
+                add = 0
+            }
             // if (this.map_data[y][x - 1].type == 1 || this.map_data[y][x - 1].type == 2 || this.map_data[y][x - 1].type == 10) {
             if (this.Obstacle['Role'].indexOf(leftKey) >= 0 || leftKey == 2 || leftKey == this.Obstacle.JianPiaoKey) {
                 if (!selfSTTState && !this.broadsideOK(y, x - 1)) {
-                    min_arr.push(this.map_data[y][x - 1].go_num + 1)
+                    min_arr.push(this.map_data[y][x - 1].go_num + 1 + add)
                 } else if (selfSTTState && this.broadsideOK(y, x - 1)) {
-                    min_arr.push(this.map_data[y][x - 1].go_num + 1)
+                    min_arr.push(this.map_data[y][x - 1].go_num + 1 + add)
                 }
             }
         }
+
         return min_arr
     }
     // 判断侧边是否可以
@@ -1044,7 +1074,7 @@ export class CarEditing extends Component {
         'D': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53],//角色
         'E': [61, 63, 64, 68],//检票口
         'F': [71, 72, 73, 74, 75],//双向电梯
-        'Role': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 68, 71, 72, 73, 74, 75],
+        'Role': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 68, 71, 72, 73, 74, 75, 101, 102, 103],
         'JianPiaoKey': 67,
         'DTJ': [101, 102, 103]
     }
@@ -1385,13 +1415,7 @@ export class CarEditing extends Component {
         }
         this.allLabel[5].string = '角色步数总和：' + this.GoNumAll;
         this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label).string = String(num)
-        let people_num = 0
-        let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 71, 72, 73, 74, 75, 68]
-        for (let k of PeopleKey) {
-            people_num += Number(this.dataParent.getChildByName(String(k)).getChildByName('count').getComponent(Label).string)
-        }
-        this.PeopleStr.string = `当前人数为：${people_num}
-        除3得数为：${(people_num / 3)}`
+        this.setPeopleCount()
 
 
     }
