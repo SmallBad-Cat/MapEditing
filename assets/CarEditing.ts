@@ -325,10 +325,11 @@ export class CarEditing extends Component {
                 }
             }
         }
+
         let all_gonum: number = 0
         if (init) {
             let num = 0;
-            for (let y = 1; y <= this.map_size.row; y++) {
+            for (let y = this.map_size.row; y >= 1; y--) {
                 if (!this.map_data[y]) {
                     this.map_data[y] = []
                 }
@@ -358,6 +359,14 @@ export class CarEditing extends Component {
             this.GoNumAll = all_gonum
         }
         this.allLabel[5].string = '角色步数总和：' + this.GoNumAll;
+        for (let k of this.Obstacle.DTJ) {
+            if (this.dataParent.getChildByName(k + "")) {
+                let count_label = this.dataParent.getChildByName(k + "").getChildByName('count').getComponent(Label)
+                let num = (k - 100) + 1
+                count_label.string = String(Number(count_label.string) / (num * num));
+            }
+
+        }
         this.setPeopleCount()
 
     }
@@ -469,6 +478,10 @@ export class CarEditing extends Component {
         // 双头梯
         if (!this.broadsideOK(data.idx[0], data.idx[1])) {
             this.ClearDoubleLadder(data.idx[0], data.idx[1])
+        }
+        if (this.Obstacle['DTJ'].indexOf(this.map_data[data.idx[0]][data.idx[1]].type) >= 0) {
+            this.delDTJ(data.idx[0], data.idx[1], data.type)
+            // this.ClearDoubleLadder(data.idx[0], data.idx[1])
         }
         // console.log(this.map_data[data.idx[0]][data.idx[1]].type);
 
@@ -1033,6 +1046,51 @@ export class CarEditing extends Component {
         }
         return true
     }
+    delDTJ(y, x, t) {
+        let key = y + "_" + x;
+        let keyLabel = this.dataParent.getChildByName(t + "").getChildByName('count').getComponent(Label)
+        keyLabel.string = String(Number(keyLabel.string) - 1)
+        let NoDtj = []
+        let count_label = this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label)
+        for (let m_y = 1; m_y <= this.map_size.row; m_y++) {
+            for (let m_x = 1; m_x <= this.map_size.arrange; m_x++) {
+                let k = m_y + "_" + m_x;
+                let type = this.map_data[m_y][m_x].type * 1
+                if (type == t) {
+                    let key_type = type - 100 + 1;
+                    if (NoDtj.indexOf(k) < 0) {
+                        for (let new_y = 0; new_y < key_type; new_y++) {
+                            for (let new_x = 0; new_x < key_type; new_x++) {
+                                let newY = new_y + m_y;
+                                let newX = new_x + m_x;
+                                let name = newY + "_" + newX
+                                NoDtj.push(name);
+                                if (key == name) {
+                                    for (let Y = 0; Y < key_type; Y++) {
+                                        for (let X = 0; X < key_type; X++) {
+                                            let Y_new = m_y + Y
+                                            let X_new = m_x + X
+                                            this.map_data[Y_new][X_new].type = 1
+                                            this.map_data[Y_new][X_new].child.name = '1'
+                                            this.map_data[Y_new][X_new].child.getChildByName('go').active = true
+                                            this.map_data[Y_new][X_new].child.getComponent(Sprite).color = new Color('DBEEF3')
+                                            this.map_data[Y_new][X_new].child.getComponent(Sprite).spriteFrame = this.Map.children[0].getComponent(Sprite).spriteFrame
+                                            count_label.string = String(Number(count_label.string) + 1);
+                                        }
+                                    }
+
+                                    return
+                                }
+
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+
+    }
     // 触摸数据
     TouchData(pos) {
         for (let i = 1; i <= this.map_size.row; i++) {
@@ -1235,7 +1293,6 @@ export class CarEditing extends Component {
             this.CloseAll(data)
             let STTKey = {}
             let STTKeyArr = []
-            let DTJ
             for (let idx of new_data) {
                 row = (idx[1] > row) ? idx[1] : row;
                 arrange = (idx[0] > arrange) ? idx[0] : arrange;
