@@ -1431,6 +1431,13 @@ export class CarEditing extends Component {
                         newChild.active = true
                     }
                     newChild.scale = v3(1.18, 1.18, 1.18)
+                    if (this.Obstacle.C.indexOf(idx[2]) >= 0) {
+                        let EditBoxNode = instantiate(this.node.getChildByName("setEditBox"))
+                        newChild.addChild(EditBoxNode);
+                        EditBoxNode.name = idx[1] + "_" + idx[0]
+                        EditBoxNode.active = true
+                        EditBoxNode.getComponent(EditBox).string = this.map_data[idx[1]][idx[0]].datas[0]
+                    }
                 } else if (this.Obstacle.E.indexOf(idx[2]) >= 0) {
                     this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).spriteFrame = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).spriteFrame;
                 } else if (this.Obstacle.F.indexOf(idx[2]) >= 0) {
