@@ -1144,17 +1144,16 @@ export class CarEditing extends Component {
                 let k = m_y + "_" + m_x;
                 let type = this.map_data[m_y][m_x].type * 1
                 if (type == t) {
-                    let key_type = type - 100 + 1;
                     if (NoDtj.indexOf(k) < 0) {
-                        for (let new_y = 0; new_y < key_type; new_y++) {
-                            for (let new_x = 0; new_x < key_type; new_x++) {
+                        for (let new_y = 0; new_y < this.DoubleLiftType[type][1]; new_y++) {
+                            for (let new_x = 0; new_x < this.DoubleLiftType[type][0]; new_x++) {
                                 let newY = new_y + m_y;
                                 let newX = new_x + m_x;
                                 let name = newY + "_" + newX
                                 NoDtj.push(name);
                                 if (key == name) {
-                                    for (let Y = 0; Y < key_type; Y++) {
-                                        for (let X = 0; X < key_type; X++) {
+                                    for (let Y = 0; Y < this.DoubleLiftType[type][1]; Y++) {
+                                        for (let X = 0; X < this.DoubleLiftType[type][0]; X++) {
                                             let Y_new = m_y + Y
                                             let X_new = m_x + X
                                             this.map_data[Y_new][X_new].type = 1
@@ -1563,7 +1562,7 @@ export class CarEditing extends Component {
                 let arrange = Number(x)
                 let type = 1
                 if (row <= this.map_size.row && arrange <= this.map_size.arrange) {
-                    if (arrange == 1 || arrange == this.map_size.arrange || row == this.map_size.row) {
+                    if ((arrange == 1 || arrange == this.map_size.arrange || row == this.map_size.row) && this.DTJLayer.layer <= 0) {
                         type = 105
                         num105++
                     } else {
