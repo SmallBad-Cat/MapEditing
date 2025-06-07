@@ -507,7 +507,17 @@ export class CarEditing extends Component {
 
         let DataType = data.type
         data.type = this.Piece[1]
-
+        let delNames = []
+        for (let item of data.child.children) {
+            if (item.name != "go") {
+                delNames.push(item.name)
+            }
+        }
+        for (let n of delNames) {
+            if (data.child.getChildByName(n)) {
+                data.child.getChildByName(n).destroy()
+            }
+        }
         // this.map_data[data.idx[1]][data.idx[0]].type = this.Piece[1]
         if (DataType == 99 || this.obstacleOrther[DataType]) {
             this.onFence(data, DataType)
@@ -719,10 +729,17 @@ export class CarEditing extends Component {
                     // }
 
                 } else if (this.Piece[1] == 13) {
+
                     if (this.map_data.length > data.idx[0] + 1) {
                         this.setNewData(this.map_data[data.idx[0] + 1][data.idx[1]], 14)
-
                     }
+                }
+                if (this.Piece[1] == 11 || this.Piece[1] == 12) {
+                    let EditBox = instantiate(this.node.getChildByName("setEditBox"))
+                    data.child.addChild(EditBox);
+                    EditBox.name = data.idx[0] + "_" + data.idx[1]
+                    EditBox.active = true
+                    this.map_data[data.idx[0]][data.idx[1]].datas = [3]
                 }
 
                 this.ChooseKuang.setPosition(this.dataParent.getChildByName('14').getPosition());
@@ -733,9 +750,8 @@ export class CarEditing extends Component {
                 //     this.setNewData(this.map_data[data.idx[0]][(data.idx[1] > (this.map_data[1].length / 2)) ? data.idx[1] + 1 : data.idx[1] - 1])
                 // } else {
                 this.scheduleOnce(() => {
-
                     // this.map_data.length
-                    if (this.map_size.row >= data.idx[0] + 1) {
+                    if (this.map_size.row >= data.idx[0] + 1 && this.map_data[data.idx[0] + 1][data.idx[1]].type != 105) {
                         this.setNewData(this.map_data[data.idx[0] + 1][data.idx[1]])
                     } else {
                         this.Piece = [this.dataParent.getChildByName('1'), 1]
@@ -1378,6 +1394,12 @@ export class CarEditing extends Component {
                 if (idx[2] == 99 || idx[2] == 62 || idx[2] == 65 || idx[2] == 66) {
                     this.map_data[idx[1]][idx[0]].node.getComponent(Sprite).enabled = false
                     this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).enabled = false
+                } else if (idx[2] == 11 || idx[2] == 12) {
+                    let EditBox_node = instantiate(this.node.getChildByName("setEditBox"))
+                    this.map_data[idx[1]][idx[0]].child.addChild(EditBox_node);
+                    EditBox_node.name = idx[1] + "_" + idx[0]
+                    EditBox_node.active = true
+                    EditBox_node.getComponent(EditBox).string = this.map_data[idx[1]][idx[0]].datas[0]
                 }
                 if (67 >= idx[2] && idx[2] >= 61) {
                     if (idx[2] == this.Obstacle.JianPiaoKey) {
