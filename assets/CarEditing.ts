@@ -4,6 +4,7 @@ import { RoleConf } from './resources/Conf/RoleConf';
 import { CollectConf } from './resources/Conf/CollectConf';
 import List from './Scene/list/List';
 import { MapLayoutConf } from './resources/Conf/MapLayoutConf';
+import { CreateRole } from './Sprite/CreateRole';
 const { ccclass, property } = _decorator;
 export class DTJLayerData {
     layer = 0;
@@ -1260,7 +1261,7 @@ export class CarEditing extends Component {
     data_handle(event: Event) {
         let target: any = event.target;
         if (target.name == 'seve_data') {
-            this.getNowData()
+            CreateRole.getRoleData(this.getNowData(true))
             // console.log(this.map_data);
             // JSON.stringify(data)
             // console.log(DataArr);
@@ -1269,7 +1270,7 @@ export class CarEditing extends Component {
             this.dataJsonImport(this.ImportEditBox.string);
         }
     }
-    getNowData() {
+    getNowData(create?): any {
         let JPKStr = ''
         for (let i in this.JianPiaoKou) {
             if (!this.JianPiaoKou[i].keyPos) {
@@ -1280,8 +1281,10 @@ export class CarEditing extends Component {
         }
         // 导出数据
         let data = ''
+        let DataArrLook = []
         let DataArr = []
         for (let y = 1; y <= this.map_size.row; y++) {
+            DataArrLook[y] = []
             DataArr[y] = []
             for (let x = 1; x <= this.map_size.arrange; x++) {
                 data += x + `,${y},${(this.map_data[y][x].type) ? this.map_data[y][x].type : 5}`
@@ -1289,12 +1292,19 @@ export class CarEditing extends Component {
                     data += ',' + k
                 }
                 data += ';'
-                DataArr[y][x] = x + `,${y},${(this.map_data[y][x].type) ? this.map_data[y][x].type : 5}`
+                DataArrLook[y][x] = x + `,${y},${(this.map_data[y][x].type) ? this.map_data[y][x].type : 5}`
+                DataArr[y][x] = [x, y, this.map_data[y][x].type]
+                DataArr[y][x] = DataArr[y][x].concat(this.map_data[y][x].datas)
             }
         }
         console.log('----------数据导出----------');
         console.log(data);
         console.log(JPKStr);
+        console.log(DataArr);
+        if (create) {
+            return DataArr
+        }
+
         return data
     }
     initDataGoNum() {
@@ -1342,6 +1352,7 @@ export class CarEditing extends Component {
         data = '[[' + data
         data = data.substring(0, data.length - 1)
         data = this.replaceAll(data, ";", '],[')
+        data = this.replaceAll(data, "'", '"')
         data += ']]';
         let new_data = JSON.parse(data)
         let row = 0;
@@ -1391,11 +1402,23 @@ export class CarEditing extends Component {
             for (let idx of new_data) {
                 row = (idx[1] > row) ? idx[1] : row;
                 arrange = (idx[0] > arrange) ? idx[0] : arrange;
-                this.map_data[idx[1]][idx[0]].type = idx[2];
+                this.map_data[idx[1]][idx[0]].type = isNaN(idx[2]) ? 1 : idx[2];
                 this.map_data[idx[1]][idx[0]].datas = []
                 if (idx.length > 3) {
+                    let changeCount = 0
                     for (let I = 3; I < idx.length; I++) {
-                        this.map_data[idx[1]][idx[0]].datas.push(idx[I])
+                        let d = idx[I];
+                        if (isNaN(d) && changeCount == 0) {
+                            d = 1
+                        } else if (!isNaN(d)) {
+                            changeCount += 1
+                        }
+                        if (isNaN(d) && changeCount != 0) {
+                            changeCount = 0
+                        } else {
+                            this.map_data[idx[1]][idx[0]].datas.push(d)
+                        }
+
                     }
                 }
                 let node = this.map_data[idx[1]][idx[0]].node;
