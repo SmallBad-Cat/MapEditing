@@ -187,7 +187,7 @@ export class CarEditing extends Component {
         },
         'map3': {
             arrange: 9,
-            row: 10,
+            row: 8,
         },
         'map4': {
             arrange: 11,
@@ -385,6 +385,14 @@ export class CarEditing extends Component {
             this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label).string = num + ''
             this.dataParent.getChildByName('105').getChildByName('count').getComponent(Label).string = num105 + ''
             this.GoNumAll = all_gonum
+            this.scheduleOnce(() => {
+                this.map_size = this.MapType.map3;
+                this.Map.scale = v3(1, 1, 1);
+                this.CloseAll()
+                this.scheduleOnce(() => {
+                    this.MapChange()
+                })
+            })
         }
         this.allLabel[5].string = '角色步数总和：' + this.GoNumAll;
         for (let k of this.Obstacle.DTJ) {
@@ -1602,8 +1610,8 @@ export class CarEditing extends Component {
         }
         this.allLabel[5].string = '角色步数总和：' + this.GoNumAll;
         this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label).string = String(num)
-        this.dataParent.getChildByName('105').getChildByName('count').getComponent(Label).string  = String(num105)
-        
+        this.dataParent.getChildByName('105').getChildByName('count').getComponent(Label).string = String(num105)
+
         this.setPeopleCount()
 
 
