@@ -297,6 +297,7 @@ export class CarEditing extends Component {
             let row = Number(i)
             for (let x in this.map_data[row]) {
                 let arrange = Number(x)
+
                 node = this.map_data[i][x].node;
                 if (row <= this.map_size.row && arrange <= this.map_size.arrange) {
                     this.map_data[i][x].go_num = row - 1
@@ -347,12 +348,19 @@ export class CarEditing extends Component {
         let all_gonum: number = 0
         if (init) {
             let num = 0;
+            let num105 = 0
             for (let y = this.map_size.row; y >= 1; y--) {
                 if (!this.map_data[y]) {
                     this.map_data[y] = []
                 }
                 for (let x = 1; x <= this.map_size.arrange; x++) {
-
+                    let type = 1
+                    if (x == 1 || x == this.map_size.arrange || y == this.map_size.row) {
+                        type = 105
+                        num105++
+                    } else {
+                        num++
+                    }
                     node = instantiate(node);
                     node.active = true;
                     this.Map.addChild(node);
@@ -362,7 +370,7 @@ export class CarEditing extends Component {
                     let data = {
                         node: node,
                         idx: [y, x],
-                        type: 1,
+                        type: type,
                         child: newChild,
                         go_num: y - 1,
                         datas: []
@@ -370,11 +378,12 @@ export class CarEditing extends Component {
                     newChild.getChildByName('go').getComponent(Label).string = data.go_num + ''
                     all_gonum += data.go_num
                     this.map_data[y][x] = data;
-                    num++
+                    newChild.getComponent(Sprite).color = this.dataParent.getChildByName(type + "").getComponent(Sprite).color;
+
                 }
             }
-            console.log(num);
             this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label).string = num + ''
+            this.dataParent.getChildByName('105').getChildByName('count').getComponent(Label).string = num105 + ''
             this.GoNumAll = all_gonum
         }
         this.allLabel[5].string = '角色步数总和：' + this.GoNumAll;
@@ -1536,16 +1545,30 @@ export class CarEditing extends Component {
         this.JianPiaoKou = {}
         let num = 0
         this.GoNumAll = 0
+        let num105 = 0
         for (let i in this.map_data) {
             let row = Number(i)
+
+
             // console.log(row);
             for (let x in this.map_data[row]) {
                 let arrange = Number(x)
+                let type = 1
+                if (row <= this.map_size.row && arrange <= this.map_size.arrange) {
+                    if (arrange == 1 || arrange == this.map_size.arrange || row == this.map_size.row) {
+                        type = 105
+                        num105++
+                    } else {
+                        num++
+
+                    }
+                }
+
                 let node = this.map_data[i][x].node;
                 if (this.Obstacle.F.indexOf(this.map_data[i][x].type) >= 0 || this.Obstacle['E'].indexOf(this.map_data[i][x].type) >= 0 || this.map_data[i][x].type == 11 || this.map_data[i][x].type == 12) {
                     this.map_data[row][arrange].child.getComponent(Sprite).spriteFrame = this.Map.children[0].getComponent(Sprite).spriteFrame
                 }
-                this.map_data[i][x].type = 1;
+                this.map_data[i][x].type = type;
                 // 角色步数重新初始化
                 this.map_data[i][x].go_num = row - 1
                 this.map_data[row][arrange].child.getChildByName('go').active = true;
@@ -1555,13 +1578,15 @@ export class CarEditing extends Component {
                 this.map_data[row][arrange].child.getChildByName('go').getComponent(Label).enabled = (this.YZZState) ? true : false;
                 this.map_data[row][arrange].child.getChildByName('go').getComponent(Label).string = this.map_data[i][x].go_num + ''
                 this.GoNumAll += this.map_data[i][x].go_num;
+                this.map_data[row][arrange].datas = []
                 // 小熊节点隐藏
                 if (node.getChildByName('bear')) {
                     node.getChildByName('bear').active = false
                 }
                 // 所有数据初始化为角色类型
-                this.map_data[row][arrange].child.name = '1';
-                this.map_data[row][arrange].child.getComponent(Sprite).color = this.dataParent.getChildByName('1').getComponent(Sprite).color;
+                this.map_data[row][arrange].child.name = '' + type;
+                this.map_data[row][arrange].child.getComponent(Sprite).color = this.dataParent.getChildByName(type + "").getComponent(Sprite).color;
+
                 // this.map_data[row][arrange].child.getComponent(Sprite).spriteFrame = this.dataParent.getChildByName('1').getComponent(Sprite).spriteFrame
                 if (this.map_data[row][arrange].child.children.length > 1) {
                     for (let child of this.map_data[row][arrange].child.children) {
@@ -1571,13 +1596,14 @@ export class CarEditing extends Component {
                     }
                     // this.map_data[row][arrange].child.children[1]
                 }
-                if (row <= this.map_size.row && arrange <= this.map_size.arrange) {
-                    num++
-                }
+
+
             }
         }
         this.allLabel[5].string = '角色步数总和：' + this.GoNumAll;
         this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label).string = String(num)
+        this.dataParent.getChildByName('105').getChildByName('count').getComponent(Label).string  = String(num105)
+        
         this.setPeopleCount()
 
 
