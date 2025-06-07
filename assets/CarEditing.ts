@@ -818,7 +818,7 @@ export class CarEditing extends Component {
                 let t = this.map_data[y][x].type
                 if (PeopleKey.indexOf(t) >= 0) {
                     people_num += this.Obstacle.DTJ.indexOf(t) >= 0 ? 2 : 1;
-                } else if (this.Obstacle.C.indexOf(this.map_data[y][x].type) >= 0) {
+                } else if (this.Obstacle.C.indexOf(t) >= 0 || t == 11 || t == 12) {
                     people_num += this.map_data[y][x].datas[0]
                 }
             }
