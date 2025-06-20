@@ -210,6 +210,7 @@ export class CarEditing extends Component {
         }
 
         this.DTJLayer = new DTJLayerData
+        this.setDTJChooseState(false)
         this.CloseAll()
         this.scheduleOnce(() => {
             this.MapChange()
@@ -256,6 +257,10 @@ export class CarEditing extends Component {
     // 地图更新
     MapChange(init?) {
         this.node.getChildByName("DTJNode").active = this.DTJLayer.layer > 0;
+        this.dataParent.getChildByName("ClooseDTJ").scale = this.DTJLayer.layer > 0 ? v3(0, 0, 0) : v3(1, 1, 1);
+        if (this.DTJLayer.layer <= 0) {
+            this.setDTJChooseState(false)
+        }
         this.node.getChildByName('theMap').getComponent(Label).string = `当前地图：${this.map_size.arrange}x${this.map_size.row}`
         this.GoNumAll = 0
         let node = this.Map.children[0];
@@ -466,7 +471,7 @@ export class CarEditing extends Component {
             }
         }
 
-        if (data && data.type != this.Piece[1]) {
+        if (data && (data.type != this.Piece[1] || this.ChooseDTJState)) {
             this.setNewData(data)
         }
         if (!this.broadsideOK(data.idx[0], data.idx[1])) {
@@ -518,7 +523,12 @@ export class CarEditing extends Component {
             this.ClearDoubleLadder(data.idx[0], data.idx[1])
         }
         if (this.Obstacle['DTJ'].indexOf(this.map_data[data.idx[0]][data.idx[1]].type) >= 0) {
-            this.delDTJ(data.idx[0], data.idx[1], data.type)
+            if (this.ChooseDTJState) {
+                this.EditDTJ(data.idx[0], data.idx[1], data.type)
+                return
+            } else {
+                this.delDTJ(data.idx[0], data.idx[1], data.type)
+            }
             // this.ClearDoubleLadder(data.idx[0], data.idx[1])
         }
         // console.log(this.map_data[data.idx[0]][data.idx[1]].type);
@@ -1139,7 +1149,6 @@ export class CarEditing extends Component {
         keyLabel.string = String(Number(keyLabel.string) - 1)
         let NoDtj = []
         let count_label = this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label)
-        console.log(this.map_size.row, this.map_size.arrange);
         for (let m_y = 1; m_y <= this.map_size.row; m_y++) {
             for (let m_x = 1; m_x <= this.map_size.arrange; m_x++) {
                 let k = m_y + "_" + m_x;
@@ -1178,6 +1187,63 @@ export class CarEditing extends Component {
             }
         }
 
+    }
+    EditDTJ(y, x, t) {
+        let key = y + "_" + x;
+        let keyLabel = this.dataParent.getChildByName(t + "").getChildByName('count').getComponent(Label)
+        keyLabel.string = String(Number(keyLabel.string) - 1)
+        let NoDtj = []
+        let count_label = this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label)
+        for (let m_y = 1; m_y <= this.map_size.row; m_y++) {
+            for (let m_x = 1; m_x <= this.map_size.arrange; m_x++) {
+                let k = m_y + "_" + m_x;
+                let type = this.map_data[m_y][m_x].type * 1
+                if (type == t) {
+                    if (NoDtj.indexOf(k) < 0) {
+                        for (let new_y = 0; new_y < this.DoubleLiftType[type][1]; new_y++) {
+                            for (let new_x = 0; new_x < this.DoubleLiftType[type][0]; new_x++) {
+                                let newY = new_y + m_y;
+                                let newX = new_x + m_x;
+                                let name = newY + "_" + newX
+                                NoDtj.push(name);
+                                if (key == name) {
+                                    this.DTJLayer = {
+                                        layer: 3,
+                                        data: this.getNowData(),
+                                        arrange: this.map_size.arrange,
+                                        row: this.map_size.row,
+                                        size: [this.DoubleLiftType[type][0], this.DoubleLiftType[type][1]],
+                                        YX: [m_y, m_x]
+                                    }
+                                    let nowData = {}
+                                    for (let Y = 0; Y < this.DoubleLiftType[type][1]; Y++) {
+                                        for (let X = 0; X < this.DoubleLiftType[type][0]; X++) {
+                                            let Y_new = m_y + Y
+                                            let X_new = m_x + X
+                                            if (!nowData[Y]) {
+                                                nowData[Y] = {}
+                                            }
+                                            if (!nowData[Y][X]) {
+                                                nowData[Y][X] = this.map_data[Y_new][X_new].datas
+                                            }
+                                        }
+                                    }
+                                    this.setDTJLayer()
+                                    for (let Y = 0; Y < this.DoubleLiftType[type][1]; Y++) {
+                                        for (let X = 0; X < this.DoubleLiftType[type][0]; X++) {
+                                            this.map_data[Y][X].datas = nowData[Y][X]
+                                        }
+                                    }
+                                    return
+                                }
+
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
     }
     // 触摸数据
     TouchData(pos) {
@@ -1256,6 +1322,21 @@ export class CarEditing extends Component {
         }
         this.dataParent.getChildByName('Mask').active = true
         this.ChooseKuang.active = false;
+    }
+    private ChooseDTJState = false
+    onButton(event: Event) {
+        let target: any = event.target;
+        if (target.name == "ClooseDTJ") {
+            this.setDTJChooseState(true)
+            this.TipTween("选择编辑的电梯井")
+        } else if (target.name == "dtjback") {
+            this.setDTJChooseState(false)
+        }
+
+    }
+    setDTJChooseState(state) {
+        this.ChooseDTJState = state;
+        this.node.getChildByPath("DTJNode/dtjback").active = this.ChooseDTJState;
     }
     // 数据处理
     data_handle(event: Event) {
@@ -1399,6 +1480,7 @@ export class CarEditing extends Component {
             this.CloseAll(data)
             let STTKey = {}
             let STTKeyArr = []
+            let DTJ = []
             for (let idx of new_data) {
                 row = (idx[1] > row) ? idx[1] : row;
                 arrange = (idx[0] > arrange) ? idx[0] : arrange;
@@ -1506,11 +1588,15 @@ export class CarEditing extends Component {
                     STTKeyArr.push({ y: idx[1], x: idx[0] })
 
                 } else if (this.Obstacle['DTJ'].indexOf(idx[2]) >= 0) {
-
+                    // DTJ.push(idx)
                 }
 
                 let pieceColor = this.Obstacle['F'].indexOf(this.Piece[1]) >= 0 ? "#FF8F53" : "6C88F8"
             }
+            // if (DTJ.length > 0) {
+            //     this.setDTJData(DTJ)
+            // }
+
             if (STTKeyArr.length > 0) {
                 for (let pos of STTKeyArr) {
                     let getlast_key = this.getLastDoublePos(pos.y, pos.x)
@@ -1551,6 +1637,23 @@ export class CarEditing extends Component {
                 this.MapChange();
             }, 0.05)
         }
+    }
+    setDTJData(data) {
+        for (let idx of data) {
+            for (let Y = 0; Y < this.DoubleLiftType[idx[2]][1]; Y++) {
+                for (let X = 0; X < this.DoubleLiftType[idx[2]][0]; X++) {
+                    let Y_new = idx[1] + Y
+                    let X_new = idx[0] + X
+                    this.map_data[Y_new][X_new].type = idx[2]
+                    this.map_data[Y_new][X_new].child.name = '' + idx[2]
+                    this.map_data[Y_new][X_new].child.getComponent(Sprite).color = new Color('#6C88F8')
+                    // this.map_data[Y_new][X_new].child.getComponent(Sprite).spriteFrame = this.Map.children[0].getComponent(Sprite).spriteFrame
+                }
+
+            }
+        }
+
+
     }
     replaceAll(str, find, replace) {
         return str.replace(new RegExp(find, 'g'), replace);
@@ -2313,7 +2416,6 @@ export class CarEditing extends Component {
     }
     setDTJLayer() {
         this.DTJLayer.layer -= 1
-
         if (this.DTJLayer.layer > 0) {
             for (let item of this.dataParent.children) {
                 item.active = true

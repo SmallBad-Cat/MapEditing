@@ -71,7 +71,7 @@ export class CreateRole {
         }
         let color = this.MapType[size.y + "_" + size.x][0]
         color = Math.floor(color - Math.floor(no_role / 15))
-        console.log(size);
+        // console.log(size);
         if (Number.isInteger(all_roles / 3)) {
             this.getRoleDataStrs(0, data, all_roles, all_lift, color)
         } else {
@@ -82,13 +82,13 @@ export class CreateRole {
     static getRoleDataStrs(createIdx, datas, roles, lift_roles, color): any {
         // let data = JSON.parse(JSON.stringify(datas))
         let data = []
-        console.log(datas)
+        // console.log(datas)
         for (let x in datas) {
             for (let y in datas[Number(x)]) {
                 data.push(datas[Number(x)][Number(y)])
             }
         }
-        console.log(data)
+        // console.log(data)
         if (createIdx > 100) {
             console.log("循环次数超过100次，数据存在问题")
             return
@@ -120,7 +120,7 @@ export class CreateRole {
             count[a] += group;
             countAll += group;
         }
-        console.log(count)
+        // console.log(count)
         // 初始化数据结构
         const map_role = {};
         const MapHS = {
@@ -154,8 +154,8 @@ export class CreateRole {
             }
         };
         getRole(lift_roles);
-        console.log("电梯人数拿出后，对应颜色数量", count);
-        console.log("电梯数量", liftPeoCount);
+        // console.log("电梯人数拿出后，对应颜色数量", count);
+        // console.log("电梯数量", liftPeoCount);
         let DTJObj: number[][] = [];
         let NoDTJ = [];
         const DTJKEY: Record<number, [number, number]> = {
@@ -299,9 +299,9 @@ export class CreateRole {
 
             let idx = get_idx(key_count);
             if (idx === undefined) {
-                console.log("None----", newarr);
+                // console.log("None----", newarr);
                 idx = get_idx(0);
-                console.log(idx);
+                // console.log(idx);
             }
 
             if (afresh_again.length === 1) {
@@ -383,7 +383,7 @@ export class CreateRole {
                                         const IDX = getDataIdx(arrX, arrY);
 
                                         const newRole = ruleFun(data[IDX]);
-                                        console.log(data[IDX], newRole);
+                                        // console.log(data[IDX], newRole);
                                         if (peopleTypes.indexOf(data[IDX][k]) >= 0) {
                                             if (data[IDX][k] === 1) {
                                                 data[IDX][k] = newRole;
@@ -392,7 +392,7 @@ export class CreateRole {
                                                 DTJAdd[name]++;
                                             }
                                         }
-                                        console.log(name, k, newRole);
+                                        // console.log(name, k, newRole);
                                     }
                                 }
                             }
@@ -404,8 +404,8 @@ export class CreateRole {
                 }
             }
 
-            console.log("角色：", RoleArr, liftPeoCount);
-            console.log(data);
+            // console.log("角色：", RoleArr, liftPeoCount);
+            // console.log(data);
             let self = this
             function newLiftRule(peopleCount) {
                 const peopleArr = [];
@@ -480,13 +480,15 @@ export class CreateRole {
             }
 
             const liftArr = newLiftRule(lift_roles);
-            console.log(liftArr)
+            // console.log(liftArr)
 
             let data_str = "";
+            // console.log(data);
             let result = String(data).slice(2, -2);
-            result = result.replace(/\], \[/g, ";");
-            result = result.replace(/, /g, ",");
-            console.log(result)
+            // console.log(result);
+            // result = result.replace(/t/g, ";");
+            // result = result.replace(/, /g, ",");
+            // console.log(result)
         }
 
     }
