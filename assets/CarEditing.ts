@@ -200,7 +200,11 @@ export class CarEditing extends Component {
         },
     }
     MapSize(E, t) {
-        this.map_size = this.MapType[t];
+        console.log(this.MapType);
+        this.map_size = {
+            arrange: this.MapType[t].arrange,
+            row: this.MapType[t].row,
+        }
         this.Map.scale = v3(1, 1, 1);
         if (this.DTJLayer.row > 0) {
             this.map_size = {
@@ -392,7 +396,10 @@ export class CarEditing extends Component {
             this.dataParent.getChildByName('105').getChildByName('count').getComponent(Label).string = num105 + ''
             this.GoNumAll = all_gonum
             this.scheduleOnce(() => {
-                this.map_size = this.MapType.map3;
+                this.map_size = {
+                    arrange: this.MapType.map3.arrange,
+                    row: this.MapType.map3.row,
+                }
                 this.Map.scale = v3(1, 1, 1);
                 this.CloseAll()
                 this.scheduleOnce(() => {
