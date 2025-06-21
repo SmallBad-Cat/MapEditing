@@ -415,7 +415,7 @@ export class CreateRole {
                     for (let key_i in liftPeoCount) {
                         arr.push([key_i, liftPeoCount[key_i]])
                     }
-                    console.log(arr)
+                    // console.log(arr)
                     const newarr = self.bubble_sort(arr);
                     let rand = Math.floor(Math.random() * 3);
                     if (newarr.length <= rand) rand = 0;

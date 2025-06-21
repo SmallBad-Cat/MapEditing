@@ -1380,8 +1380,8 @@ export class CarEditing extends Component {
         }
         console.log('----------数据导出----------');
         console.log(data);
-        console.log(JPKStr);
-        console.log(DataArr);
+        // console.log(JPKStr);
+        // console.log(DataArr);
         if (create) {
             return DataArr
         }
@@ -1420,7 +1420,7 @@ export class CarEditing extends Component {
             this.ImportEditBox.string = '';
             return;
         }
-
+        data = data.replace(/[A-Z]/g, '1');
         let last = data.substring(data.length - 1, data.length);
 
         if (last != ';') {
@@ -1481,6 +1481,7 @@ export class CarEditing extends Component {
             let STTKey = {}
             let STTKeyArr = []
             let DTJ = []
+            let NoPushDTJ = []
             for (let idx of new_data) {
                 row = (idx[1] > row) ? idx[1] : row;
                 arrange = (idx[0] > arrange) ? idx[0] : arrange;
@@ -1588,14 +1589,24 @@ export class CarEditing extends Component {
                     STTKeyArr.push({ y: idx[1], x: idx[0] })
 
                 } else if (this.Obstacle['DTJ'].indexOf(idx[2]) >= 0) {
-                    // DTJ.push(idx)
+                    let namekey = idx[1] + '-' + idx[0]
+                    if (NoPushDTJ.indexOf(namekey) < 0) {
+                        for (let Y = 0; Y < this.DoubleLiftType[idx[2]][1]; Y++) {
+                            for (let X = 0; X < this.DoubleLiftType[idx[2]][0]; X++) {
+                                let Y_new = idx[1] + Y
+                                let X_new = idx[0] + X
+                                let name = Y_new + "-" + X_new
+                                NoPushDTJ.push(name)
+                            }
+                        }
+                        DTJ.push(idx)
+                    }
                 }
-
                 let pieceColor = this.Obstacle['F'].indexOf(this.Piece[1]) >= 0 ? "#FF8F53" : "6C88F8"
             }
-            // if (DTJ.length > 0) {
-            //     this.setDTJData(DTJ)
-            // }
+            if (DTJ.length > 0) {
+                this.setDTJData(DTJ)
+            }
 
             if (STTKeyArr.length > 0) {
                 for (let pos of STTKeyArr) {
