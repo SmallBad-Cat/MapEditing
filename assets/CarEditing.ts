@@ -1,4 +1,4 @@
-import { _decorator, Button, Color, Component, EditBox, error, EventTouch, instantiate, JsonAsset, Label, Layout, loader, Node, Prefab, resources, ScrollView, Size, Sprite, TextAsset, tween, UITransform, v3, Vec3 } from 'cc';
+import { _decorator, Button, Color, Component, dynamicAtlasManager, EditBox, error, EventTouch, instantiate, JsonAsset, Label, Layout, loader, Node, Prefab, resources, ScrollView, Size, Sprite, TextAsset, tween, UITransform, v3, Vec3 } from 'cc';
 import { MapLayoutIdConf } from './resources/Conf/MapLayoutIdConf';
 import { RoleConf } from './resources/Conf/RoleConf';
 import { CollectConf } from './resources/Conf/CollectConf';
@@ -114,7 +114,7 @@ export class CarEditing extends Component {
             }
         });
     }
-    private LevelConf = [1098, 1099, 1100]
+    private LevelConf = []
     private allMapDataType = {
         'all': {}
     }
@@ -144,13 +144,13 @@ export class CarEditing extends Component {
         for (let k in this.levelJsonData) {
             let data = this.levelJsonData[k]
             for (let i = 1; i <= data.count; i++) {
-
+                this.LevelConf.push([k, i, data['map' + i]])
             }
             // data['layout'] = this.mapLayoutData[data.mapLayoutID].layout
             // this.allMapDataType['all'][data.id] = data
 
         }
-        // this.GameList.numItems = this.LevelConf.length
+        this.GameList.numItems = this.LevelConf.length
     }
     getLevel(str) {
         str = str.replaceAll(';', '],[')
@@ -1888,7 +1888,15 @@ export class CarEditing extends Component {
         let count = Number(EditBox.string)
         if (!isNaN(count)) {
             if (this.ShowType == 'LevelConf') {
-                this.GameList.scrollTo(count - 1)
+                for (let i in this.LevelConf) {
+                    let data = this.LevelConf[i]
+                    if (Number(data[0]) == count) {
+                        this.GameList.scrollTo(Number(i))
+                        return
+                    }
+                }
+                EditBox.string = ''
+                this.TipTween('不存在此关卡')
             } else {
                 if (this.allMapDataType[this.nowLookMapSize][count]) {
                     let idx = Object.keys(this.allMapDataType[this.nowLookMapSize]).indexOf(count + '')
@@ -1915,40 +1923,33 @@ export class CarEditing extends Component {
         }
     }
     onGameList(item, idx) {
-        if (this.ShowType == 'LevelConf') {
-            let next = true
-            if (!this.levelJsonData[this.LevelConf[idx]]) {
-                item.getChildByName('text').getComponent(Label).string = `level表中${this.LevelConf[idx]}不存在`;
-                next = false
-            } else if (!this.mapLayoutData[this.levelJsonData[this.LevelConf[idx]].mapLayoutID]) {
-                item.getChildByName('text').getComponent(Label).string = `Layout表中${this.levelJsonData[this.LevelConf[idx]].mapLayoutID}不存在`;
-                next = false
-            }
-            if (!next) {
-                let Map = item.getChildByName('Map')
-                for (let child of Map.children) {
-                    child.getComponent(Sprite).enabled = true
-                    child.children[0].getComponent(Sprite).enabled = true
-                    child.children[0].destroyAllChildren()
-                    child.children[0].getComponent(Sprite).color = new Color('#FFFFFF')
-                    child.children[0].name = '1'
-                    child.active = false
-                }
-                return
-            }
-
-        }
-        let k = (this.ShowType == 'LevelConf') ? this.levelJsonData[this.LevelConf[idx]].mapLayoutID : Object.keys(this.allMapDataType[this.nowLookMapSize])[idx];
-        let data = (this.ShowType == 'LevelConf') ? this.mapLayoutData[k] : this.allMapDataType[this.nowLookMapSize][k]
-        let str = ''
-        if (this.ShowType == 'LevelConf') {
-            str = 'Lv.' + (idx + 1) + '-ID:' + this.levelJsonData[this.LevelConf[idx]].id
-        } else {
-            str = 'id:' + this.levelJsonData[this.LevelConf[idx]].id
-        }
+        // if (this.ShowType == 'LevelConf') {
+        //     let next = true
+        //     if (!this.levelJsonData[this.LevelConf[idx]]) {
+        //         item.getChildByName('text').getComponent(Label).string = `level表中${this.LevelConf[idx]}不存在`;
+        //         next = false
+        //     } else if (!this.mapLayoutData[this.levelJsonData[this.LevelConf[idx]].mapLayoutID]) {
+        //         item.getChildByName('text').getComponent(Label).string = `Layout表中${this.levelJsonData[this.LevelConf[idx]].mapLayoutID}不存在`;
+        //         next = false
+        //     }
+        //     if (!next) {
+        //         let Map = item.getChildByName('Map')
+        //         for (let child of Map.children) {
+        //             child.getComponent(Sprite).enabled = true
+        //             child.children[0].getComponent(Sprite).enabled = true
+        //             child.children[0].destroyAllChildren()
+        //             child.children[0].getComponent(Sprite).color = new Color('#FFFFFF')
+        //             child.children[0].name = '1'
+        //             child.active = false
+        //         }
+        //         return
+        //     }
+        // }
+        let data = this.LevelConf[idx]
+        let str = data[0] + '-' + data[1] + ":地图:" + data[2]
         item.getChildByName('text').getComponent(Label).string = str;
         let mapSize = new Size(246, 236)
-        let layout = data.layout
+        let layout = this.mapLayoutData[data[2]].layout
         // if (this.ShowType != 'LevelConf') {
         //     if (!this.mapLayoutData[data.layout]) {
         //         item.getChildByName('text').getComponent(Label).string = `Layout表中${data.layout}不存在`;
