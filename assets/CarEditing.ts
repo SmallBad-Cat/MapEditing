@@ -1,4 +1,4 @@
-import { _decorator, Button, Color, Component, EditBox, error, EventTouch, instantiate, JsonAsset, Label, Layout, loader, Node, resources, ScrollView, Size, Sprite, TextAsset, tween, UITransform, v3, Vec3 } from 'cc';
+import { _decorator, Button, Color, Component, EditBox, error, EventTouch, instantiate, JsonAsset, Label, Layout, loader, Node, Prefab, resources, ScrollView, Size, Sprite, TextAsset, tween, UITransform, v3, Vec3 } from 'cc';
 import { MapLayoutIdConf } from './resources/Conf/MapLayoutIdConf';
 import { RoleConf } from './resources/Conf/RoleConf';
 import { CollectConf } from './resources/Conf/CollectConf';
@@ -50,6 +50,8 @@ export class CarEditing extends Component {
     private ChooseItem: Node = null;
     @property({ type: List, displayName: "游戏中布局列表" })
     private GameList: List = null;
+    @property({ type: Prefab, displayName: "查看游戏地图列表" })
+    private LookList: Prefab = null;
 
     private nowContent = 0;
     private ScrollViewSelect = [0, 0, 0, 0];
@@ -85,12 +87,13 @@ export class CarEditing extends Component {
         103: [3, 3],
     }
     private JianPiaoKou = {}
+    private MapLayoutConf = {}
 
     public loadJson() {
-        this._loadJson("data/LevelConfig", "levelJsonData");
-        this._loadJson("data/MapLayoutId", "mapLayoutData");
-        this._loadJson("data/ProvinceLevel", "provinceLevelJsonData");
-        this._loadJson("data/AsicLevel", "allMapData");
+        this._loadJson("car_data/LevelConfig", "levelJsonData");
+        this._loadJson("car_data/MapLayoutId", "mapLayoutData");
+        // this._loadJson("data/ProvinceLevel", "provinceLevelJsonData");
+        // this._loadJson("data/AsicLevel", "allMapData");
     }
     readonly mapLayoutData: any = null;//地图数据
     readonly levelJsonData: any = null;
@@ -116,6 +119,14 @@ export class CarEditing extends Component {
         'all': {}
     }
     initGameData() {
+        this.LayoutList.numItems = Object.keys(this.mapLayoutData).length
+        for (let k in this.mapLayoutData) {
+            let data = this.mapLayoutData[k]
+            if (!this.allMapDataType[data.size]) {
+                this.allMapDataType[data.size] = {}
+            }
+            this.allMapDataType[data.size][data.id] = data;
+        }
         let provinceLevel = {}
         for (let k in this.provinceLevelJsonData) {
             provinceLevel[this.provinceLevelJsonData[k].provinceSort] = this.provinceLevelJsonData[k]
@@ -132,12 +143,12 @@ export class CarEditing extends Component {
         }
         for (let k in this.levelJsonData) {
             let data = this.levelJsonData[k]
-            data['layout'] = this.mapLayoutData[data.mapLayoutID].layout
-            this.allMapDataType['all'][data.id] = data
-            if (!this.allMapDataType[data.mapSize]) {
-                this.allMapDataType[data.mapSize] = {}
+            for (let i = 1; i <= data.count; i++) {
+
             }
-            this.allMapDataType[data.mapSize][data.id] = data;
+            // data['layout'] = this.mapLayoutData[data.mapLayoutID].layout
+            // this.allMapDataType['all'][data.id] = data
+
         }
         // this.GameList.numItems = this.LevelConf.length
     }
@@ -175,7 +186,7 @@ export class CarEditing extends Component {
             node.getChildByName('text').getComponent(Label).string = key
             first = false;
         }
-        this.LayoutList.numItems = Object.keys(MapLayoutConf.datas).length
+
     }
     private MapType = {
         'map1': {
@@ -1788,7 +1799,7 @@ export class CarEditing extends Component {
         this.ContentNode[this.nowContent].active = false;
         this.nowContent = (this.nowContent == 1) ? 0 : 1;
         this.ContentNode[this.nowContent].active = true;
-        this.allLabel[4].string = (this.nowContent == 1) ? '编辑地图' : '查看配置';
+        // this.allLabel[4].string = (this.nowContent == 1) ? '编辑地图' : '查看配置';
         if (this.nowContent == 0) {
             this.CloseAll()
         }
@@ -1798,20 +1809,26 @@ export class CarEditing extends Component {
         this.ContentNode[this.nowContent].active = false;
         this.nowContent = (this.nowContent == 1) ? 0 : 1;
         this.ContentNode[this.nowContent].active = true;
-        this.allLabel[4].string = (this.nowContent == 1) ? '编辑地图' : '查看配置数据';
+        // this.allLabel[4].string = (this.nowContent == 1) ? '编辑地图' : '查看配置数据';
         if (this.nowContent == 0) {
             // this.CloseAll()
         } else {
             if (!this.LayoutList.numItems || this.LayoutList.numItems <= 0) {
-                this.LayoutList.numItems = Object.keys(MapLayoutConf.datas).length
+                this.LayoutList.numItems = Object.keys(this.mapLayoutData).length
             }
+        }
+    }
+    ListMoveTo(EditBox: EditBox) {
+        let count = Number(EditBox.string)
+        if (!isNaN(count)) {
+            this.LayoutList.scrollTo(count - 1)
         }
     }
     private ChooseItemKey = null
     // 点击item
     onItem(event: Event,) {
         let target: any = event.target;
-        let data = MapLayoutConf.datas[target.name]
+        let data = this.mapLayoutData[target.name]
         this.dataJsonImport(data.layout)
         this.ChooseItemKey = target.name
         this.ChooseItem.parent = target
@@ -1819,10 +1836,10 @@ export class CarEditing extends Component {
         this.ChooseItem.active = true
     }
     onList(item, idx) {
-        let k = Object.keys(MapLayoutConf.datas)[idx]
-        let data = MapLayoutConf.datas[k]
+        let k = Object.keys(this.mapLayoutData)[idx]
+        let data = this.mapLayoutData[k]
         item.getChildByName('text').getComponent(Label).string = 'ID:' + data.id;
-        let mapSize = new Size(180, 180)
+        let mapSize = new Size(200, 200)
         this.ItemSetMap(item, data.layout, mapSize)
         item.name = k
         if (this.ChooseItemKey) {
@@ -1998,7 +2015,7 @@ export class CarEditing extends Component {
         }
         let map_data = []
         let nodeIdx = 0
-        for (let y = 1; y <= map_size.row; y++) {
+        for (let y = map_size.row; y >= 1; y--) {
             if (!map_data[y]) {
                 map_data[y] = []
             }

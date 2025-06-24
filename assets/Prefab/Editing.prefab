@@ -90,8 +90,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 0,
-      "y": 0,
+      "x": -667,
+      "y": -375,
       "z": 0
     },
     "_lrot": {
@@ -44825,7 +44825,7 @@
       "b": 0,
       "a": 255
     },
-    "_string": "修改地图",
+    "_string": "查看地图",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 30,
@@ -54104,6 +54104,7 @@
     "GameList": {
       "__id__": 2325
     },
+    "LookList": null,
     "_id": ""
   },
   {
@@ -54119,6 +54120,7 @@
       "__id__": 0
     },
     "fileId": "12qDmP+ddN4L3y+rEjjYrJ",
+    "instance": null,
     "targetOverrides": null
   }
 ]
