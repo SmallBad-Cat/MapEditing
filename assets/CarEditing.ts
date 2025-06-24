@@ -1624,6 +1624,7 @@ export class CarEditing extends Component {
             }
             if (DTJ.length > 0) {
                 this.setDTJData(DTJ)
+
             }
 
             if (STTKeyArr.length > 0) {
@@ -2016,6 +2017,8 @@ export class CarEditing extends Component {
         }
         let map_data = []
         let nodeIdx = 0
+        let NoPushDTJ = []
+        let DTJ = []
         for (let y = map_size.row; y >= 1; y--) {
             if (!map_data[y]) {
                 map_data[y] = []
@@ -2117,6 +2120,32 @@ export class CarEditing extends Component {
 
                 STTKeyArr.push({ y: idx[1], x: idx[0] })
 
+            } else if (this.Obstacle['DTJ'].indexOf(idx[2]) >= 0) {
+                let namekey = idx[1] + '-' + idx[0]
+                if (NoPushDTJ.indexOf(namekey) < 0) {
+                    for (let Y = 0; Y < this.DoubleLiftType[idx[2]][1]; Y++) {
+                        for (let X = 0; X < this.DoubleLiftType[idx[2]][0]; X++) {
+                            let Y_new = idx[1] + Y
+                            let X_new = idx[0] + X
+                            let name = Y_new + "-" + X_new
+                            NoPushDTJ.push(name)
+                        }
+                    }
+                    DTJ.push(idx)
+                }
+            }
+        }
+        if (DTJ.length > 0) {
+            for (let idx of DTJ) {
+                for (let Y = 0; Y < this.DoubleLiftType[idx[2]][1]; Y++) {
+                    for (let X = 0; X < this.DoubleLiftType[idx[2]][0]; X++) {
+                        let Y_new = idx[1] + Y
+                        let X_new = idx[0] + X
+                        map_data[Y_new][X_new].type = idx[2]
+                        map_data[Y_new][X_new].child.name = '' + idx[2]
+                        map_data[Y_new][X_new].child.getComponent(Sprite).color = new Color('#6C88F8')
+                    }
+                }
             }
         }
         if (STTKeyArr.length > 0) {

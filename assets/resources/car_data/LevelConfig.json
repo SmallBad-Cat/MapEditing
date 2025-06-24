@@ -57,12 +57,12 @@
   "map1": 183,
   "diff1": 4,
   "StuckTimes1": 0,
-  "map2": 40,
-  "diff2": 3,
+  "map2": 12,
+  "diff2": 5,
   "StuckTimes2": 0,
-  "map3": 145,
-  "diff3": 7,
-  "StuckTimes3": 0
+  "map3": "",
+  "diff3": "",
+  "StuckTimes3": ""
  },
  "6": {
   "id": 6,
@@ -80,7 +80,7 @@
  "7": {
   "id": 7,
   "count": 2,
-  "map1": 85,
+  "map1": 40,
   "diff1": 4,
   "StuckTimes1": 0,
   "map2": 46,
