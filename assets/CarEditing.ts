@@ -5,6 +5,7 @@ import { CollectConf } from './resources/Conf/CollectConf';
 import List from './Scene/list/List';
 import { MapLayoutConf } from './resources/Conf/MapLayoutConf';
 import { CreateRole } from './Sprite/CreateRole';
+import { GameUtil } from './Sprite/GameUtil';
 const { ccclass, property } = _decorator;
 export class DTJLayerData {
     layer = 0;
@@ -86,16 +87,21 @@ export class CarEditing extends Component {
         102: [2, 3],
         103: [3, 3],
     }
+    private MapId = null
     private JianPiaoKou = {}
     private MapLayoutConf = {}
 
     public loadJson() {
         this._loadJson("car_data/LevelConfig", "levelJsonData");
-        this._loadJson("car_data/MapLayoutId", "mapLayoutData");
+        this.mapLayoutData = GameUtil.ChangeStorage(false, "mapLayoutData")
+        if (!this.mapLayoutData) {
+            this._loadJson("car_data/MapLayoutId", "mapLayoutData");
+            GameUtil.ChangeStorage(true, "mapLayoutData", this.mapLayoutData)
+        }
         // this._loadJson("data/ProvinceLevel", "provinceLevelJsonData");
         // this._loadJson("data/AsicLevel", "allMapData");
     }
-    readonly mapLayoutData: any = null;//地图数据
+    private mapLayoutData: any = null;//地图数据
     readonly levelJsonData: any = null;
     readonly provinceLevelJsonData: any = null;//关卡数据
     readonly allMapData: any = null;
@@ -111,22 +117,28 @@ export class CarEditing extends Component {
                 // this.initData();
                 // console.log(this.provinceLevelJsonData);
                 this.initGameData()
+                this.getNextMapId()
+                this.allLabel[7].string = "地图ID：" + this.MapId;
             }
         });
+    }
+    getNextMapId() {
+        let idx = 1
+        for (let k in this.mapLayoutData) {
+            if (idx == Number(k)) {
+                idx++
+            } else {
+                break
+            }
+        }
+        this.MapId = idx;
     }
     private LevelConf = []
     private allMapDataType = {
         'all': {}
     }
     initGameData() {
-        this.LayoutList.numItems = Object.keys(this.mapLayoutData).length
-        for (let k in this.mapLayoutData) {
-            let data = this.mapLayoutData[k]
-            if (!this.allMapDataType[data.size]) {
-                this.allMapDataType[data.size] = {}
-            }
-            this.allMapDataType[data.size][data.id] = data;
-        }
+        this.initMapLayoutData()
         let provinceLevel = {}
         for (let k in this.provinceLevelJsonData) {
             provinceLevel[this.provinceLevelJsonData[k].provinceSort] = this.provinceLevelJsonData[k]
@@ -151,6 +163,16 @@ export class CarEditing extends Component {
 
         }
         this.GameList.numItems = this.LevelConf.length
+    }
+    initMapLayoutData() {
+        this.LayoutList.numItems = Object.keys(this.mapLayoutData).length
+        for (let k in this.mapLayoutData) {
+            let data = this.mapLayoutData[k]
+            if (!this.allMapDataType[data.size]) {
+                this.allMapDataType[data.size] = {}
+            }
+            this.allMapDataType[data.size][data.id] = data;
+        }
     }
     getLevel(str) {
         str = str.replaceAll(';', '],[')
@@ -271,6 +293,7 @@ export class CarEditing extends Component {
     }
     // 地图更新
     MapChange(init?) {
+        this.allLabel[7].string = "地图ID：" + this.MapId;
         this.node.getChildByName("DTJNode").active = this.DTJLayer.layer > 0;
         this.dataParent.getChildByName("ClooseDTJ").scale = this.DTJLayer.layer > 0 ? v3(0, 0, 0) : v3(1, 1, 1);
         if (this.DTJLayer.layer <= 0) {
@@ -1360,11 +1383,20 @@ export class CarEditing extends Component {
     data_handle(event: Event) {
         let target: any = event.target;
         if (target.name == 'seve_data') {
-            CreateRole.getRoleData(this.getNowData(true))
-            // console.log(this.map_data);
-            // JSON.stringify(data)
-            // console.log(DataArr);
-            // this.initDataGoNum()
+            let data = CreateRole.getRoleData(this.getNowData(true))
+            if (this.MapId && data) {
+                console.log(data);
+                this.mapLayoutData[this.MapId] = {
+                    id: this.MapId,
+                    size: data[0],
+                    layout: data[1],
+                    roles: data[2]
+                }
+                this.initMapLayoutData()
+                GameUtil.ChangeStorage(true, "mapLayoutData", this.mapLayoutData)
+            } else {
+                this.TipTween("地图数据有问题无法保存")
+            }
         } else {
             this.dataJsonImport(this.ImportEditBox.string);
         }
@@ -1399,7 +1431,6 @@ export class CarEditing extends Component {
         console.log('----------数据导出----------');
         console.log(data);
         // console.log(JPKStr);
-        // console.log(DataArr);
         if (create) {
             return DataArr
         }
@@ -1669,21 +1700,33 @@ export class CarEditing extends Component {
         }
     }
     setDTJData(data) {
+
         for (let idx of data) {
+            let Datas = JSON.parse(JSON.stringify(this.map_data[idx[1]][idx[0]].datas))
             for (let Y = 0; Y < this.DoubleLiftType[idx[2]][1]; Y++) {
                 for (let X = 0; X < this.DoubleLiftType[idx[2]][0]; X++) {
                     let Y_new = idx[1] + Y
                     let X_new = idx[0] + X
+                    if (X == 0 && Y == 0) {
+                        this.map_data[Y_new][X_new].datas = []
+                    }
                     this.map_data[Y_new][X_new].type = idx[2]
                     this.map_data[Y_new][X_new].child.name = '' + idx[2]
                     this.map_data[Y_new][X_new].child.getComponent(Sprite).color = new Color('#6C88F8')
+                    this.map_data[Y_new][X_new].datas.push(Datas.pop())
                     // this.map_data[Y_new][X_new].child.getComponent(Sprite).spriteFrame = this.Map.children[0].getComponent(Sprite).spriteFrame
                 }
-
+            }
+            if (Datas.length > 0) {
+                for (let Y = 0; Y < this.DoubleLiftType[idx[2]][1]; Y++) {
+                    for (let X = 0; X < this.DoubleLiftType[idx[2]][0]; X++) {
+                        let Y_new = idx[1] + Y
+                        let X_new = idx[0] + X
+                        this.map_data[Y_new][X_new].datas.push(Datas.pop())
+                    }
+                }
             }
         }
-
-
     }
     replaceAll(str, find, replace) {
         return str.replace(new RegExp(find, 'g'), replace);
@@ -1807,6 +1850,7 @@ export class CarEditing extends Component {
     }
     // 点击设置界面
     onLocking() {
+        this.MapId = null;
         this.ContentNode[this.nowContent].active = false;
         this.nowContent = (this.nowContent == 1) ? 0 : 1;
         this.ContentNode[this.nowContent].active = true;
@@ -1829,12 +1873,15 @@ export class CarEditing extends Component {
     // 点击item
     onItem(event: Event,) {
         let target: any = event.target;
+        this.onLocking()
         let data = this.mapLayoutData[target.name]
         this.dataJsonImport(data.layout)
-        this.ChooseItemKey = target.name
-        this.ChooseItem.parent = target
-        this.ChooseItem.setPosition(v3(0, 0, 0))
-        this.ChooseItem.active = true
+        console.log(target.name);
+        this.MapId = target.name
+        // this.allLabel[6].string = "保存"
+        // this.ChooseItem.parent = target
+        // this.ChooseItem.setPosition(v3(0, 0, 0))
+        // this.ChooseItem.active = true
     }
     onList(item, idx) {
         let k = Object.keys(this.mapLayoutData)[idx]
@@ -2519,6 +2566,32 @@ export class CarEditing extends Component {
 
         // layer_data
     }
+    SaveMapData() {
+        const data = [
+            ["ID", "大小", "地图数据", "角色库"], ["id", "size", "layout", "roles"]
+        ];
+        for (let k in this.mapLayoutData) {
+            let d = this.mapLayoutData[k]
+            data.push([d.id, d.size, d.layout, d.roles])
+        }
+        GameUtil.getCsv(data, "地图表")
+    }
+    AddMapData() {
+        this.onLocking()
+        let k = Object.keys(this.mapLayoutData).length;
+        this.MapId = k
+        this.map_size = {
+            arrange: this.MapType.map3.arrange,
+            row: this.MapType.map3.row,
+        }
+        this.Map.scale = v3(1, 1, 1);
+        this.DTJLayer = new DTJLayerData
+        this.setDTJChooseState(false)
+        this.CloseAll()
+        this.scheduleOnce(() => {
+            this.MapChange()
+        }, 0.05)
+    }
     saveDTJLayer() {
 
         let data = this.getNowData();
@@ -2574,6 +2647,9 @@ export class CarEditing extends Component {
     }
     // 
     update(deltaTime: number) {
+
+    }
+    ChangeJson() {
 
     }
 }

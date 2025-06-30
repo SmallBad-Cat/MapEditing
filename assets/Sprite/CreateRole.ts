@@ -69,17 +69,16 @@ export class CreateRole {
                 }
             }
         }
-        let color = this.MapType[size.y + "_" + size.x][0]
-        color = Math.floor(color - Math.floor(no_role / 15))
-        // console.log(size);
+        let color = 8
+        let SizeKey = { 7: { 7: 5, 9: 2 }, 9: { 8: 6 } }
         if (Number.isInteger(all_roles / 3)) {
-            this.getRoleDataStrs(0, data, all_roles, all_lift, color)
+            return this.getRoleDataStrs(0, data, all_roles, all_lift, color, SizeKey[size.y][size.x])
         } else {
             console.error("地图数据不正确,人数不是3的倍数")
         }
 
     }
-    static getRoleDataStrs(createIdx, datas, roles, lift_roles, color): any {
+    static getRoleDataStrs(createIdx, datas, roles, lift_roles, color, size): any {
         // let data = JSON.parse(JSON.stringify(datas))
         let data = []
         // console.log(datas)
@@ -88,7 +87,6 @@ export class CreateRole {
                 data.push(datas[Number(x)][Number(y)])
             }
         }
-        // console.log(data)
         if (createIdx > 100) {
             console.log("循环次数超过100次，数据存在问题")
             return
@@ -153,7 +151,7 @@ export class CreateRole {
                 }
             }
         };
-        getRole(lift_roles);
+
         // console.log("电梯人数拿出后，对应颜色数量", count);
         // console.log("电梯数量", liftPeoCount);
         let DTJObj: number[][] = [];
@@ -210,7 +208,8 @@ export class CreateRole {
                             datas,
                             roles,
                             lift_roles,
-                            color
+                            color,
+                            size
                         );
                     }
                 }
@@ -241,51 +240,51 @@ export class CreateRole {
                     const key = arr[0] - 1;
                     if (map_role[key]) {
                         if (map_role[key][arr[1]] === TitleType[idx]) {
-                            if (map_role[key][arr[1] - 1] === TitleType[idx]) {
-                                console.log("左边---------");
-                                return false;
-                            }
-                            if (map_role[key][arr[1] + 1] === TitleType[idx]) {
-                                console.log("右边---------");
-                                return false;
-                            }
+                            // if (map_role[key][arr[1] - 1] === TitleType[idx]) {
+                            console.log("左边---------");
+                            return false;
+                            // }
+                            // if (map_role[key][arr[1] + 1] === TitleType[idx]) {
+                            //     console.log("右边---------");
+                            //     return false;
+                            // }
                         }
                     }
 
                     if (map_role[arr[0]]) {
                         if (map_role[arr[0]][arr[1] - 1] === TitleType[idx]) {
-                            if (map_role[arr[0]][arr[1] - 2] === TitleType[idx]) {
-                                console.log("上边---------");
-                                return false;
-                            }
+                            // if (map_role[arr[0]][arr[1] - 2] === TitleType[idx]) {
+                            console.log("上边---------");
+                            return false;
+                            // }
                         }
                     }
 
-                    if (LastHS["H"][arr[0]]) {
-                        if (LastHS["H"][arr[0]] === TitleType[idx]) {
-                            if (MapHS["H"][arr[0]][TitleType[idx]][0] === SustainCount) {
-                                return false;
-                            } else if (MapHS["H"][arr[0]][TitleType[idx]][1] === MaxCount) {
-                                if (Object.keys(count).length === 1) {
-                                    return true;
-                                }
-                                return false;
-                            }
-                        }
-                    }
+                    // if (LastHS["H"][arr[0]]) {
+                    //     if (LastHS["H"][arr[0]] === TitleType[idx]) {
+                    //         if (MapHS["H"][arr[0]][TitleType[idx]][0] === SustainCount) {
+                    //             return false;
+                    //         } else if (MapHS["H"][arr[0]][TitleType[idx]][1] === MaxCount) {
+                    //             if (Object.keys(count).length === 1) {
+                    //                 return true;
+                    //             }
+                    //             return false;
+                    //         }
+                    //     }
+                    // }
 
-                    if (LastHS["S"][arr[1]]) {
-                        if (LastHS["S"][arr[1]] === TitleType[idx]) {
-                            if (MapHS["S"][arr[1]][TitleType[idx]][0] === SustainCount) {
-                                return false;
-                            } else if (MapHS["S"][arr[1]][TitleType[idx]][1] === MaxCount) {
-                                if (Object.keys(count).length === 1) {
-                                    return true;
-                                }
-                                return false;
-                            }
-                        }
-                    }
+                    // if (LastHS["S"][arr[1]]) {
+                    //     if (LastHS["S"][arr[1]] === TitleType[idx]) {
+                    //         if (MapHS["S"][arr[1]][TitleType[idx]][0] === SustainCount) {
+                    //             return false;
+                    //         } else if (MapHS["S"][arr[1]][TitleType[idx]][1] === MaxCount) {
+                    //             if (Object.keys(count).length === 1) {
+                    //                 return true;
+                    //             }
+                    //             return false;
+                    //         }
+                    //     }
+                    // }
 
                     return true;
                 };
@@ -348,7 +347,9 @@ export class CreateRole {
 
             for (let arr of data) {
                 if (arr.length > 0) {
-                    if (this.ElementType.role.indexOf(arr[2]) >= 0) {
+                    if (arr[2] == 10) {
+
+                    } else if (this.ElementType.role.indexOf(arr[2]) >= 0) {
                         const newRole = ruleFun(arr);
                         if (!map_role[arr[0]]) map_role[arr[0]] = {};
                         if (!map_role[arr[0]][arr[1]]) map_role[arr[0]][arr[1]] = {};
@@ -363,39 +364,45 @@ export class CreateRole {
                     } else if (this.ElementType.DTJ.indexOf(arr[2]) >= 0) {
                         if (!map_role[arr[0]]) map_role[arr[0]] = {};
                         if (!map_role[arr[0]][arr[1]]) map_role[arr[0]][arr[1]] = {};
-
+                        const DTJIDX = getDataIdx(arr[0], arr[1]);
                         const key = `${arr[0]}_${arr[1]}`;
                         if (NoDTJ.indexOf(key) < 0) {
                             DTJObj.push([arr[0], arr[1], arr[2]]);
-                            NoDTJ
+                            let AllDTJType = []
                             for (let i = 0; i < 2; i++) {
                                 for (let x = 0; x < DTJKEY[arr[2]][0]; x++) {
                                     for (let y = 0; y < DTJKEY[arr[2]][1]; y++) {
                                         const arrX = x + arr[0];
                                         const arrY = y + arr[1];
                                         const name = `${arrX}_${arrY}`;
+                                        const IDX = getDataIdx(arrX, arrY);
                                         if (NoDTJ.indexOf(name) < 0) {
                                             NoDTJ.push(name);
-                                        }
-                                        if (!DTJAdd[name]) DTJAdd[name] = 0;
-
-                                        const k = 3 + i + DTJAdd[name];
-                                        const IDX = getDataIdx(arrX, arrY);
-
-                                        const newRole = ruleFun(data[IDX]);
-                                        // console.log(data[IDX], newRole);
-                                        if (peopleTypes.indexOf(data[IDX][k]) >= 0) {
-                                            if (data[IDX][k] === 1) {
-                                                data[IDX][k] = newRole;
-                                            } else {
-                                                data[IDX].splice(k + 1, 0, newRole);
-                                                DTJAdd[name]++;
+                                            if (x != 0 || y != 0) {
+                                                data[IDX][2] = 2
                                             }
                                         }
-                                        // console.log(name, k, newRole);
+                                        AllDTJType.push(data[IDX].splice(3, 1)[0])
+
+
+
+                                        //  data[IDX].splice(k + 1, 0, newRole);
+                                        // if (!DTJAdd[name]) DTJAdd[name] = 0;
+                                        // const k = 3 + i + DTJAdd[name];
+                                        // AllDTJType.push()
+                                        // const newRole = ruleFun(data[IDX]);
+                                        // if (peopleTypes.indexOf(data[IDX][k]) >= 0) {
+                                        //     if (data[IDX][k] === 1) {
+                                        //         data[IDX][k] = newRole;
+                                        //     } else {
+                                        //         data[IDX].splice(k + 1, 0, newRole);
+                                        //         DTJAdd[name]++;
+                                        //     }
+                                        // }
                                     }
                                 }
                             }
+                            data[DTJIDX] = data[DTJIDX].concat(AllDTJType)
                         }
                     }
 
@@ -407,6 +414,7 @@ export class CreateRole {
             // console.log("角色：", RoleArr, liftPeoCount);
             // console.log(data);
             let self = this
+            // getRole(lift_roles);
             function newLiftRule(peopleCount) {
                 const peopleArr = [];
 
@@ -439,7 +447,7 @@ export class CreateRole {
                         if (newarr.length === 2 && newarr[0][1] > newarr[1][1] * 3) {
                             afresh_again.push(0);
                             console.log("电梯重来---------", count);
-                            return self.getRoleDataStrs(createIdx + 1, datas, roles, lift_roles, color)
+                            return self.getRoleDataStrs(createIdx + 1, datas, roles, lift_roles, color, size)
                         }
 
                         if (peopleArr[peopleArr.length - 1] !== Type) {
@@ -478,17 +486,19 @@ export class CreateRole {
 
                 return peopleArr;
             }
-
-            const liftArr = newLiftRule(lift_roles);
-            // console.log(liftArr)
-
-            let data_str = "";
-            // console.log(data);
-            let result = String(data).slice(2, -2);
-            // console.log(result);
-            // result = result.replace(/t/g, ";");
-            // result = result.replace(/, /g, ",");
-            // console.log(result)
+            let Roles = ''
+            // const liftArr = newLiftRule(lift_roles);
+            for (let k in count) {
+                for (let i = 0; i < count[k]; i++) {
+                    Roles += ',' + TitleType[k]
+                }
+            }
+            console.log("Roles", Roles)
+            Roles = Roles.slice(1);
+            let result = JSON.stringify(data).slice(2, -2);
+            result = result.replace(/\],\[/g, ";");
+            result = result.replace(/"/g, "");
+            return [size, result, Roles]
         }
 
     }
