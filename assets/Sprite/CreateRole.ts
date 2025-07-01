@@ -379,8 +379,8 @@ export class CreateRole {
                             DTJObj.push([arr[0], arr[1], arr[2]]);
                             let AllDTJType = []
                             for (let i = 0; i < 2; i++) {
-                                for (let x = 0; x < DTJKEY[arr[2]][0]; x++) {
-                                    for (let y = 0; y < DTJKEY[arr[2]][1]; y++) {
+                                for (let y = 0; y < DTJKEY[arr[2]][1]; y++) {
+                                    for (let x = 0; x < DTJKEY[arr[2]][0]; x++) {
                                         const arrX = x + arr[0];
                                         const arrY = y + arr[1];
                                         const name = `${arrX}_${arrY}`;
