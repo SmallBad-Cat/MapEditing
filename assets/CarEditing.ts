@@ -1383,6 +1383,7 @@ export class CarEditing extends Component {
         let target: any = event.target;
         if (target.name == 'seve_data') {
             let data = CreateRole.getRoleData(this.getNowData(true))
+            console.log(this.MapId, data);
             if (this.MapId && data) {
                 this.mapLayoutData[this.MapId] = {
                     id: this.MapId,
@@ -1422,7 +1423,7 @@ export class CarEditing extends Component {
                 for (let k of this.map_data[y][x].datas) {
                     if (k) {
                         data += ',' + k
-                    } 
+                    }
                 }
                 data += ';'
                 DataArrLook[y][x] = x + `,${y},${(this.map_data[y][x].type) ? this.map_data[y][x].type : 5}`
@@ -2633,6 +2634,50 @@ export class CarEditing extends Component {
         }
         this.map_data[arr[0]][arr[1]].datas = [count]
         this.setPeopleCount()
+    }
+    onItemBtn(event, str) {
+        let target: any = event.target;
+        let key = target.parent.parent.name
+        if (target.name == "delItem") {
+            delete this.mapLayoutData[key]
+            GameUtil.ChangeStorage(true, 'mapLayoutData', this.mapLayoutData)
+            target.parent.parent.getChildByName('ItemPage').active = false
+            this.initMapLayoutData()
+
+        } else if (target.name == "copy") {
+            let Keys = Object.keys(this.mapLayoutData)
+            let newK = Number(Keys[Keys.length - 1]) + 1;
+            this.mapLayoutData[newK] = JSON.parse(JSON.stringify(this.mapLayoutData[key]))
+            this.mapLayoutData[newK].id = newK
+            GameUtil.ChangeStorage(true, 'mapLayoutData', this.mapLayoutData)
+            this.initMapLayoutData()
+        } else if (target.name == "ChangeType") {
+            let ItemPage = target.parent.getChildByName('ItemPage')
+            ItemPage.active = !ItemPage.active
+        }
+    }
+    setItemNewId(e: EditBox) {
+        let count = Number(e.string);
+        if (isNaN(count)) {
+            e.string = "";
+            this.TipTween('输入正确ID数字');
+        } else {
+            if (this.mapLayoutData[count]) {
+                this.TipTween("ID冲突，请删除原ID")
+            } else {
+                let key = e.node.parent.parent.name
+                this.mapLayoutData[count] = JSON.parse(JSON.stringify(this.mapLayoutData[key]))
+                this.mapLayoutData[count].id = count
+                
+                this.scheduleOnce(() => {
+                    delete this.mapLayoutData[key]
+                    this.initMapLayoutData()
+                })
+                GameUtil.ChangeStorage(true, 'mapLayoutData', this.mapLayoutData)
+                let ItemPage = e.node.parent.parent.getChildByName('ItemPage')
+                ItemPage.active = false
+            }
+        }
     }
     // 
     update(deltaTime: number) {
