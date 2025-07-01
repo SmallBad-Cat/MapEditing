@@ -73,8 +73,8 @@ export class CreateRole {
         }
         let color = 5
         for (let k in this.PeopleColor) {
-            if (color <= this.PeopleColor[k]) {
-                color = Number(k)
+            if (all_roles <= Number(k)) {
+                color = this.PeopleColor[k]
                 break
             }
         }
@@ -127,7 +127,6 @@ export class CreateRole {
             count[a] += group;
             countAll += group;
         }
-        // console.log(count)
         // 初始化数据结构
         const map_role = {};
         const MapHS = {
@@ -498,8 +497,10 @@ export class CreateRole {
             }
             let Roles = ''
             // const liftArr = newLiftRule(lift_roles);
+            console.log(count);
             for (let k in count) {
                 for (let i = 0; i < count[k]; i++) {
+                    console.log(k);
                     Roles += ',' + TitleType[k]
                 }
             }
