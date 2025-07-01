@@ -12,11 +12,12 @@ export class CreateRole {
         101: [2, 2],
         102: [2, 3],
         103: [3, 3],
+        104: [3, 2],
     }
     static ElementType = {
         role: [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53],
         lift: [11, 12, 13, 6, 7, 8, 9, 25, 24, 26, 27],
-        DTJ: [101, 102, 103]
+        DTJ: [101, 102, 103, 104]
     }
     static MapType = {
         '5_8': [8, 1],
@@ -24,6 +25,7 @@ export class CreateRole {
         '9_8': [8, 1],
         '7_7': [8, 1],
     }
+    static PeopleColor = { 30: 5, 40: 6, 50: 7, 80: 8, 999: 9 }
     static getRoleData(data) {
         // 所有类型数量
         let AllTypeCount = {}
@@ -69,7 +71,14 @@ export class CreateRole {
                 }
             }
         }
-        let color = 8
+        let color = 5
+        for (let k in this.PeopleColor) {
+            if (color <= this.PeopleColor[k]) {
+                color = Number(k)
+                break
+            }
+        }
+
         let SizeKey = { 7: { 7: 5, 9: 2 }, 9: { 8: 6 } }
         if (Number.isInteger(all_roles / 3)) {
             return this.getRoleDataStrs(0, data, all_roles, all_lift, color, SizeKey[size.y][size.x])
@@ -160,6 +169,7 @@ export class CreateRole {
             101: [2, 2],
             102: [2, 3],
             103: [3, 3],
+            104: [3, 2],
         };
         const peopleTypes = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53];
         const DTJAdd: Record<string, number> = {};

@@ -1,4 +1,4 @@
-import { _decorator, Button, Color, Component, dynamicAtlasManager, EditBox, error, EventTouch, instantiate, JsonAsset, Label, Layout, loader, Node, Prefab, resources, ScrollView, Size, Sprite, TextAsset, tween, UITransform, v3, Vec3 } from 'cc';
+import { _decorator, Button, Color, Component, dynamicAtlasManager, EditBox, error, EventTouch, instantiate, JsonAsset, Label, Layout, loader, Node, Prefab, resources, ScrollView, Size, Sprite, TextAsset, tween, UITransform, v3, Vec3, VerticalTextAlignment } from 'cc';
 import { MapLayoutIdConf } from './resources/Conf/MapLayoutIdConf';
 import { RoleConf } from './resources/Conf/RoleConf';
 import { CollectConf } from './resources/Conf/CollectConf';
@@ -86,6 +86,7 @@ export class CarEditing extends Component {
         101: [2, 2],
         102: [2, 3],
         103: [3, 3],
+        104: [3, 2],
     }
     private MapId = null
     private JianPiaoKou = {}
@@ -233,7 +234,6 @@ export class CarEditing extends Component {
         },
     }
     MapSize(E, t) {
-        console.log(this.MapType);
         this.map_size = {
             arrange: this.MapType[t].arrange,
             row: this.MapType[t].row,
@@ -499,7 +499,6 @@ export class CarEditing extends Component {
         let data = this.TouchData(worldPos);
         if (!data || !data.type) return
         if (this.Piece[1] == 68) {
-            console.log(this.JianPiaoKou);
             let have = false
             for (let i in this.JianPiaoKou) {
                 if (!this.JianPiaoKou[i].keyPos) {
@@ -881,7 +880,7 @@ export class CarEditing extends Component {
     }
     setPeopleCount() {
         let people_num = 0
-        let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 71, 72, 73, 74, 75, 68, 101, 102, 103]
+        let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 71, 72, 73, 74, 75, 68, 101, 102, 103, 104]
         for (let y = 1; y <= this.map_size.row; y++) {
             for (let x = 1; x <= this.map_size.arrange; x++) {
                 let t = this.map_data[y][x].type
@@ -1327,9 +1326,9 @@ export class CarEditing extends Component {
         'D': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53],//角色
         'E': [61, 63, 64, 68],//检票口
         'F': [71, 72, 73, 74, 75],//双向电梯
-        'Role': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 68, 71, 72, 73, 74, 75, 101, 102, 103],
+        'Role': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 68, 71, 72, 73, 74, 75, 101, 102, 103, 104],
         'JianPiaoKey': 67,
-        'DTJ': [101, 102, 103]
+        'DTJ': [101, 102, 103, 104]
     }
     onObstaclePiece(event: Event, type: string) {
         let target: any = event.target;
@@ -1385,7 +1384,6 @@ export class CarEditing extends Component {
         if (target.name == 'seve_data') {
             let data = CreateRole.getRoleData(this.getNowData(true))
             if (this.MapId && data) {
-                console.log(data);
                 this.mapLayoutData[this.MapId] = {
                     id: this.MapId,
                     size: data[0],
@@ -1419,8 +1417,12 @@ export class CarEditing extends Component {
             DataArr[y] = []
             for (let x = 1; x <= this.map_size.arrange; x++) {
                 data += x + `,${y},${(this.map_data[y][x].type) ? this.map_data[y][x].type : 5}`
+
+
                 for (let k of this.map_data[y][x].datas) {
-                    data += ',' + k
+                    if (k) {
+                        data += ',' + k
+                    } 
                 }
                 data += ';'
                 DataArrLook[y][x] = x + `,${y},${(this.map_data[y][x].type) ? this.map_data[y][x].type : 5}`
@@ -1496,7 +1498,7 @@ export class CarEditing extends Component {
 
     }
     // 数据Json导入
-    dataJsonImport(data: string, conf_data?) {
+    dataJsonImport(data: string, Editing?) {
         if (data.length < 6) {
             this.ImportEditBox.string = '';
             return;
@@ -1525,164 +1527,162 @@ export class CarEditing extends Component {
         // console.log("data:",data);
 
 
-        if (!conf_data) {
-            this.CloseAll(data)
-            let STTKey = {}
-            let STTKeyArr = []
-            let DTJ = []
-            let NoPushDTJ = []
-            for (let idx of new_data) {
-                row = (idx[1] > row) ? idx[1] : row;
-                arrange = (idx[0] > arrange) ? idx[0] : arrange;
-                this.map_data[idx[1]][idx[0]].type = isNaN(idx[2]) ? 1 : idx[2];
-                this.map_data[idx[1]][idx[0]].datas = []
-                if (idx.length > 3) {
-                    let changeCount = 0
-                    for (let I = 3; I < idx.length; I++) {
-                        let d = idx[I];
-                        if (isNaN(d) && changeCount == 0) {
-                            d = 1
-                        } else if (!isNaN(d)) {
-                            changeCount += 1
-                        }
-                        if (isNaN(d) && changeCount != 0) {
-                            changeCount = 0
-                        } else {
-                            this.map_data[idx[1]][idx[0]].datas.push(d)
-                        }
-
+        this.CloseAll(data)
+        let STTKey = {}
+        let STTKeyArr = []
+        let DTJ = []
+        let NoPushDTJ = []
+        for (let idx of new_data) {
+            row = (idx[1] > row) ? idx[1] : row;
+            arrange = (idx[0] > arrange) ? idx[0] : arrange;
+            this.map_data[idx[1]][idx[0]].type = isNaN(idx[2]) ? 1 : idx[2];
+            this.map_data[idx[1]][idx[0]].datas = []
+            if (idx.length > 3) {
+                let changeCount = 0
+                for (let I = 3; I < idx.length; I++) {
+                    let d = idx[I];
+                    if (isNaN(d) && changeCount == 0) {
+                        d = 1
+                    } else if (!isNaN(d)) {
+                        changeCount += 1
                     }
+                    if (isNaN(d) && changeCount != 0) {
+                        changeCount = 0
+                    } else {
+                        this.map_data[idx[1]][idx[0]].datas.push(d)
+                    }
+
                 }
-                let node = this.map_data[idx[1]][idx[0]].node;
-                this.map_data[idx[1]][idx[0]].child.name = idx[2] + '';
-                if (this.dataParent.getChildByName(idx[2] + '')) {
-                    this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).color;
-                }
-                if (this.map_data[idx[1]][idx[0]].child.children.length > 1) {
-                    this.map_data[idx[1]][idx[0]].child.children[1].destroy()
-                }
-                this.map_data[idx[1]][idx[0]].child.getComponent(UITransform).setContentSize(newNodeSize);
-                if (idx[2] == 99 || idx[2] == 62 || idx[2] == 65 || idx[2] == 66) {
-                    this.map_data[idx[1]][idx[0]].node.getComponent(Sprite).enabled = false
-                    this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).enabled = false
-                } else if (idx[2] == 11 || idx[2] == 12) {
-                    let EditBox_node = instantiate(this.node.getChildByName("setEditBox"))
-                    this.map_data[idx[1]][idx[0]].child.addChild(EditBox_node);
-                    EditBox_node.name = idx[1] + "_" + idx[0]
-                    EditBox_node.active = true
-                    EditBox_node.getComponent(EditBox).string = this.map_data[idx[1]][idx[0]].datas[0]
-                }
-                if (67 >= idx[2] && idx[2] >= 61) {
-                    if (idx[2] == this.Obstacle.JianPiaoKey) {
-                        let newChild = null
-                        let k = this.map_data[idx[1] - 1][idx[0]].type
-                        if (this.Obstacle.E.indexOf(k) >= 0) {
-                            newChild = instantiate(this.dataParent.getChildByName(k + ''))
-                        } else if (this.Obstacle.E.indexOf(this.map_data[idx[1]][idx[0] - 1].type) >= 0) {
-                            k = 61
-                            newChild = instantiate(this.dataParent.getChildByName('61'))
-                        }
-                        if (newChild) {
-                            newChild.getChildByName('name').active = false;
-                            newChild.getChildByName('count').active = false;
-                            newChild.getComponent(Button).enabled = false;
-                            this.map_data[idx[1]][idx[0]].child.addChild(newChild);
-                            newChild.setPosition(v3(0, 0));
-                            if (this.obstacleOrther[k]) {
-                                let infeed = (this.obstacleOrther[k][0] == 0) ? true : false
-                                if (infeed) {
-                                    newChild.getComponent(UITransform).width = newNodeSize.width * Number(this.obstacleOrther[k][1])
-                                } else {
-                                    infeed = false
-                                    newChild.getComponent(UITransform).height = newNodeSize.height * Number(this.obstacleOrther[k][1])
-                                }
-                                newChild.scale = v3(1.18, 1.18, 1.18)
+            }
+            let node = this.map_data[idx[1]][idx[0]].node;
+            this.map_data[idx[1]][idx[0]].child.name = idx[2] + '';
+            if (this.dataParent.getChildByName(idx[2] + '')) {
+                this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).color;
+            }
+            if (this.map_data[idx[1]][idx[0]].child.children.length > 1) {
+                this.map_data[idx[1]][idx[0]].child.children[1].destroy()
+            }
+            this.map_data[idx[1]][idx[0]].child.getComponent(UITransform).setContentSize(newNodeSize);
+            if (idx[2] == 99 || idx[2] == 62 || idx[2] == 65 || idx[2] == 66) {
+                this.map_data[idx[1]][idx[0]].node.getComponent(Sprite).enabled = false
+                this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).enabled = false
+            } else if (idx[2] == 11 || idx[2] == 12) {
+                let EditBox_node = instantiate(this.node.getChildByName("setEditBox"))
+                this.map_data[idx[1]][idx[0]].child.addChild(EditBox_node);
+                EditBox_node.name = idx[1] + "_" + idx[0]
+                EditBox_node.active = true
+                EditBox_node.getComponent(EditBox).string = this.map_data[idx[1]][idx[0]].datas[0]
+            }
+            if (67 >= idx[2] && idx[2] >= 61) {
+                if (idx[2] == this.Obstacle.JianPiaoKey) {
+                    let newChild = null
+                    let k = this.map_data[idx[1] - 1][idx[0]].type
+                    if (this.Obstacle.E.indexOf(k) >= 0) {
+                        newChild = instantiate(this.dataParent.getChildByName(k + ''))
+                    } else if (this.Obstacle.E.indexOf(this.map_data[idx[1]][idx[0] - 1].type) >= 0) {
+                        k = 61
+                        newChild = instantiate(this.dataParent.getChildByName('61'))
+                    }
+                    if (newChild) {
+                        newChild.getChildByName('name').active = false;
+                        newChild.getChildByName('count').active = false;
+                        newChild.getComponent(Button).enabled = false;
+                        this.map_data[idx[1]][idx[0]].child.addChild(newChild);
+                        newChild.setPosition(v3(0, 0));
+                        if (this.obstacleOrther[k]) {
+                            let infeed = (this.obstacleOrther[k][0] == 0) ? true : false
+                            if (infeed) {
+                                newChild.getComponent(UITransform).width = newNodeSize.width * Number(this.obstacleOrther[k][1])
+                            } else {
+                                infeed = false
+                                newChild.getComponent(UITransform).height = newNodeSize.height * Number(this.obstacleOrther[k][1])
                             }
-                            newChild.active = true
-                        }
-                    }
-                } else if (this.TypeorAddChild(idx[2])) {
-                    let newChild = instantiate(this.dataParent.getChildByName(idx[2] + ''))
-                    newChild.active = true
-                    newChild.getChildByName('name').active = false;
-                    newChild.getChildByName('count').active = false;
-                    newChild.getComponent(UITransform).setContentSize(newNodeSize);
-                    newChild.getComponent(Button).enabled = false;
-
-                    this.map_data[idx[1]][idx[0]].child.addChild(newChild);
-                    newChild.setPosition(v3(0, 0));
-                    this.map_data[idx[1]][idx[0]].child.getComponent(UITransform).setContentSize(newNodeSize);
-                    if (this.obstacleOrther[idx[2]]) {
-
-                        let infeed = (this.obstacleOrther[idx[2]][0] == 0) ? true : false
-                        if (infeed) {
-                            newChild.getComponent(UITransform).width = newNodeSize.width * Number(this.obstacleOrther[idx[2]][1])
-                        } else {
-                            infeed = false
-                            newChild.getComponent(UITransform).height = newNodeSize.height * Number(this.obstacleOrther[idx[2]][1])
+                            newChild.scale = v3(1.18, 1.18, 1.18)
                         }
                         newChild.active = true
                     }
-                    newChild.scale = v3(1.18, 1.18, 1.18)
-                    if (this.Obstacle.C.indexOf(idx[2]) >= 0) {
-                        let EditBoxNode = instantiate(this.node.getChildByName("setEditBox"))
-                        newChild.addChild(EditBoxNode);
-                        EditBoxNode.name = idx[1] + "_" + idx[0]
-                        EditBoxNode.active = true
-                        EditBoxNode.getComponent(EditBox).string = this.map_data[idx[1]][idx[0]].datas[0]
-                    }
-                } else if (this.Obstacle.E.indexOf(idx[2]) >= 0) {
-                    this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).spriteFrame = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).spriteFrame;
-                } else if (this.Obstacle.F.indexOf(idx[2]) >= 0) {
-
-                    STTKeyArr.push({ y: idx[1], x: idx[0] })
-
-                } else if (this.Obstacle['DTJ'].indexOf(idx[2]) >= 0) {
-                    let namekey = idx[1] + '-' + idx[0]
-                    if (NoPushDTJ.indexOf(namekey) < 0) {
-                        for (let Y = 0; Y < this.DoubleLiftType[idx[2]][1]; Y++) {
-                            for (let X = 0; X < this.DoubleLiftType[idx[2]][0]; X++) {
-                                let Y_new = idx[1] + Y
-                                let X_new = idx[0] + X
-                                let name = Y_new + "-" + X_new
-                                NoPushDTJ.push(name)
-                            }
-                        }
-                        DTJ.push(idx)
-                    }
                 }
-                let pieceColor = this.Obstacle['F'].indexOf(this.Piece[1]) >= 0 ? "#FF8F53" : "6C88F8"
+            } else if (this.TypeorAddChild(idx[2])) {
+                let newChild = instantiate(this.dataParent.getChildByName(idx[2] + ''))
+                newChild.active = true
+                newChild.getChildByName('name').active = false;
+                newChild.getChildByName('count').active = false;
+                newChild.getComponent(UITransform).setContentSize(newNodeSize);
+                newChild.getComponent(Button).enabled = false;
+
+                this.map_data[idx[1]][idx[0]].child.addChild(newChild);
+                newChild.setPosition(v3(0, 0));
+                this.map_data[idx[1]][idx[0]].child.getComponent(UITransform).setContentSize(newNodeSize);
+                if (this.obstacleOrther[idx[2]]) {
+
+                    let infeed = (this.obstacleOrther[idx[2]][0] == 0) ? true : false
+                    if (infeed) {
+                        newChild.getComponent(UITransform).width = newNodeSize.width * Number(this.obstacleOrther[idx[2]][1])
+                    } else {
+                        infeed = false
+                        newChild.getComponent(UITransform).height = newNodeSize.height * Number(this.obstacleOrther[idx[2]][1])
+                    }
+                    newChild.active = true
+                }
+                newChild.scale = v3(1.18, 1.18, 1.18)
+                if (this.Obstacle.C.indexOf(idx[2]) >= 0) {
+                    let EditBoxNode = instantiate(this.node.getChildByName("setEditBox"))
+                    newChild.addChild(EditBoxNode);
+                    EditBoxNode.name = idx[1] + "_" + idx[0]
+                    EditBoxNode.active = true
+                    EditBoxNode.getComponent(EditBox).string = this.map_data[idx[1]][idx[0]].datas[0]
+                }
+            } else if (this.Obstacle.E.indexOf(idx[2]) >= 0) {
+                this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).spriteFrame = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).spriteFrame;
+            } else if (this.Obstacle.F.indexOf(idx[2]) >= 0) {
+
+                STTKeyArr.push({ y: idx[1], x: idx[0] })
+
+            } else if (this.Obstacle['DTJ'].indexOf(idx[2]) >= 0) {
+                let namekey = idx[1] + '-' + idx[0]
+                if (NoPushDTJ.indexOf(namekey) < 0) {
+                    for (let Y = 0; Y < this.DoubleLiftType[idx[2]][1]; Y++) {
+                        for (let X = 0; X < this.DoubleLiftType[idx[2]][0]; X++) {
+                            let Y_new = idx[1] + Y
+                            let X_new = idx[0] + X
+                            let name = Y_new + "-" + X_new
+                            NoPushDTJ.push(name)
+                        }
+                    }
+                    DTJ.push(idx)
+                }
             }
-            if (DTJ.length > 0) {
-                this.setDTJData(DTJ)
+            let pieceColor = this.Obstacle['F'].indexOf(this.Piece[1]) >= 0 ? "#FF8F53" : "6C88F8"
+        }
+        if (DTJ.length > 0 && !Editing) {
+            this.setDTJData(DTJ)
 
+        }
+
+        if (STTKeyArr.length > 0) {
+            for (let pos of STTKeyArr) {
+                let getlast_key = this.getLastDoublePos(pos.y, pos.x)
+                if (!STTKey[getlast_key.y + '_' + getlast_key.x]) {
+                    STTKey[getlast_key.y + '_' + getlast_key.x] = {
+                        pos: { y: getlast_key.y, x: getlast_key.x },
+                        type: getlast_key.type
+                    }
+                }
             }
 
-            if (STTKeyArr.length > 0) {
-                for (let pos of STTKeyArr) {
-                    let getlast_key = this.getLastDoublePos(pos.y, pos.x)
-                    if (!STTKey[getlast_key.y + '_' + getlast_key.x]) {
-                        STTKey[getlast_key.y + '_' + getlast_key.x] = {
-                            pos: { y: getlast_key.y, x: getlast_key.x },
-                            type: getlast_key.type
+            for (let k in STTKey) {
+                let LastPos = STTKey[k].pos
+                let w = this.DoubleLiftType[STTKey[k].type][0]
+                let h = this.DoubleLiftType[STTKey[k].type][1]
+                for (let y = LastPos.y; y > LastPos.y - h; y--) {
+                    for (let x = LastPos.x; x > LastPos.x - w; x--) {
+                        this.map_data[y][x] && (this.map_data[y][x].child.getComponent(Sprite).color = new Color('#FF8F53'))
+                        if (y == LastPos.y) {
+                            this.map_data[y][x].child.getComponent(Sprite).spriteFrame = this.dataParent.getChildByName(STTKey[k].type + '').getComponent(Sprite).spriteFrame;
                         }
                     }
                 }
 
-                for (let k in STTKey) {
-                    let LastPos = STTKey[k].pos
-                    let w = this.DoubleLiftType[STTKey[k].type][0]
-                    let h = this.DoubleLiftType[STTKey[k].type][1]
-                    for (let y = LastPos.y; y > LastPos.y - h; y--) {
-                        for (let x = LastPos.x; x > LastPos.x - w; x--) {
-                            this.map_data[y][x] && (this.map_data[y][x].child.getComponent(Sprite).color = new Color('#FF8F53'))
-                            if (y == LastPos.y) {
-                                this.map_data[y][x].child.getComponent(Sprite).spriteFrame = this.dataParent.getChildByName(STTKey[k].type + '').getComponent(Sprite).spriteFrame;
-                            }
-                        }
-                    }
-
-                }
             }
         }
 
@@ -1693,11 +1693,9 @@ export class CarEditing extends Component {
         this.EditBox_row.string = String(row);
         this.EditBox_arrange.string = String(arrange);
         this.ImportEditBox.string = '';
-        if (!conf_data) {
-            this.scheduleOnce(() => {
-                this.MapChange();
-            }, 0.05)
-        }
+        this.scheduleOnce(() => {
+            this.MapChange();
+        }, 0.05)
     }
     setDTJData(data) {
 
@@ -1876,7 +1874,6 @@ export class CarEditing extends Component {
         this.onLocking()
         let data = this.mapLayoutData[target.name]
         this.dataJsonImport(data.layout)
-        console.log(target.name);
         this.MapId = target.name
         // this.allLabel[6].string = "保存"
         // this.ChooseItem.parent = target
@@ -2301,7 +2298,6 @@ export class CarEditing extends Component {
         this.ScrollViewSelect[3] = ID;
         this.allLabel[3].string = `角色表ID:${this.ScrollViewSelect[3]}`;
         this.ScrollView[3].active = false;
-        console.log(this.ScrollViewSelect[3]);
         this.RoleDataImport(RoleConf.datas[this.ScrollViewSelect[3]].role_data)
 
     }
@@ -2329,7 +2325,6 @@ export class CarEditing extends Component {
         }
         this.ScrollViewSelect[3] = this.RoleKey[0];
         this.allLabel[3].string = `角色表ID:${this.ScrollViewSelect[3]}`;
-        console.log(RoleConf.datas[this.ScrollViewSelect[3]].role_data);
         this.RoleDataImport(RoleConf.datas[this.ScrollViewSelect[3]].role_data)
     }
     RoleDataImport(data) {
@@ -2352,7 +2347,6 @@ export class CarEditing extends Component {
             node.active = true;
             node.setSiblingIndex(this.role_map[idx].node.children.length);
         }
-        console.log(RoleArr);
     }
     /**点击围栏的区域*/
     onFence(data, DataType) {
@@ -2554,7 +2548,7 @@ export class CarEditing extends Component {
             }, 0.05)
         } else {
             this.Map.scale = v3(1, 1, 1)
-            this.dataJsonImport(this.DTJLayer.data);
+            this.dataJsonImport(this.DTJLayer.data, true);
             // this.map_size.row = this.DTJLayer.row
             // this.map_size.arrange = this.DTJLayer.arrange
 
@@ -2578,8 +2572,7 @@ export class CarEditing extends Component {
     }
     AddMapData() {
         this.onLocking()
-        let k = Object.keys(this.mapLayoutData).length;
-        this.MapId = k
+        this.getNextMapId()
         this.map_size = {
             arrange: this.MapType.map3.arrange,
             row: this.MapType.map3.row,
@@ -2595,10 +2588,6 @@ export class CarEditing extends Component {
     saveDTJLayer() {
 
         let data = this.getNowData();
-        console.log(data);
-        console.log();
-        console.log(this.map_size);
-        console.log(this.map_data);
         let map_D = this.HandleConf(this.DTJLayer.data).map
         let w = this.DTJLayer.size
         let h = this.DTJLayer.size
