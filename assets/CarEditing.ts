@@ -1328,7 +1328,8 @@ export class CarEditing extends Component {
         'F': [71, 72, 73, 74, 75],//双向电梯
         'Role': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 68, 71, 72, 73, 74, 75, 101, 102, 103, 104],
         'JianPiaoKey': 67,
-        'DTJ': [101, 102, 103, 104]
+        'DTJ': [101, 102, 103, 104],
+        'VIP': [11, 12, 13]
     }
     onObstaclePiece(event: Event, type: string) {
         let target: any = event.target;
@@ -1568,6 +1569,10 @@ export class CarEditing extends Component {
                 this.map_data[idx[1]][idx[0]].node.getComponent(Sprite).enabled = false
                 this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).enabled = false
             } else if (idx[2] == 11 || idx[2] == 12) {
+                let len = this.map_data[idx[1]][idx[0]].datas.length
+                if (len > 0) {
+                    this.map_data[idx[1]][idx[0]].datas = [len]
+                }
                 let EditBox_node = instantiate(this.node.getChildByName("setEditBox"))
                 this.map_data[idx[1]][idx[0]].child.addChild(EditBox_node);
                 EditBox_node.name = idx[1] + "_" + idx[0]
@@ -2668,7 +2673,7 @@ export class CarEditing extends Component {
                 let key = e.node.parent.parent.name
                 this.mapLayoutData[count] = JSON.parse(JSON.stringify(this.mapLayoutData[key]))
                 this.mapLayoutData[count].id = count
-                
+
                 this.scheduleOnce(() => {
                     delete this.mapLayoutData[key]
                     this.initMapLayoutData()

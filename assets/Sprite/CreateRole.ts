@@ -17,7 +17,8 @@ export class CreateRole {
     static ElementType = {
         role: [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53],
         lift: [11, 12, 13, 6, 7, 8, 9, 25, 24, 26, 27],
-        DTJ: [101, 102, 103, 104]
+        DTJ: [101, 102, 103, 104],
+        VIP: [11, 12, 13]
     }
     static MapType = {
         '5_8': [8, 1],
@@ -413,6 +414,15 @@ export class CreateRole {
                             }
                             data[DTJIDX] = data[DTJIDX].concat(AllDTJType)
                         }
+                    } else if (this.ElementType.VIP.indexOf(arr[2]) >= 0) {
+                        getRole(arr[3])
+                        let VipPeople = newLiftRule(arr[3])
+                        let IDX = getDataIdx(arr[0], arr[1])
+                        let newArr = [arr[0], arr[1], arr[2]]
+                        for (let r of VipPeople) {
+                            newArr.push(r)
+                        }
+                        data[IDX] = newArr
                     }
 
                     if (arr[0] > MapDataLan[0]) MapDataLan[0] = arr[0];
@@ -426,14 +436,25 @@ export class CreateRole {
             // getRole(lift_roles);
             function newLiftRule(peopleCount) {
                 const peopleArr = [];
-
                 function getType(key) {
+                    function bubble_sort(arr) {
+                        const n = arr.length;
+                        for (let i = 0; i < n - 1; i++) {
+                            for (let j = 0; j < n - i - 1; j++) {
+                                if (arr[j][1] < arr[j + 1][1]) {
+                                    const temp = arr[j];
+                                    arr[j] = arr[j + 1];
+                                    arr[j + 1] = temp;
+                                }
+                            }
+                        }
+                        return arr;
+                    }
                     let arr = []
                     for (let key_i in liftPeoCount) {
                         arr.push([key_i, liftPeoCount[key_i]])
                     }
-                    // console.log(arr)
-                    const newarr = self.bubble_sort(arr);
+                    const newarr = bubble_sort(arr);
                     let rand = Math.floor(Math.random() * 3);
                     if (newarr.length <= rand) rand = 0;
                     let chosenKey = newarr[rand][0];
