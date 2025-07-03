@@ -1570,7 +1570,7 @@ export class CarEditing extends Component {
                 this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).enabled = false
             } else if (idx[2] == 11 || idx[2] == 12) {
                 let len = this.map_data[idx[1]][idx[0]].datas.length
-                if (len > 0) {
+                if (len > 0 && len > 4) {
                     this.map_data[idx[1]][idx[0]].datas = [len]
                 }
                 let EditBox_node = instantiate(this.node.getChildByName("setEditBox"))
