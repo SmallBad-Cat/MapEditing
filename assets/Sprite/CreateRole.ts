@@ -94,7 +94,7 @@ export class CreateRole {
         // console.log(datas)
         for (let x in datas) {
             for (let y in datas[Number(x)]) {
-                data.push(datas[Number(x)][Number(y)])
+                data.push(JSON.parse(JSON.stringify(datas[Number(x)][Number(y)])))
             }
         }
         if (createIdx > 100) {
@@ -107,12 +107,16 @@ export class CreateRole {
         if (roles < 9) {
             color = 2
         }
+        if (Math.floor(roles / 3) < color) {
+            color = Math.floor(roles / 3)
+        }
         const group = 3;
         const count: { [key: number]: number } = {};
         // 计算余数
         const remainder = Math.ceil((roles / 3) % color);
         // 每个颜色多少人
         const evenyone = Math.floor(roles / group / color);
+        console.log(evenyone, '每个颜色人数')
         // 每个类型有多少组人
         let countAll = 0;
         for (let i = 0; i < color; i++) {
@@ -138,6 +142,7 @@ export class CreateRole {
             H: {},
             S: {}
         };
+        console.log("数量：", count);
         // 电梯人数统计
         const liftPeoCount: { [key: number]: number } = {};
         // 获取角色分配
