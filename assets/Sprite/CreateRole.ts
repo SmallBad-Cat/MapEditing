@@ -526,7 +526,6 @@ export class CreateRole {
             console.log(count);
             for (let k in count) {
                 for (let i = 0; i < count[k]; i++) {
-                    console.log(k);
                     Roles += ',' + TitleType[k]
                 }
             }

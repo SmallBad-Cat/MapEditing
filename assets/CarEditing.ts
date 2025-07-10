@@ -1,4 +1,4 @@
-import { _decorator, Button, Color, Component, dynamicAtlasManager, EditBox, error, EventTouch, instantiate, JsonAsset, Label, Layout, loader, Node, Prefab, resources, ScrollView, Size, Sprite, TextAsset, tween, UITransform, v3, Vec3, VerticalTextAlignment } from 'cc';
+import { _decorator, Button, Color, Component, dynamicAtlasManager, EditBox, error, EventMouse, EventTouch, Input, input, instantiate, JsonAsset, Label, Layout, loader, Node, Prefab, resources, ScrollView, Size, Sprite, TextAsset, tween, UITransform, v3, Vec3, VerticalTextAlignment } from 'cc';
 import { MapLayoutIdConf } from './resources/Conf/MapLayoutIdConf';
 import { RoleConf } from './resources/Conf/RoleConf';
 import { CollectConf } from './resources/Conf/CollectConf';
@@ -17,8 +17,8 @@ export class DTJLayerData {
 }
 @ccclass('CarEditing')
 export class CarEditing extends Component {
-    @property({ type: Node, displayName: "触摸区域" })
-    private Touch: Node = null;
+    @property({ type: Node, displayName: "电梯井地图" })
+    private DTJMap: Node = null;
     @property({ type: Node, displayName: "地图区域" })
     private Map: Node = null;
     @property({ type: Node, displayName: "提示" })
@@ -108,6 +108,7 @@ export class CarEditing extends Component {
     readonly allMapData: any = null;
     private loadMaxJsonNum = 0
     private loadJsonNum = 0
+    private DTJShowLayer = 1
     private _loadJson(str: string, loadName: string) {
         this.loadMaxJsonNum++;
         resources.load(str, (err, jsonAsset: JsonAsset) => {
@@ -195,7 +196,7 @@ export class CarEditing extends Component {
         this.mapSize = new Size(645, 645)
         this.Map.on(Node.EventType.TOUCH_START, this.onTouchStart, this)
         this.Map.on(Node.EventType.TOUCH_MOVE, this.onTouchMove, this)
-
+        // input.on(Input.EventType.MOUSE_MOVE, this.onMouseMove, this);
         // this.writeJson()
         let first = true;
         let contentNode = this.ScrollView[0].getComponent(ScrollView).content
@@ -210,6 +211,12 @@ export class CarEditing extends Component {
             first = false;
         }
 
+    }
+    onMouseMove(event: EventMouse) {
+        const mousePos = event.getUILocation();
+        let worldPos = this.Map.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(mousePos.x, mousePos.y));
+        let data = this.TouchData(worldPos);
+        this.DTJMap.active = data && this.Obstacle.DTJ.indexOf(data.type) >= 0
     }
     private MapType = {
         'map1': {
@@ -321,6 +328,7 @@ export class CarEditing extends Component {
         if (newNodeSize) {
             node.getComponent(UITransform).setContentSize(newNodeSize);
         }
+        this.DTJMap.destroyAllChildren()
         if (!init) {
             for (let data of this.role_map) {
                 if (data.node.getChildByName('bear')) {
@@ -336,7 +344,8 @@ export class CarEditing extends Component {
                 }
             }
         }
-
+        let NoPushDTJ = []
+        let DTJ = []
         for (let i in this.map_data) {
             let row = Number(i)
             for (let x in this.map_data[row]) {
@@ -362,6 +371,7 @@ export class CarEditing extends Component {
                         count_label.string = String(Number(count_label.string) + 1);
                     }
 
+
                     if (this.map_data[i][x].type == 1 || this.map_data[i][x].type == 10) {
                         this.role_map.push(data)
                     }
@@ -374,6 +384,21 @@ export class CarEditing extends Component {
                     }
                     node.active = true
                     this.map_data[row][arrange] = data;
+                    if (this.Obstacle.DTJ.indexOf(data.type) >= 0) {
+                        let namekey = row + '-' + arrange
+                        if (NoPushDTJ.indexOf(namekey) < 0) {
+                            for (let Y = 0; Y < this.DoubleLiftType[data.type][1]; Y++) {
+                                for (let X = 0; X < this.DoubleLiftType[data.type][0]; X++) {
+                                    let Y_new = row + Y
+                                    let X_new = arrange + X
+                                    let name = Y_new + "-" + X_new
+                                    NoPushDTJ.push(name)
+                                }
+                            }
+                            DTJ.push([arrange, row, data.type])
+                        }
+                    }
+
                 } else {
                     if (newNodeSize) {
                         node.getComponent(UITransform).setContentSize(newNodeSize);
@@ -388,6 +413,42 @@ export class CarEditing extends Component {
                 }
             }
         }
+        if (DTJ.length > 0) {
+            this.scheduleOnce(() => {
+                for (let idx of DTJ) {
+                    let name_key = idx[1] + "_" + idx[0]
+                    if (!this.DTJMap.getChildByName(name_key)) {
+                        let DTJNode = new Node()
+                        DTJNode.addComponent(UITransform)
+                        DTJNode.name = name_key
+                        this.DTJMap.addChild(DTJNode)
+                        for (let Y = 0; Y < this.DoubleLiftType[idx[2]][1]; Y++) {
+                            for (let X = 0; X < this.DoubleLiftType[idx[2]][0]; X++) {
+                                let Y_new = idx[1] + Y
+                                let X_new = idx[0] + X
+                                let t1 = this.map_data[Y_new][X_new].datas[0]
+                                let t2 = this.map_data[Y_new][X_new].datas[1]
+                                let newChild1 = instantiate(this.Map.children[0].getChildByName("1"))
+                                newChild1.getComponent(Sprite).color = this.dataParent.getChildByName(t1 + "").getComponent(Sprite).color;
+                                DTJNode.addChild(newChild1)
+                                newChild1.name = "1"
+                                let newChild2 = instantiate(this.Map.children[0].getChildByName("1"))
+                                newChild2.getComponent(Sprite).color = this.dataParent.getChildByName(t2 + "").getComponent(Sprite).color;
+                                DTJNode.addChild(newChild2)
+                                newChild2.name = "2"
+                                let WorldPos = this.map_data[Y_new][X_new].node.getWorldPosition().clone()
+                                newChild1.setWorldPosition(WorldPos)
+                                newChild2.setWorldPosition(WorldPos)
+                                newChild1.active = this.DTJShowLayer == 1;
+                                newChild2.active = this.DTJShowLayer != 1;
+                            }
+                        }
+
+                    }
+                }
+            })
+        }
+
 
         let all_gonum: number = 0
         if (init) {
@@ -1215,17 +1276,22 @@ export class CarEditing extends Component {
                                             count_label.string = String(Number(count_label.string) + 1);
                                         }
                                     }
-
+                                    let DTJMapChild = this.DTJMap.getChildByName(k)
+                                    if (DTJMapChild) {
+                                        DTJMapChild.destroy()
+                                    }
                                     return
                                 }
 
                             }
                         }
                     }
+
                 }
 
             }
         }
+
 
     }
     EditDTJ(y, x, t) {
@@ -1717,7 +1783,7 @@ export class CarEditing extends Component {
                     this.map_data[Y_new][X_new].type = idx[2]
                     this.map_data[Y_new][X_new].child.name = '' + idx[2]
                     this.map_data[Y_new][X_new].child.getComponent(Sprite).color = new Color('#6C88F8')
-                    this.map_data[Y_new][X_new].datas.push(Datas.pop())
+                    this.map_data[Y_new][X_new].datas.push(Datas.shift())
                     // this.map_data[Y_new][X_new].child.getComponent(Sprite).spriteFrame = this.Map.children[0].getComponent(Sprite).spriteFrame
                 }
             }
@@ -1726,7 +1792,7 @@ export class CarEditing extends Component {
                     for (let X = 0; X < this.DoubleLiftType[idx[2]][0]; X++) {
                         let Y_new = idx[1] + Y
                         let X_new = idx[0] + X
-                        this.map_data[Y_new][X_new].datas.push(Datas.pop())
+                        this.map_data[Y_new][X_new].datas.push(Datas.shift())
                     }
                 }
             }
@@ -2681,6 +2747,16 @@ export class CarEditing extends Component {
                 GameUtil.ChangeStorage(true, 'mapLayoutData', this.mapLayoutData)
                 let ItemPage = e.node.parent.parent.getChildByName('ItemPage')
                 ItemPage.active = false
+            }
+        }
+    }
+    onCutDTJShow(event, str) {
+        let target: any = event.target;
+        this.DTJShowLayer = this.DTJShowLayer == 1 ? 2 : 1;
+        target.getChildByName('text').getComponent(Label).string = this.DTJShowLayer + "层"
+        for (let Item of this.DTJMap.children) {
+            for (let child of Item.children) {
+                child.active = (Number(child.name) == this.DTJShowLayer)
             }
         }
     }
