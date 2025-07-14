@@ -362,9 +362,10 @@ export class CarEditing extends Component {
                         go_num: row - 1,
                         datas: this.map_data[i][x].datas
                     }
-
-                    this.map_data[row][arrange].child.getChildByName('go').active = (this.map_data[i][x].type == 1) ? true : false;
-                    this.map_data[row][arrange].child.getChildByName('go').getComponent(Label).string = row + ''
+                    if (this.map_data[row][arrange].child.getChildByName('go')) {
+                        this.map_data[row][arrange].child.getChildByName('go').active = (this.map_data[i][x].type == 1) ? true : false;
+                        this.map_data[row][arrange].child.getChildByName('go').getComponent(Label).string = row + ''
+                    }
                     this.GoNumAll += data.go_num;
                     if (this.dataParent.getChildByName(data.child.name)) {
                         let count_label = this.dataParent.getChildByName(data.child.name).getChildByName('count').getComponent(Label)
@@ -936,6 +937,7 @@ export class CarEditing extends Component {
         }
         this.Piece[0].getChildByName('count').getComponent(Label).string = String(Number(this.Piece[0].getChildByName('count').getComponent(Label).string) + 1);
         this.setPeopleCount()
+        console.log(data.child);
         // + Number(this.dataParent.getChildByName('10').getChildByName('count').getComponent(Label).string)
 
     }
@@ -1606,20 +1608,23 @@ export class CarEditing extends Component {
             this.map_data[idx[1]][idx[0]].type = isNaN(idx[2]) ? 1 : idx[2];
             this.map_data[idx[1]][idx[0]].datas = []
             if (idx.length > 3) {
-                let changeCount = 0
-                for (let I = 3; I < idx.length; I++) {
-                    let d = idx[I];
-                    if (isNaN(d) && changeCount == 0) {
-                        d = 1
-                    } else if (!isNaN(d)) {
-                        changeCount += 1
-                    }
-                    if (isNaN(d) && changeCount != 0) {
-                        changeCount = 0
-                    } else {
-                        this.map_data[idx[1]][idx[0]].datas.push(d)
-                    }
+                let attrs = [31, 42, 43, 44, 45, 46]
+                if (attrs.indexOf(idx[2]) < 0) {
+                    let changeCount = 0
+                    for (let I = 3; I < idx.length; I++) {
+                        let d = idx[I];
+                        if (isNaN(d) && changeCount == 0) {
+                            d = 1
+                        } else if (!isNaN(d)) {
+                            changeCount += 1
+                        }
+                        if (isNaN(d) && changeCount != 0) {
+                            changeCount = 0
+                        } else {
+                            this.map_data[idx[1]][idx[0]].datas.push(d)
+                        }
 
+                    }
                 }
             }
             let node = this.map_data[idx[1]][idx[0]].node;
@@ -1628,7 +1633,7 @@ export class CarEditing extends Component {
                 this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).color;
             }
             if (this.map_data[idx[1]][idx[0]].child.children.length > 1) {
-                this.map_data[idx[1]][idx[0]].child.children[1].destroy()
+                this.map_data[idx[1]][idx[0]].child.children[1].name != "go" && this.map_data[idx[1]][idx[0]].child.children[1].destroy()
             }
             this.map_data[idx[1]][idx[0]].child.getComponent(UITransform).setContentSize(newNodeSize);
             if (idx[2] == 99 || idx[2] == 62 || idx[2] == 65 || idx[2] == 66) {
@@ -2171,7 +2176,7 @@ export class CarEditing extends Component {
                 map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).color;
             }
             if (map_data[idx[1]][idx[0]].child.children.length > 1) {
-                map_data[idx[1]][idx[0]].child.children[1].destroy()
+                map_data[idx[1]][idx[0]].child.children[1].name != "go" && map_data[idx[1]][idx[0]].child.children[1].destroy()
             }
             map_data[idx[1]][idx[0]].child.getComponent(UITransform).setContentSize(newNodeSize);
             if (idx[2] == 99 || idx[2] == 62 || idx[2] == 65 || idx[2] == 66) {
