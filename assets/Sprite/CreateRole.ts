@@ -176,7 +176,7 @@ export class CreateRole {
             103: [3, 3],
             104: [3, 2],
         };
-        const peopleTypes = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53];
+        const peopleTypes = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 111];
         const DTJAdd: Record<string, number> = {};
         const ruleFun = (arr: number[]) => {
             const afresh = [0, 0];
