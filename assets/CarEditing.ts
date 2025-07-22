@@ -943,7 +943,7 @@ export class CarEditing extends Component {
     }
     setPeopleCount() {
         let people_num = 0
-        let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 71, 72, 73, 74, 75, 68, 101, 102, 103, 104]
+        let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 71, 72, 73, 74, 75, 68, 101, 102, 103, 104, 111]
         for (let y = 1; y <= this.map_size.row; y++) {
             for (let x = 1; x <= this.map_size.arrange; x++) {
                 let t = this.map_data[y][x].type
@@ -1394,7 +1394,7 @@ export class CarEditing extends Component {
         'D': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53],//角色
         'E': [61, 63, 64, 68],//检票口
         'F': [71, 72, 73, 74, 75],//双向电梯
-        'Role': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 68, 71, 72, 73, 74, 75, 101, 102, 103, 104],
+        'Role': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 68, 71, 72, 73, 74, 75, 101, 102, 103, 104, 111],
         'JianPiaoKey': 67,
         'DTJ': [101, 102, 103, 104],
         'VIP': [11, 12, 13]
