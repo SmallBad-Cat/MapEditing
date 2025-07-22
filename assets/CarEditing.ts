@@ -1608,7 +1608,7 @@ export class CarEditing extends Component {
             this.map_data[idx[1]][idx[0]].type = isNaN(idx[2]) ? 1 : idx[2];
             this.map_data[idx[1]][idx[0]].datas = []
             if (idx.length > 3) {
-                let attrs = [31, 42, 43, 44, 45, 46]
+                let attrs = [31, 42, 43, 44, 45, 46,51,52,53,111]
                 if (attrs.indexOf(idx[2]) < 0) {
                     let changeCount = 0
                     for (let I = 3; I < idx.length; I++) {
