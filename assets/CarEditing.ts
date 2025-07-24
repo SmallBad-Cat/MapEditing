@@ -91,6 +91,7 @@ export class CarEditing extends Component {
     private MapId = null
     private JianPiaoKou = {}
     private MapLayoutConf = {}
+    private ChainData = []
 
     public loadJson() {
         this._loadJson("car_data/LevelConfig", "levelJsonData");
@@ -255,6 +256,10 @@ export class CarEditing extends Component {
 
         this.DTJLayer = new DTJLayerData
         this.setDTJChooseState(false)
+        this.dataParent.active = true
+        this.allLabel[8].string = ""
+        this.TieLianSuoState = 0
+        this.ChainData = []
         this.CloseAll()
         this.scheduleOnce(() => {
             this.MapChange()
@@ -542,8 +547,42 @@ export class CarEditing extends Component {
     }
     onTouchStart(event: EventTouch) {
         if (this.Piece[0]) {
-            let localPos = event.getUILocation();
             this.dataInstall(event.getUILocation())
+        } else if (this.TieLianSuoState != 0) {
+            let localPos = event.getUILocation();
+            let worldPos = this.Map.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(localPos.x, localPos.y));
+            let data = this.TouchData(worldPos);
+            if (data) {
+                let key = this.ChainData.length
+                if (this.ChainData.length > 0) {
+                    if (this.ChainData[this.ChainData.length - 1].length < 3) {
+                        key = this.ChainData.length - 1
+                    }
+                }
+                if (this.ChainData.length == key) {
+                    this.ChainData.push([])
+                }
+                if (this.Obstacle.Role.indexOf(data.type) < 0 && this.TieLianSuoState > 1) {
+                    this.TieLianSuoState -= 1
+                    let new_suo = instantiate(this.node.getChildByPath("chain/suo"))
+                    data.child.addChild(new_suo)
+                    new_suo.getChildByName('text').getComponent(Label).string = key + "";
+                    this.ChainData[key].push([data.idx[1], data.idx[0]])
+                } else if (this.TieLianSuoState == 1 && this.Obstacle.Role.indexOf(data.type) >= 0) {
+                    this.TieLianSuoState -= 1
+                    let yao_shi = instantiate(this.node.getChildByPath("chain/yao_shi"))
+                    data.child.addChild(yao_shi)
+                    yao_shi.getChildByName('text').getComponent(Label).string = key + "";
+                    this.ChainData[key].push([data.idx[1], data.idx[0]])
+                }
+                if (this.TieLianSuoState == 0) {
+                    this.dataParent.active = true
+                    this.allLabel[8].string = ""
+                } else {
+                    this.allLabel[8].string = this.TieLianSuoState == 1 ? "请设置钥匙的位置" : "请设置铁链位置";
+                }
+
+            }
         } else {
             this.TipTween('请先选择需要填充的类型')
         }
@@ -633,6 +672,8 @@ export class CarEditing extends Component {
             }
             // this.ClearDoubleLadder(data.idx[0], data.idx[1])
         }
+        this.ChangeChainData(data.idx)
+
         // console.log(this.map_data[data.idx[0]][data.idx[1]].type);
 
         let DataType = data.type
@@ -1432,6 +1473,14 @@ export class CarEditing extends Component {
         this.dataParent.getChildByName('Mask').active = true
         this.ChooseKuang.active = false;
     }
+    private TieLianSuoState = 0;
+    onTieLianSuo() {
+        this.TieLianSuoState = 3
+        this.dataParent.active = false
+        this.allLabel[8].string = "请设置铁链位置";
+        this.Piece = []
+
+    }
     private ChooseDTJState = false
     onButton(event: Event) {
         let target: any = event.target;
@@ -1452,13 +1501,28 @@ export class CarEditing extends Component {
         let target: any = event.target;
         if (target.name == 'seve_data') {
             let data = CreateRole.getRoleData(this.getNowData(true))
-            console.log(this.MapId, data);
             if (this.MapId && data) {
                 this.mapLayoutData[this.MapId] = {
                     id: this.MapId,
                     size: data[0],
                     layout: data[1],
                     roles: data[2]
+                }
+                if (this.ChainData.length > 0) {
+                    let str = ""
+                    for (let data of this.ChainData) {
+                        if (data.length == 3) {
+
+                            for (let pos of data) {
+                                str += pos[0] + "," + pos[1] + "|"
+                            }
+                            str = str.slice(0, -1);
+                            str += ";"
+                        }
+                    }
+                    if (str != "") {
+                        this.mapLayoutData[this.MapId]["chain"] = str
+                    }
                 }
                 this.initMapLayoutData()
                 GameUtil.ChangeStorage(true, "mapLayoutData", this.mapLayoutData)
@@ -1608,7 +1672,7 @@ export class CarEditing extends Component {
             this.map_data[idx[1]][idx[0]].type = isNaN(idx[2]) ? 1 : idx[2];
             this.map_data[idx[1]][idx[0]].datas = []
             if (idx.length > 3) {
-                let attrs = [31, 42, 43, 44, 45, 46,51,52,53,111]
+                let attrs = [31, 42, 43, 44, 45, 46, 51, 52, 53, 111]
                 if (attrs.indexOf(idx[2]) < 0) {
                     let changeCount = 0
                     for (let I = 3; I < idx.length; I++) {
@@ -1815,6 +1879,7 @@ export class CarEditing extends Component {
         //     }
         // }
         // this.DTJLayer = new DTJLayerData
+
         console.log('清空数据');
         for (let item of this.dataParent.children) {
             if (item.name != 'Mask') {
@@ -1937,6 +2002,26 @@ export class CarEditing extends Component {
                 this.LayoutList.numItems = Object.keys(this.mapLayoutData).length
             }
         }
+
+        if (this.TieLianSuoState != 0) {
+            this.dataParent.active = true
+            this.allLabel[8].string = ""
+            this.TieLianSuoState = 0
+
+            // 被删除的（元素数 < 3）
+            const removed = this.ChainData.filter(subArr => subArr.length < 3);
+            for (let arr of removed) {
+                for (let pos of arr) {
+                    let data = this.map_data[pos[1]][pos[0]]
+                    let suo = data.child.getChildByName("suo")
+                    suo && suo.destroy()
+                    let yao_shi = data.child.getChildByName("yao_shi")
+                    yao_shi && yao_shi.destroy()
+                }
+            }
+            this.ChainData = this.ChainData.filter(subArr => subArr.length >= 3);
+        }
+
     }
     ListMoveTo(EditBox: EditBox) {
         let count = Number(EditBox.string)
@@ -1950,19 +2035,77 @@ export class CarEditing extends Component {
         let target: any = event.target;
         this.onLocking()
         let data = this.mapLayoutData[target.name]
+        this.ChainData = []
         this.dataJsonImport(data.layout)
+        if (data.chain) {
+            this.setChainData(data.chain)
+        }
         this.MapId = target.name
         // this.allLabel[6].string = "保存"
         // this.ChooseItem.parent = target
         // this.ChooseItem.setPosition(v3(0, 0, 0))
         // this.ChooseItem.active = true
     }
+    setChainData(str, look?) {
+        str = str.slice(0, -1);
+        str = str.replaceAll("|", '],[')
+        let data_str = JSON.parse("[[[" + this.replaceAll(str, ";", ']],[[') + "]]]");
+        if (look) {
+            return data_str
+        }
+        this.ChainData = data_str
+        let key = 0
+        for (let arr of data_str) {
+            for (let i in arr) {
+                let pos = arr[i]
+                let node = null
+                let data = this.map_data[pos[1]][pos[0]]
+
+                if (Number(i) != 2) {
+                    node = instantiate(this.node.getChildByPath("chain/suo"))
+                } else {
+                    node = instantiate(this.node.getChildByPath("chain/yao_shi"))
+                }
+                node.getChildByName('text').getComponent(Label).string = key + "";
+                data.child.addChild(node)
+            }
+            key++
+        }
+
+        // for(let data of data)
+        // 
+        // 
+    }
+    ChangeChainData(pos) {
+        let del_idx = -1
+        for (let i in this.ChainData) {
+
+            for (let arr of this.ChainData[i]) {
+                if (arr[1] == pos[0] && arr[0] == pos[1]) {
+                    del_idx = Number(i)
+                    break
+                }
+            }
+            if (del_idx > -1) break
+        }
+        if (del_idx > -1) {
+            for (let arr of this.ChainData[del_idx]) {
+                let data = this.map_data[arr[1]][arr[0]]
+                let suo = data.child.getChildByName("suo")
+                suo && suo.destroy()
+                let yao_shi = data.child.getChildByName("yao_shi")
+                yao_shi && yao_shi.destroy()
+            }
+            this.ChainData.splice(del_idx, 1);
+        }
+    }
     onList(item, idx) {
         let k = Object.keys(this.mapLayoutData)[idx]
         let data = this.mapLayoutData[k]
         item.getChildByName('text').getComponent(Label).string = 'ID:' + data.id;
         let mapSize = new Size(200, 200)
-        this.ItemSetMap(item, data.layout, mapSize)
+
+        this.ItemSetMap(item, data.layout, mapSize, data.chain)
         item.name = k
         if (this.ChooseItemKey) {
             if (k == this.ChooseItemKey) {
@@ -2088,10 +2231,11 @@ export class CarEditing extends Component {
         //     }
         //     layout = this.mapLayoutData[data.layout].layout
         // }
-        this.ItemSetMap(item, layout, mapSize)
+        this.ItemSetMap(item, layout, mapSize,this.mapLayoutData[data[2]].chain)
     }
     // 
-    ItemSetMap(item, data, mapSize) {
+    ItemSetMap(item, data, mapSize, chain?) {
+
         let handle = this.HandleConf(data)
         let new_data = handle.map
         let map_size = handle.size
@@ -2293,6 +2437,27 @@ export class CarEditing extends Component {
                     }
                 }
 
+            }
+        }
+        if (chain) {
+            let ChainData = this.setChainData(chain, true)
+            let key = 0
+            for (let arr of ChainData) {
+                for (let i in arr) {
+                    let pos = arr[i]
+                    let node = null
+                    let data = map_data[pos[1]][pos[0]]
+
+                    if (Number(i) != 2) {
+                        node = instantiate(this.node.getChildByPath("chain/suo"))
+                    } else {
+                        node = instantiate(this.node.getChildByPath("chain/yao_shi"))
+                    }
+                    node.scale = v3(0.5, 0.5, 1)
+                    node.getChildByName('text').getComponent(Label).string = key + "";
+                    data.child.addChild(node)
+                }
+                key++
             }
         }
     }
@@ -2639,11 +2804,14 @@ export class CarEditing extends Component {
     }
     SaveMapData() {
         const data = [
-            ["ID", "大小", "地图数据", "角色库"], ["id", "size", "layout", "roles"]
+            ["ID", "大小", "地图数据", "角色库", "锁链数据"], ["id", "size", "layout", "roles", "chain"]
         ];
         for (let k in this.mapLayoutData) {
             let d = this.mapLayoutData[k]
             data.push([d.id, d.size, d.layout, d.roles])
+            if (d.chain) {
+                data[data.length - 1].push(d.chain)
+            }
         }
         GameUtil.getCsv(data, "地图表")
     }
