@@ -1456,22 +1456,26 @@ export class CarEditing extends Component {
             this.dataParent.getChildByName('all').active = true
 
         } else if (type == 'all') {
-            for (let item of this.dataParent.children) {
-                item.active = true
-            }
-            for (let key in this.Obstacle) {
-                if (key != 'Role' && key != 'JianPiaoKey') {
-                    for (let id of this.Obstacle[key]) {
-                        if (roleW.indexOf(id) < 0) {
-                            this.dataParent.getChildByName(String(id)).active = false
-                        }
-                    }
-                }
-            }
-            this.dataParent.getChildByName('all').active = false
+            this.ShowAll()
         }
         this.dataParent.getChildByName('Mask').active = true
         this.ChooseKuang.active = false;
+    }
+    ShowAll() {
+        let roleW = [1, 2, 31, 10]
+        for (let item of this.dataParent.children) {
+            item.active = true
+        }
+        for (let key in this.Obstacle) {
+            if (key != 'Role' && key != 'JianPiaoKey') {
+                for (let id of this.Obstacle[key]) {
+                    if (roleW.indexOf(id) < 0) {
+                        this.dataParent.getChildByName(String(id)).active = false
+                    }
+                }
+            }
+        }
+        this.dataParent.getChildByName('all').active = false
     }
     private TieLianSuoState = 0;
     onTieLianSuo() {
@@ -2036,6 +2040,7 @@ export class CarEditing extends Component {
         this.onLocking()
         let data = this.mapLayoutData[target.name]
         this.ChainData = []
+        this.ShowAll()
         this.dataJsonImport(data.layout)
         if (data.chain) {
             this.setChainData(data.chain)
@@ -2231,7 +2236,7 @@ export class CarEditing extends Component {
         //     }
         //     layout = this.mapLayoutData[data.layout].layout
         // }
-        this.ItemSetMap(item, layout, mapSize,this.mapLayoutData[data[2]].chain)
+        this.ItemSetMap(item, layout, mapSize, this.mapLayoutData[data[2]].chain)
     }
     // 
     ItemSetMap(item, data, mapSize, chain?) {
