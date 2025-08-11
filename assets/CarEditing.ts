@@ -984,7 +984,7 @@ export class CarEditing extends Component {
     }
     setPeopleCount() {
         let people_num = 0
-        let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 71, 72, 73, 74, 75, 68, 101, 102, 103, 104, 111]
+        let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 71, 72, 73, 74, 75, 68, 101, 102, 103, 104, 1111]
         for (let y = 1; y <= this.map_size.row; y++) {
             for (let x = 1; x <= this.map_size.arrange; x++) {
                 let t = this.map_data[y][x].type
@@ -1435,7 +1435,7 @@ export class CarEditing extends Component {
         'D': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53],//角色
         'E': [61, 63, 64, 68],//检票口
         'F': [71, 72, 73, 74, 75],//双向电梯
-        'Role': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 68, 71, 72, 73, 74, 75, 101, 102, 103, 104, 111],
+        'Role': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 68, 71, 72, 73, 74, 75, 101, 102, 103, 104, 1111],
         'JianPiaoKey': 67,
         'DTJ': [101, 102, 103, 104],
         'VIP': [11, 12, 13]
@@ -1467,12 +1467,13 @@ export class CarEditing extends Component {
             item.active = true
         }
         for (let key in this.Obstacle) {
-            if (key != 'Role' && key != 'JianPiaoKey') {
+            if (key != 'Role' && key != 'JianPiaoKey' && key != 'VIP') {
                 for (let id of this.Obstacle[key]) {
                     if (roleW.indexOf(id) < 0) {
                         this.dataParent.getChildByName(String(id)).active = false
                     }
                 }
+
             }
         }
         this.dataParent.getChildByName('all').active = false
@@ -1503,8 +1504,8 @@ export class CarEditing extends Component {
     // 数据处理
     data_handle(event: Event) {
         let target: any = event.target;
-        if (target.name == 'seve_data') {
-            let data = CreateRole.getRoleData(this.getNowData(true))
+        if (target.name.indexOf('seve_data') >= 0) {
+            let data = CreateRole.getRoleData(this.getNowData(true), target.name.indexOf('fixed') >= 0)
             if (this.MapId && data) {
                 this.mapLayoutData[this.MapId] = {
                     id: this.MapId,
@@ -1529,6 +1530,8 @@ export class CarEditing extends Component {
                     }
                 }
                 this.initMapLayoutData()
+
+
                 GameUtil.ChangeStorage(true, "mapLayoutData", this.mapLayoutData)
             } else {
                 this.TipTween("地图数据有问题无法保存")
@@ -1673,12 +1676,22 @@ export class CarEditing extends Component {
         for (let idx of new_data) {
             row = (idx[1] > row) ? idx[1] : row;
             arrange = (idx[0] > arrange) ? idx[0] : arrange;
+            idx[2] = CreateRole.RestoreFixedData[idx[2]] ? CreateRole.RestoreFixedData[idx[2]] : idx[2]
             this.map_data[idx[1]][idx[0]].type = isNaN(idx[2]) ? 1 : idx[2];
             this.map_data[idx[1]][idx[0]].datas = []
             if (idx.length > 3) {
-                let attrs = [31, 42, 43, 44, 45, 46, 51, 52, 53, 111]
+                let attrs = [31, 42, 43, 44, 45, 46, 51, 52, 53, 1111, 10]
                 if (attrs.indexOf(idx[2]) < 0) {
                     let changeCount = 0
+                    let DTJType = false
+                    if (this.Obstacle.DTJ.indexOf(idx[2]) >= 0) {
+
+                        let len = this.DoubleLiftType[idx[2]][0] * this.DoubleLiftType[idx[2]][1] * 2
+                        if (len * 2 < idx.length) {
+                            DTJType = true
+                        }
+
+                    }
                     for (let I = 3; I < idx.length; I++) {
                         let d = idx[I];
                         if (isNaN(d) && changeCount == 0) {
@@ -1689,10 +1702,25 @@ export class CarEditing extends Component {
                         if (isNaN(d) && changeCount != 0) {
                             changeCount = 0
                         } else {
-                            this.map_data[idx[1]][idx[0]].datas.push(d)
+                            if (DTJType) {
+                                if (d == 111) {
+                                    d = 10
+                                }
+                                if (I % 2 == 0) {
+                                    console.log(idx[I]);
+                                    d = 999
+                                }
+                            }
+                            if (d != 999) {
+                                this.map_data[idx[1]][idx[0]].datas.push(d)
+                            }
                         }
 
                     }
+                }
+                let lift = [6, 7, 8, 9]
+                if (lift.indexOf(this.map_data[idx[1]][idx[0]].type) >= 0 && this.map_data[idx[1]][idx[0]].datas.length > 1) {
+                    this.map_data[idx[1]][idx[0]].datas = [this.map_data[idx[1]][idx[0]].datas.length]
                 }
             }
             let node = this.map_data[idx[1]][idx[0]].node;
@@ -1846,6 +1874,7 @@ export class CarEditing extends Component {
 
         for (let idx of data) {
             let Datas = JSON.parse(JSON.stringify(this.map_data[idx[1]][idx[0]].datas))
+            console.log(Datas);
             for (let Y = 0; Y < this.DoubleLiftType[idx[2]][1]; Y++) {
                 for (let X = 0; X < this.DoubleLiftType[idx[2]][0]; X++) {
                     let Y_new = idx[1] + Y
@@ -2318,6 +2347,7 @@ export class CarEditing extends Component {
             }
         }
         for (let idx of new_data) {
+            idx[2] = CreateRole.RestoreFixedData[idx[2]] ? CreateRole.RestoreFixedData[idx[2]] : idx[2]
             map_data[idx[1]][idx[0]].type = idx[2];
             let node = map_data[idx[1]][idx[0]].node;
             map_data[idx[1]][idx[0]].child.name = idx[2] + '';
