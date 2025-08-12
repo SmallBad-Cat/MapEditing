@@ -585,6 +585,10 @@ export class CreateRole {
                     Roles += ',' + TitleType[k]
                 }
             }
+
+            if (fixed && Roles.length > 0) {
+                return this.getRoleDataStrs(createIdx + 1, datas, roles, lift_roles, color, size, fixed)
+            }
             console.log("Roles", Roles)
             Roles = Roles.slice(1);
             let result = JSON.stringify(data).slice(2, -2);
