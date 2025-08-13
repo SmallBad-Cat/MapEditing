@@ -1533,8 +1533,9 @@ export class CarEditing extends Component {
 
 
                 GameUtil.ChangeStorage(true, "mapLayoutData", this.mapLayoutData)
+                this.TipTween("地图数据存储成功！")
             } else {
-                this.TipTween("地图数据有问题无法保存")
+                this.TipTween("出现问题300次循环生成不出有效数据，无法保存")
             }
         } else {
             this.dataJsonImport(this.ImportEditBox.string);

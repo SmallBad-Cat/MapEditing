@@ -26686,7 +26686,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "111",
+    "_name": "1111",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -50843,7 +50843,7 @@
     "_priority": 2,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 375,
+    "_orthoHeight": 675.3636363636364,
     "_near": 0,
     "_far": 1000,
     "_color": {

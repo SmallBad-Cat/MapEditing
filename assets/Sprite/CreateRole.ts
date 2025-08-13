@@ -119,8 +119,8 @@ export class CreateRole {
                 data.push(JSON.parse(JSON.stringify(datas[Number(x)][Number(y)])))
             }
         }
-        if (createIdx > 100) {
-            console.log("循环次数超过100次，数据存在问题")
+        if (createIdx > 300) {
+            console.log("循环次数超过300次，数据存在问题")
             return
         }
         let role_str = ""
