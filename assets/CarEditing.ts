@@ -322,7 +322,8 @@ export class CarEditing extends Component {
     }
     // 地图更新
     MapChange(init?) {
-        this.ContentNode[0].getChildByName("setImportColor").getComponent(EditBox).string = "设置生成颜色"
+        this.ContentNode[0].getChildByName("setImportColor").getComponent(EditBox).placeholder = "设置生成颜色";
+        this.ContentNode[2].active = false
         this.setColor = null
         this.ContentNode[0].active = true
         this.FixedLiftState = false
@@ -1633,11 +1634,11 @@ export class CarEditing extends Component {
     }
     setImportColor(EditBox: EditBox) {
         let color = Number(EditBox.string)
-        if (!isNaN(color)) {
+        if (!isNaN(color) && color > 3) {
             this.setColor = color
             this.TipTween("设置颜色数量为：" + color)
         } else {
-            EditBox.string = "设置生成颜色"
+            EditBox.placeholder = "设置生成颜色"
         }
     }
     HandleConf(data, change = true) {
@@ -3028,6 +3029,7 @@ export class CarEditing extends Component {
         this.ContentNode[0].active = false
         this.ContentNode[2].active = true
         this.FixedLiftState = true
+        this.FixedLift.active = false
         for (let y in this.map_data) {
             for (let x in this.map_data[y]) {
                 let data = this.map_data[y][x]
@@ -3040,7 +3042,7 @@ export class CarEditing extends Component {
         }
     }
     setChangeLiftColor(data) {
-        // this.ContentNode[2].getChildByName("text").getComponent(Label).string = "电梯:" + data.idx[1] + "-" + data.idx[0];
+        this.ContentNode[2].getChildByName("text").getComponent(Label).string = "电梯:" + data.idx[1] + "-" + data.idx[0];
     }
 }
 
