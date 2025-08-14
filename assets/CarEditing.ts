@@ -1,4 +1,4 @@
-import { _decorator, Button, Color, Component, dynamicAtlasManager, EditBox, error, EventMouse, EventTouch, Input, input, instantiate, JsonAsset, Label, Layout, loader, Node, Prefab, resources, ScrollView, Size, Sprite, TextAsset, tween, UITransform, v3, Vec3, VerticalTextAlignment } from 'cc';
+import { _decorator, Button, color, Color, Component, dynamicAtlasManager, EditBox, error, EventMouse, EventTouch, Input, input, instantiate, JsonAsset, Label, Layout, loader, Node, Prefab, resources, ScrollView, Size, Sprite, TextAsset, tween, UITransform, v3, Vec3, VerticalTextAlignment } from 'cc';
 import { MapLayoutIdConf } from './resources/Conf/MapLayoutIdConf';
 import { RoleConf } from './resources/Conf/RoleConf';
 import { CollectConf } from './resources/Conf/CollectConf';
@@ -14,6 +14,19 @@ export class DTJLayerData {
     row = 0;
     size = [];
     YX = []
+}
+export const CellToColor = {
+    0: color(0x8c, 0x8c, 0x8c),
+    1: color('#0198F3'),//蓝
+    2: color('#ffeb19'),//蜡黄
+    3: color('#bbfe00'),//鲜绿
+    4: color('#ff95d5'),//粉色
+    5: color('#ff0700'),//红ff3636
+    6: color('#cf88ff'),//紫
+    7: color('#46DEE5'),//蓝绿
+    8: color('#ff8726'),//亮黄 
+    9: color('#19CFA2'),//绿色
+    10: color('#CAD0D7'),//银白
 }
 @ccclass('CarEditing')
 export class CarEditing extends Component {
@@ -53,6 +66,8 @@ export class CarEditing extends Component {
     private GameList: List = null;
     @property({ type: Prefab, displayName: "查看游戏地图列表" })
     private LookList: Prefab = null;
+    @property({ type: Node, displayName: "固定电梯" })
+    private FixedLift: Node = null;
 
     private nowContent = 0;
     private ScrollViewSelect = [0, 0, 0, 0];
@@ -92,6 +107,8 @@ export class CarEditing extends Component {
     private JianPiaoKou = {}
     private MapLayoutConf = {}
     private ChainData = []
+    private FixedLiftState = false
+    private setColor = null
 
     public loadJson() {
         this._loadJson("car_data/LevelConfig", "levelJsonData");
@@ -305,6 +322,10 @@ export class CarEditing extends Component {
     }
     // 地图更新
     MapChange(init?) {
+        this.ContentNode[0].getChildByName("setImportColor").getComponent(EditBox).string = "设置生成颜色"
+        this.setColor = null
+        this.ContentNode[0].active = true
+        this.FixedLiftState = false
         this.allLabel[7].string = "地图ID：" + this.MapId;
         this.node.getChildByName("DTJNode").active = this.DTJLayer.layer > 0;
         this.dataParent.getChildByName("ClooseDTJ").scale = this.DTJLayer.layer > 0 ? v3(0, 0, 0) : v3(1, 1, 1);
@@ -365,7 +386,8 @@ export class CarEditing extends Component {
                         type: this.map_data[i][x].type,
                         child: this.map_data[row][arrange].child,
                         go_num: row - 1,
-                        datas: this.map_data[i][x].datas
+                        datas: this.map_data[i][x].datas,
+                        json: this.map_data[i][x].json
                     }
                     if (this.map_data[row][arrange].child.getChildByName('go')) {
                         this.map_data[row][arrange].child.getChildByName('go').active = (this.map_data[i][x].type == 1) ? true : false;
@@ -484,7 +506,8 @@ export class CarEditing extends Component {
                         type: type,
                         child: newChild,
                         go_num: y - 1,
-                        datas: []
+                        datas: [],
+                        json: []
                     }
                     newChild.getChildByName('go').getComponent(Label).string = data.go_num + ''
                     all_gonum += data.go_num
@@ -1505,7 +1528,7 @@ export class CarEditing extends Component {
     data_handle(event: Event) {
         let target: any = event.target;
         if (target.name.indexOf('seve_data') >= 0) {
-            let data = CreateRole.getRoleData(this.getNowData(true), target.name.indexOf('fixed') >= 0)
+            let data = CreateRole.getRoleData(this.getNowData(true), target.name.indexOf('fixed') >= 0, this.setColor)
             if (this.MapId && data) {
                 this.mapLayoutData[this.MapId] = {
                     id: this.MapId,
@@ -1608,12 +1631,25 @@ export class CarEditing extends Component {
         this.dataJsonImport(EditBox.string);
         this.enter_map = true;
     }
-    HandleConf(data) {
+    setImportColor(EditBox: EditBox) {
+        let color = Number(EditBox.string)
+        if (!isNaN(color)) {
+            this.setColor = color
+            this.TipTween("设置颜色数量为：" + color)
+        } else {
+            EditBox.string = "设置生成颜色"
+        }
+    }
+    HandleConf(data, change = true) {
         if (data.length < 6) {
             this.ImportEditBox.string = '';
             return;
         }
-        data = data.replace(/[A-Z]/g, '1');
+        if (change) {
+            data = data.replace(/[A-Z]/g, '1');
+        } else {
+            data = data.replace(/\b([A-Z])\b/g, "'$1'");
+        }
         let last = data.substring(data.length - 1, data.length);
 
         if (last != ';') {
@@ -1645,7 +1681,7 @@ export class CarEditing extends Component {
             this.ImportEditBox.string = '';
             return;
         }
-        let handle = this.HandleConf(data)
+        let handle = this.HandleConf(data, false)
         let new_data = handle.map
         let row = 0;
         let arrange = 0;
@@ -1674,12 +1710,15 @@ export class CarEditing extends Component {
         let STTKeyArr = []
         let DTJ = []
         let NoPushDTJ = []
+        let FixedLiftState = false
         for (let idx of new_data) {
             row = (idx[1] > row) ? idx[1] : row;
             arrange = (idx[0] > arrange) ? idx[0] : arrange;
             idx[2] = CreateRole.RestoreFixedData[idx[2]] ? CreateRole.RestoreFixedData[idx[2]] : idx[2]
             this.map_data[idx[1]][idx[0]].type = isNaN(idx[2]) ? 1 : idx[2];
             this.map_data[idx[1]][idx[0]].datas = []
+            this.map_data[idx[1]][idx[0]].json = idx
+
             if (idx.length > 3) {
                 let attrs = [31, 42, 43, 44, 45, 46, 51, 52, 53, 1111, 10]
                 if (attrs.indexOf(idx[2]) < 0) {
@@ -1722,6 +1761,7 @@ export class CarEditing extends Component {
                 let lift = [6, 7, 8, 9]
                 if (lift.indexOf(this.map_data[idx[1]][idx[0]].type) >= 0 && this.map_data[idx[1]][idx[0]].datas.length > 1) {
                     this.map_data[idx[1]][idx[0]].datas = [this.map_data[idx[1]][idx[0]].datas.length]
+                    FixedLiftState = true
                 }
             }
             let node = this.map_data[idx[1]][idx[0]].node;
@@ -1828,11 +1868,11 @@ export class CarEditing extends Component {
             }
             let pieceColor = this.Obstacle['F'].indexOf(this.Piece[1]) >= 0 ? "#FF8F53" : "6C88F8"
         }
+        this.FixedLift.active = FixedLiftState
+
         if (DTJ.length > 0 && !Editing) {
             this.setDTJData(DTJ)
-
         }
-
         if (STTKeyArr.length > 0) {
             for (let pos of STTKeyArr) {
                 let getlast_key = this.getLastDoublePos(pos.y, pos.x)
@@ -2840,15 +2880,23 @@ export class CarEditing extends Component {
     }
     SaveMapData() {
         const data = [
+            // ["ID", "大小", "地图数据", "角色库", "锁链数据", "火车存储"], ["id", "size", "layout", "roles", "chain", "train"]
             ["ID", "大小", "地图数据", "角色库", "锁链数据"], ["id", "size", "layout", "roles", "chain"]
         ];
         for (let k in this.mapLayoutData) {
             let d = this.mapLayoutData[k]
             data.push([d.id, d.size, d.layout, d.roles])
+            let chain = ""
             if (d.chain) {
                 data[data.length - 1].push(d.chain)
+                // } else {
+                //     data[data.length - 1].push(chain)
             }
+            // if (d.train) {
+            //     data[data.length - 1].push(d.train)
+            // }
         }
+        console.log(data);
         GameUtil.getCsv(data, "地图表")
     }
     AddMapData() {
@@ -2975,6 +3023,24 @@ export class CarEditing extends Component {
     }
     ChangeJson() {
 
+    }
+    onFixedLift() {
+        this.ContentNode[0].active = false
+        this.ContentNode[2].active = true
+        this.FixedLiftState = true
+        for (let y in this.map_data) {
+            for (let x in this.map_data[y]) {
+                let data = this.map_data[y][x]
+                if (data.type < 10 && data.type > 5) {
+                    console.log("88888888", data);
+                    this.setChangeLiftColor(data)
+                    // return
+                }
+            }
+        }
+    }
+    setChangeLiftColor(data) {
+        // this.ContentNode[2].getChildByName("text").getComponent(Label).string = "电梯:" + data.idx[1] + "-" + data.idx[0];
     }
 }
 

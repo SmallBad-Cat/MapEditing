@@ -49,7 +49,7 @@ export class CreateRole {
         '7_7': [8, 1],
     }
     static PeopleColor = { 30: 5, 40: 6, 50: 7, 80: 8, 999: 9 }
-    static getRoleData(data, fixed) {
+    static getRoleData(data, fixed, setColor) {
         // 所有类型数量
         let AllTypeCount = {}
         let all_roles = 0;//所有人数
@@ -101,7 +101,10 @@ export class CreateRole {
                 break
             }
         }
-
+        if (setColor) {
+            color = setColor
+        }
+        console.log(setColor,color);
         let SizeKey = { 7: { 7: 5, 9: 2 }, 9: { 8: 6 } }
         if (Number.isInteger(all_roles / 3)) {
             return this.getRoleDataStrs(0, data, all_roles, all_lift, color, SizeKey[size.y][size.x], fixed)

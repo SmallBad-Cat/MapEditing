@@ -334,6 +334,7 @@ export class GameUtil {
 		return /^[0-9a-zA-Z]$/.test(character);
 	}
 	static getCsv(data, name) {
+		// DealExcel
 		let csvContent = data.map(row =>
 			row.map((cell, idx) => idx >= 0 ? `"${cell}"` : cell).join(",")
 		).join("\n");
