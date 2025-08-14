@@ -15,6 +15,7 @@ export class DTJLayerData {
     size = [];
     YX = []
 }
+const TitleType = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "S", "Y", "Z",]
 export const CellToColor = {
     0: color(0x8c, 0x8c, 0x8c),
     1: color('#0198F3'),//蓝
@@ -28,6 +29,7 @@ export const CellToColor = {
     9: color('#19CFA2'),//绿色
     10: color('#CAD0D7'),//银白
 }
+
 @ccclass('CarEditing')
 export class CarEditing extends Component {
     @property({ type: Node, displayName: "电梯井地图" })
@@ -107,7 +109,10 @@ export class CarEditing extends Component {
     private JianPiaoKou = {}
     private MapLayoutConf = {}
     private ChainData = []
-    private FixedLiftState = false
+    private FixedLiftState = {
+        state: false,
+        idx: [],
+    }
     private setColor = null
 
     public loadJson() {
@@ -326,7 +331,10 @@ export class CarEditing extends Component {
         this.ContentNode[2].active = false
         this.setColor = null
         this.ContentNode[0].active = true
-        this.FixedLiftState = false
+        this.FixedLiftState = {
+            state: false,
+            idx: []
+        }
         this.allLabel[7].string = "地图ID：" + this.MapId;
         this.node.getChildByName("DTJNode").active = this.DTJLayer.layer > 0;
         this.dataParent.getChildByName("ClooseDTJ").scale = this.DTJLayer.layer > 0 ? v3(0, 0, 0) : v3(1, 1, 1);
@@ -828,6 +836,7 @@ export class CarEditing extends Component {
         } else {
             this.map_data[data.idx[0]][data.idx[1]].datas = []
             if (data.child.name != '99') {
+                console.log(data.child);
                 let count_label = this.dataParent.getChildByName(data.child.name).getChildByName('count').getComponent(Label)
                 let count = (Number(count_label.string) - 1) * 1
                 if (this.Obstacle['DTJ'].indexOf(this.Piece[1]) >= 0) {
@@ -1002,7 +1011,6 @@ export class CarEditing extends Component {
         }
         this.Piece[0].getChildByName('count').getComponent(Label).string = String(Number(this.Piece[0].getChildByName('count').getComponent(Label).string) + 1);
         this.setPeopleCount()
-        console.log(data.child);
         // + Number(this.dataParent.getChildByName('10').getChildByName('count').getComponent(Label).string)
 
     }
@@ -1716,7 +1724,7 @@ export class CarEditing extends Component {
             row = (idx[1] > row) ? idx[1] : row;
             arrange = (idx[0] > arrange) ? idx[0] : arrange;
             idx[2] = CreateRole.RestoreFixedData[idx[2]] ? CreateRole.RestoreFixedData[idx[2]] : idx[2]
-            this.map_data[idx[1]][idx[0]].type = isNaN(idx[2]) ? 1 : idx[2];
+            this.map_data[idx[1]][idx[0]].type = isNaN(Number(idx[2])) ? 1 : idx[2];
             this.map_data[idx[1]][idx[0]].datas = []
             this.map_data[idx[1]][idx[0]].json = idx
 
@@ -1766,7 +1774,7 @@ export class CarEditing extends Component {
                 }
             }
             let node = this.map_data[idx[1]][idx[0]].node;
-            this.map_data[idx[1]][idx[0]].child.name = idx[2] + '';
+            this.map_data[idx[1]][idx[0]].child.name = this.map_data[idx[1]][idx[0]].type + '';
             if (this.dataParent.getChildByName(idx[2] + '')) {
                 this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).color;
             }
@@ -3028,7 +3036,7 @@ export class CarEditing extends Component {
     onFixedLift() {
         this.ContentNode[0].active = false
         this.ContentNode[2].active = true
-        this.FixedLiftState = true
+        this.FixedLiftState.state = true
         this.FixedLift.active = false
         for (let y in this.map_data) {
             for (let x in this.map_data[y]) {
@@ -3043,6 +3051,24 @@ export class CarEditing extends Component {
     }
     setChangeLiftColor(data) {
         this.ContentNode[2].getChildByName("text").getComponent(Label).string = "电梯:" + data.idx[1] + "-" + data.idx[0];
+        let LiftColor = this.ContentNode[2].getChildByName("LiftColor")
+        this.FixedLiftState.idx = data.idx
+        let idx = 0
+        for (let child of LiftColor.children) {
+            child.active = false
+        }
+        for (let i = 3; i < data.json.length; i++) {
+
+            let c = TitleType.indexOf(data.json[i]) + 1
+            let node = LiftColor.children[idx]
+            if (!node) {
+                node = instantiate(LiftColor.children[0])
+                LiftColor.addChild(node)
+            }
+            node.active = true
+            node.getComponent(Sprite).color = new Color(CellToColor[c])
+            idx++
+        }
     }
 }
 
