@@ -24,7 +24,6 @@ export class DragDropExample extends Component {
     private MapDatasChange = null
     init(MapDatasChange) {
         this.MapDatasChange = MapDatasChange;
-
     }
     start() {
         // 为拖拽区域添加拖拽功能
@@ -189,7 +188,7 @@ export class DragDropExample extends Component {
     }
     onSave(event: Event) {
         let target: any = event.target;
-        let MapDatas = GameUtil.ChangeStorage(false, "MapDatas", {})
+        let MapDatas = GameUtil.ChangeStorage(false, "mapLayoutData", {})
         if (target.name == "ImportSubstitute" || target.name == "Import") {
             for (let k in this.onJsonFile) {
                 if (target.name == "ImportSubstitute") {
@@ -201,7 +200,7 @@ export class DragDropExample extends Component {
         } else if (target.name == "Substitute") {
             MapDatas = this.onJsonFile
         }
-        GameUtil.ChangeStorage(true, "MapDatas", MapDatas)
+        GameUtil.ChangeStorage(true, "mapLayoutData", MapDatas)
         this.node.getChildByName("HaveFile").active = false
         this.updateStatus("数据已更新");
         this.MapDatasChange && this.MapDatasChange()

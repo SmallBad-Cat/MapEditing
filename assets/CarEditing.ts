@@ -6,6 +6,7 @@ import List from './Scene/list/List';
 import { MapLayoutConf } from './resources/Conf/MapLayoutConf';
 import { CreateRole } from './Sprite/CreateRole';
 import { GameUtil } from './Sprite/GameUtil';
+import { DragDropExample } from './Prefab/FileDrag/DragDropExample';
 const { ccclass, property } = _decorator;
 export class DTJLayerData {
     layer = 0;
@@ -112,6 +113,7 @@ export class CarEditing extends Component {
     private FixedLiftState = {
         state: false,
         idx: [],
+        item: null
     }
     private setColor = null
 
@@ -163,6 +165,7 @@ export class CarEditing extends Component {
         'all': {}
     }
     initGameData() {
+        this.LevelConf = []
         this.initMapLayoutData()
         let provinceLevel = {}
         for (let k in this.provinceLevelJsonData) {
@@ -333,7 +336,8 @@ export class CarEditing extends Component {
         this.ContentNode[0].active = true
         this.FixedLiftState = {
             state: false,
-            idx: []
+            idx: [],
+            item: null
         }
         this.allLabel[7].string = "地图ID：" + this.MapId;
         this.node.getChildByName("DTJNode").active = this.DTJLayer.layer > 0;
@@ -578,6 +582,14 @@ export class CarEditing extends Component {
         }
     }
     onTouchStart(event: EventTouch) {
+        if (this.FixedLiftState.state) {
+            let worldPos = this.Map.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(event.getUILocation().x, event.getUILocation().y));
+            let data = this.TouchData(worldPos);
+            if (data) {
+                this.setChangeLiftColor(data)
+            }
+            return
+        }
         if (this.Piece[0]) {
             this.dataInstall(event.getUILocation())
         } else if (this.TieLianSuoState != 0) {
@@ -836,7 +848,6 @@ export class CarEditing extends Component {
         } else {
             this.map_data[data.idx[0]][data.idx[1]].datas = []
             if (data.child.name != '99') {
-                console.log(data.child);
                 let count_label = this.dataParent.getChildByName(data.child.name).getChildByName('count').getComponent(Label)
                 let count = (Number(count_label.string) - 1) * 1
                 if (this.Obstacle['DTJ'].indexOf(this.Piece[1]) >= 0) {
@@ -1756,7 +1767,6 @@ export class CarEditing extends Component {
                                     d = 10
                                 }
                                 if (I % 2 == 0) {
-                                    console.log(idx[I]);
                                     d = 999
                                 }
                             }
@@ -2073,6 +2083,7 @@ export class CarEditing extends Component {
     }
     // 点击设置界面
     onLocking() {
+        this.ContentNode[2].active = false
         this.MapId = null;
         this.ContentNode[this.nowContent].active = false;
         this.nowContent = (this.nowContent == 1) ? 0 : 1;
@@ -2889,23 +2900,67 @@ export class CarEditing extends Component {
     }
     SaveMapData() {
         const data = [
-            // ["ID", "大小", "地图数据", "角色库", "锁链数据", "火车存储"], ["id", "size", "layout", "roles", "chain", "train"]
-            ["ID", "大小", "地图数据", "角色库", "锁链数据"], ["id", "size", "layout", "roles", "chain"]
+            ["ID", "大小", "地图数据", "角色库", "锁链数据", "火车存储", "总人数", "随机池人数", "问号人", "电梯", "电梯井", "冰冻", "炸弹", "开关", "牵手", "VIP电梯"], ["id", "size", "layout", "roles", "chain", "train", "all_people", "random", "qusition", "lift", "DTJ", "ice", "boom", "switch", "hand", "VIP"]
+            // ["ID", "大小", "地图数据", "角色库", "锁链数据"], ["id", "size", "layout", "roles", "chain"]
         ];
+        let lifts = [6, 7, 8, 9, 116, 117, 118, 119]
+        let DTJS = [101, 102, 103, 104, 112, 113, 114, 115]
         for (let k in this.mapLayoutData) {
             let d = this.mapLayoutData[k]
-            data.push([d.id, d.size, d.layout, d.roles])
-            let chain = ""
-            if (d.chain) {
-                data[data.length - 1].push(d.chain)
-                // } else {
-                //     data[data.length - 1].push(chain)
+            let new_d = JSON.parse(JSON.stringify(d))
+            let chain = d.chain ? d.chain : ""
+            let train = d.train ? d.train : ""
+            let Role = new_d.roles.split(",")
+            if (Role.length == 1) {
+                if (Role[0] == "") {
+                    Role = []
+                }
             }
-            // if (d.train) {
-            //     data[data.length - 1].push(d.train)
-            // }
+            let RoleLens = Role.length
+            const matches = new_d.layout.match(/[A-Z]/g);
+            let all_people = matches ? matches.length + RoleLens : 0 + RoleLens
+            // data[data.length - 1].push()
+            let new_data = this.HandleConf(new_d.layout).map
+            let qusition = 0
+            let lift = 0
+            let DTJ = 0
+            let ice = 0
+            let boom = 0
+            let kg = 0
+            let hand = 0
+            let Vip = 0
+            for (let arr of new_data) {
+                for (let i = 2; i < arr.length; i++) {
+                    let t = arr[i]
+                    if (t == 10 || t == 111) {
+                        qusition++
+                    } else if (lifts.indexOf(t) >= 0) {
+                        lift++
+                        if (t < 10) {
+                            break
+                        }
+                    } else if (DTJS.indexOf(t) >= 0) {
+                        DTJ++
+                    } else if (t == 31) {
+                        ice++
+                    } else if (t >= 42 && t <= 46) {
+                        boom++
+                    } else if (t == 1111) {
+                        kg++
+                    } else if (t >= 51 && t <= 53) {
+                        hand++
+                    } else if (t == 11 || t == 12) {
+                        Vip++
+                    }
+                }
+            }
+            let VipCount = Vip == 0 ? "" : Vip;
+            let iceCount = ice == 0 ? "" : ice;
+            let boomCount = boom == 0 ? "" : boom
+            let kgCount = kg == 0 ? "" : kg
+            let handCount = hand == 0 ? "" : hand
+            data.push([d.id, d.size, d.layout, d.roles, chain, train, all_people, RoleLens, qusition == 0 ? "" : qusition, lift == 0 ? "" : lift, DTJ == 0 ? "" : DTJ, iceCount, boomCount, kgCount, handCount, VipCount])
         }
-        console.log(data);
         GameUtil.getCsv(data, "地图表")
     }
     AddMapData() {
@@ -3042,7 +3097,6 @@ export class CarEditing extends Component {
             for (let x in this.map_data[y]) {
                 let data = this.map_data[y][x]
                 if (data.type < 10 && data.type > 5) {
-                    console.log("88888888", data);
                     this.setChangeLiftColor(data)
                     // return
                 }
@@ -3053,12 +3107,12 @@ export class CarEditing extends Component {
         this.ContentNode[2].getChildByName("text").getComponent(Label).string = "电梯:" + data.idx[1] + "-" + data.idx[0];
         let LiftColor = this.ContentNode[2].getChildByName("LiftColor")
         this.FixedLiftState.idx = data.idx
-        let idx = 0
+
         for (let child of LiftColor.children) {
             child.active = false
         }
+        let idx = 0
         for (let i = 3; i < data.json.length; i++) {
-
             let c = TitleType.indexOf(data.json[i]) + 1
             let node = LiftColor.children[idx]
             if (!node) {
@@ -3067,8 +3121,73 @@ export class CarEditing extends Component {
             }
             node.active = true
             node.getComponent(Sprite).color = new Color(CellToColor[c])
+            node.name = data.json[i] + ""
+            if (idx == 0) {
+                this.FixedLiftState.item = node
+                this.ContentNode[2].getChildByName("ChooseColor").setWorldPosition(node.getWorldPosition().clone())
+            }
             idx++
         }
+    }
+    onSetLiftColor(e) {
+        let target = e.target
+        this.ContentNode[2].getChildByName("ChooseColor").setWorldPosition(target.getWorldPosition().clone())
+        this.FixedLiftState.item = target
+    }
+    changeLiftColor(e) {
+        let target = e.target
+        if (!this.FixedLiftState.item) return
+        let idx = this.FixedLiftState.item.getSiblingIndex()
+        if (target.name == "up") {
+            idx += 1
+            this.FixedLiftState.item.setSiblingIndex(idx)
+        } else {
+            idx -= 1
+            this.FixedLiftState.item.setSiblingIndex(idx)
+        }
+        this.scheduleOnce(() => {
+            this.ContentNode[2].getChildByName("ChooseColor").setWorldPosition(this.FixedLiftState.item.getWorldPosition().clone())
+            let LiftColor = this.ContentNode[2].getChildByName("LiftColor")
+            let newJson = this.map_data[this.FixedLiftState.idx[0]][this.FixedLiftState.idx[1]].json.slice(0, 3)
+            for (let child of LiftColor.children) {
+                if (child.active) {
+                    newJson.push(child.name)
+                }
+            }
+            this.map_data[this.FixedLiftState.idx[0]][this.FixedLiftState.idx[1]].json = newJson;
+            // this.SaveChangeLift()
+        }, 0.1)
+    }
+    SaveChangeLift() {
+        let layout = ""
+        for (let y in this.map_data) {
+            for (let x in this.map_data[y]) {
+                let data = this.map_data[y][x].json
+                let i = 0
+                for (let k of data) {
+                    if (i >= 2 && CreateRole.FixedData[k]) {
+                        k = CreateRole.FixedData[k]
+                    }
+                    layout += k + ",";
+
+                    i++
+                }
+                layout = layout.slice(0, layout.length - 1)
+                layout += ";"
+
+            }
+        }
+        layout = layout.slice(0, layout.length - 1)
+        this.mapLayoutData[this.MapId].layout = layout
+        GameUtil.ChangeStorage(true, "mapLayoutData", this.mapLayoutData)
+    }
+    ImportData() {
+        this.ContentNode[3].getComponent(DragDropExample).init(() => {
+            this.mapLayoutData = GameUtil.ChangeStorage(false, "mapLayoutData")
+            this.initGameData()
+        })
+        this.ContentNode[3].active = true
+
     }
 }
 
