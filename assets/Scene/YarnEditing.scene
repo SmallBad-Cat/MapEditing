@@ -34432,7 +34432,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "7*7",
+    "_string": "8*7",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 25,
@@ -37431,7 +37431,7 @@
         "__id__": 1155
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 1163

@@ -46,7 +46,7 @@ export class CreateRoleYarn {
         '5_8': [8, 1],
         '7_9': [8, 1],
         '9_8': [8, 1],
-        '7_7': [8, 1],
+        '8_7': [8, 1],
     }
     static PeopleColor = { 30: 5, 40: 6, 50: 7, 80: 8, 999: 9 }
     static getRoleData(data, fixed, setColor) {
@@ -99,7 +99,7 @@ export class CreateRoleYarn {
             color = setColor
         }
         console.log(setColor, color);
-        let SizeKey = { 7: { 7: 5, 9: 2 }, 9: { 8: 6 } }
+        let SizeKey = { 7: { 7: 5, 9: 2 }, 9: { 8: 6 }, 8: { 7: 7 } }
         return this.getRoleDataStrs(0, data, all_roles, all_lift, color, SizeKey[size.y][size.x], fixed)
 
     }
@@ -121,7 +121,7 @@ export class CreateRoleYarn {
         if (roles < 9) {
             color = 2
         }
-       
+
         const group = 1;
         const count: { [key: number]: number } = {};
         // 计算余数

@@ -119,7 +119,7 @@ export class YarnEditing extends Component {
     private MapColorState = 0
 
     public loadJson() {
-        
+
         // this._loadJson("yarn_data/LevelConfig", "levelJsonData");
         this.yarn_mapLayoutData = GameUtil.ChangeStorage(false, "yarn_mapLayoutData")
         if (!this.yarn_mapLayoutData) {
@@ -255,7 +255,7 @@ export class YarnEditing extends Component {
             row: 11,
         },
         'map5': {
-            arrange: 7,
+            arrange: 8,
             row: 7,
         },
     }
@@ -297,9 +297,10 @@ export class YarnEditing extends Component {
                 return;
             }
             this.map_size[str] = Number(EditBox.string);
+            this.MapColorState = 0
             this.MapChange()
             this.scheduleOnce(() => {
-                this.MapColorState = 0
+
                 this.MapColor.active = false
                 this.CloseAll()
             }, 0.05)
@@ -398,6 +399,7 @@ export class YarnEditing extends Component {
                         datas: this.map_data[i][x].datas,
                         json: this.map_data[i][x].json
                     }
+
                     if (this.map_data[row][arrange].child.getChildByName('go')) {
                         this.map_data[row][arrange].child.getChildByName('go').active = (this.map_data[i][x].type == 1) ? true : false;
                         this.map_data[row][arrange].child.getChildByName('go').getComponent(Label).string = row + ''
@@ -2150,6 +2152,7 @@ export class YarnEditing extends Component {
         let data = this.yarn_mapLayoutData[target.name]
         this.ChainData = []
         this.ShowAll()
+        this.MapColorState = 0
         this.dataJsonImport(data.layout)
         if (data.chain) {
             this.setChainData(data.chain)
