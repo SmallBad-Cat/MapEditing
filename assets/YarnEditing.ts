@@ -640,6 +640,11 @@ export class YarnEditing extends Component {
     }
     onTouchMove(event: EventTouch) {
         if (this.MapColorState > 0) {
+            let worldPos = this.Map.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(event.getUILocation().x, event.getUILocation().y));
+            let data = this.TouchData(worldPos);
+            if (data) {
+                this.ChooseColorData(data)
+            }
             return
         }
         if (this.Piece[0]) {
@@ -2217,7 +2222,8 @@ export class YarnEditing extends Component {
         let data = this.yarn_mapLayoutData[k]
         item.getChildByName('text').getComponent(Label).string = 'ID:' + data.id;
         let mapSize = new Size(200, 200)
-
+        console.log(data);
+        item.getChildByName("Color").active = data["ColorList"]
         this.ItemSetMap(item, data.layout, mapSize, data.chain)
         item.name = k
         if (this.ChooseItemKey) {
@@ -2344,6 +2350,8 @@ export class YarnEditing extends Component {
         //     }
         //     layout = this.yarn_mapLayoutData[data.layout].layout
         // }
+        console.log(this.yarn_mapLayoutData[data[2]]);
+
         this.ItemSetMap(item, layout, mapSize, this.yarn_mapLayoutData[data[2]].chain)
     }
     // 
@@ -2370,7 +2378,6 @@ export class YarnEditing extends Component {
             Map.getComponent(UITransform).width = newWidth * map_size.arrange + (1 * (map_size.arrange - 1)) + 6
         }
         let newNodeSize = new Size(newWidth, newHeight)
-
         let STTKey = {}
         let STTKeyArr = []
         let first = true
@@ -2397,7 +2404,7 @@ export class YarnEditing extends Component {
         let nodeIdx = 0
         let NoPushDTJ = []
         let DTJ = []
-        for (let y = map_size.row; y >= 1; y--) {
+        for (let y = 1; y <= map_size.row; y++) {
             if (!map_data[y]) {
                 map_data[y] = []
             }
