@@ -3196,6 +3196,7 @@ export class YarnEditing extends Component {
         this.MapColor.active = false
         this.MapColorState = 0
         this.dataJsonImport(this.yarn_mapLayoutData[this.MapId].layout)
+        this.LayoutList.numItems = Object.keys(this.yarn_mapLayoutData).length
         // this.exportData()
     }
     exportData() {
