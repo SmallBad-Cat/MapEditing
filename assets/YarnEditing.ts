@@ -2157,7 +2157,7 @@ export class YarnEditing extends Component {
         let data = this.yarn_mapLayoutData[target.name]
         this.ChainData = []
         this.ShowAll()
-        this.MapColorState = 0
+        this.MapColorState = data["ColorList"] ? 1 : 0
         this.dataJsonImport(data.layout)
         if (data.chain) {
             this.setChainData(data.chain)
