@@ -1653,7 +1653,7 @@ export class CarEditing extends Component {
     }
     setImportColor(EditBox: EditBox) {
         let color = Number(EditBox.string)
-        if (!isNaN(color) && color > 3) {
+        if (!isNaN(color) && color >= 3) {
             this.setColor = color
             this.TipTween("设置颜色数量为：" + color)
         } else {
