@@ -1967,7 +1967,7 @@ export class YarnEditing extends Component {
         this.EditBox_row.string = String(row);
         this.EditBox_arrange.string = String(arrange);
         this.ImportEditBox.string = '';
-        // if (this.MapColorState) return
+        if (this.MapColorState > 1) return
         this.scheduleOnce(() => {
             this.MapChange();
         }, 0.05)
