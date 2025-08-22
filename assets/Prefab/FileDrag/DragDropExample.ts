@@ -22,8 +22,12 @@ export class DragDropExample extends Component {
     private importedTextures: any[] = [];
     private onJsonFile: any = null
     private MapDatasChange = null
-    init(MapDatasChange) {
+    private StorageType = "mapLayoutData"
+    init(MapDatasChange, type?) {
         this.MapDatasChange = MapDatasChange;
+        if (type) {
+            this.StorageType = type
+        }
     }
     start() {
         // 为拖拽区域添加拖拽功能
@@ -188,7 +192,7 @@ export class DragDropExample extends Component {
     }
     onSave(event: Event) {
         let target: any = event.target;
-        let MapDatas = GameUtil.ChangeStorage(false, "mapLayoutData", {})
+        let MapDatas = GameUtil.ChangeStorage(false, this.StorageType, {})
         if (target.name == "ImportSubstitute" || target.name == "Import") {
             for (let k in this.onJsonFile) {
                 if (target.name == "ImportSubstitute") {
@@ -200,7 +204,7 @@ export class DragDropExample extends Component {
         } else if (target.name == "Substitute") {
             MapDatas = this.onJsonFile
         }
-        GameUtil.ChangeStorage(true, "mapLayoutData", MapDatas)
+        GameUtil.ChangeStorage(true, this.StorageType, MapDatas)
         this.node.getChildByName("HaveFile").active = false
         this.updateStatus("数据已更新");
         this.MapDatasChange && this.MapDatasChange()

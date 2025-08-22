@@ -71,6 +71,8 @@ export class YarnEditing extends Component {
     private LookList: Prefab = null;
     @property({ type: Node, displayName: "固定电梯" })
     private FixedLift: Node = null;
+    @property({ type: Node, displayName: "文件导入" })
+    private FileDrag: Node = null;
 
     private nowContent = 0;
     private ScrollViewSelect = [0, 0, 0, 0];
@@ -1486,6 +1488,20 @@ export class YarnEditing extends Component {
         this.ChooseKuang.setPosition(target.getPosition());
         this.ChooseKuang.active = true;
         this.ChooseKuang.getComponent(UITransform).setContentSize(new Size(target.getComponent(UITransform).width + 20, target.getComponent(UITransform).height + 60))
+        console.log(this.MapColorState);
+        if (this.MapColorState == 1) {
+            this.MapColorState = 0
+            for (let y in this.map_data) {
+                for (let x in this.map_data[y]) {
+                    let child = this.map_data[y][x].child
+                    let c = TitleType.indexOf(this.map_data[y][x].json[2]) + 1
+                    if (new Color(CellToColor[c])["_val"] == child.getComponent(Sprite).color._val) {
+                        child.getComponent(Sprite).color = new Color("#DAEDF2")
+
+                    }
+                }
+            }
+        }
     }
     private Obstacle = {
         'A': [18, 19, 20],
@@ -1951,7 +1967,7 @@ export class YarnEditing extends Component {
         this.EditBox_row.string = String(row);
         this.EditBox_arrange.string = String(arrange);
         this.ImportEditBox.string = '';
-        if (this.MapColorState) return
+        // if (this.MapColorState) return
         this.scheduleOnce(() => {
             this.MapChange();
         }, 0.05)
@@ -2222,7 +2238,6 @@ export class YarnEditing extends Component {
         let data = this.yarn_mapLayoutData[k]
         item.getChildByName('text').getComponent(Label).string = 'ID:' + data.id;
         let mapSize = new Size(200, 200)
-        console.log(data);
         item.getChildByName("Color").active = data["ColorList"]
         this.ItemSetMap(item, data.layout, mapSize, data.chain)
         item.name = k
@@ -3188,7 +3203,7 @@ export class YarnEditing extends Component {
             this.yarn_mapLayoutData[this.MapId]["ColorList"] = ""
         }
         for (let k of this.ColorList) {
-            ColorList += k[2] + ","
+            ColorList += k[0] + "-" + k[1] + "-" + k[2] + ","
         }
         ColorList = ColorList.slice(0, ColorList.length - 1)
         this.yarn_mapLayoutData[this.MapId]["ColorList"] = ColorList
@@ -3210,6 +3225,12 @@ export class YarnEditing extends Component {
         link.href = url;
         link.download = "./YarnMapData.json";
         link.click();
+    }
+    ImportYarnData() {
+        this.FileDrag.active = true
+        this.FileDrag.getComponent(DragDropExample).init(() => {
+            this.initMapLayoutData()
+        }, "yarn_mapLayoutData")
     }
 
 }
