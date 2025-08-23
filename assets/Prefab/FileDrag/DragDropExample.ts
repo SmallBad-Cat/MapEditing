@@ -107,6 +107,9 @@ export class DragDropExample extends Component {
         } else if (result && result.jsonData) {
             // 处理文本文件
             this.handleTextImport(result);
+        } else if (result && result.content) {
+            // 处理普通文本
+             this.handleTextImport(result);
         }
     }
 
@@ -139,6 +142,15 @@ export class DragDropExample extends Component {
             // 处理普通文本
             console.log("文本内容:", result.content);
             this.updateStatus("文本文件导入成功");
+            let data = GameUtil.csvToJson(result.content);
+            if (data) {
+                console.log(data);
+                this.onJsonFile = {}
+                for (let d of data) {
+                    this.onJsonFile[d.id] = d
+                }
+                this.node.getChildByName("HaveFile").active = true
+            }
         }
     }
 

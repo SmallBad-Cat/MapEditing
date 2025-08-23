@@ -3229,6 +3229,7 @@ export class YarnEditing extends Component {
     ImportYarnData() {
         this.FileDrag.active = true
         this.FileDrag.getComponent(DragDropExample).init(() => {
+             this.yarn_mapLayoutData = GameUtil.ChangeStorage(false, "yarn_mapLayoutData")
             this.initMapLayoutData()
         }, "yarn_mapLayoutData")
     }

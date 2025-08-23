@@ -378,4 +378,48 @@ export class GameUtil {
 		}
 		return true
 	}
+	static parseCSVLine(line) {
+		const result = [];
+		let cur = '';
+		let inQuotes = false;
+
+		for (let i = 0; i < line.length; i++) {
+			const char = line[i];
+			if (char === '"') {
+				// 处理引号内引号转义 ""
+				if (inQuotes && line[i + 1] === '"') {
+					cur += '"';
+					i++;
+				} else {
+					inQuotes = !inQuotes;
+				}
+			} else if (char === ',' && !inQuotes) {
+				result.push(cur);
+				cur = '';
+			} else {
+				cur += char;
+			}
+		}
+		result.push(cur);
+		return result;
+	}
+
+	static csvToJson(csv) {
+		const lines = csv.trim().split(/\r?\n/);
+
+		// 第 2 行作为 keys
+		const keys = this.parseCSVLine(lines[1]).map(k => k.replace(/^"|"$/g, ''));
+
+		const result = [];
+		for (let i = 2; i < lines.length; i++) {
+			if (!lines[i].trim()) continue;
+			const values = this.parseCSVLine(lines[i]).map(v => v.replace(/^"|"$/g, ''));
+			const obj = {};
+			keys.forEach((k, j) => {
+				obj[k] = values[j] ?? "";
+			});
+			result.push(obj);
+		}
+		return result;
+	}
 }
