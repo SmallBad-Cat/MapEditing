@@ -112,7 +112,7 @@ export class CreateRoleYarn {
             }
         }
         if (createIdx > 1000) {
-            console.log("循环次数超过31000次，数据存在问题")
+            console.log("循环次数超过了1000次，数据存在问题")
             return
         }
         let role_str = ""

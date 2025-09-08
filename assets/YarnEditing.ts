@@ -280,6 +280,7 @@ export class YarnEditing extends Component {
         this.allLabel[4].string = ""
         this.TieLianSuoState = 0
         this.ChainData = []
+        this.MapColorState = 0
         this.CloseAll()
         this.scheduleOnce(() => {
             this.MapChange()
@@ -328,6 +329,11 @@ export class YarnEditing extends Component {
     }
     // 地图更新
     MapChange(init?) {
+        if (!this.node.getChildByName("seve_data").active) {
+            this.node.getChildByName("seve_data").active = true
+            this.node.getChildByName("setImportColor").active = true
+            //  this.node.getChildByName("setImportColor").active = false
+        }
         this.node.getChildByName("setImportColor").getComponent(EditBox).placeholder = "设置生成颜色";
         this.ContentNode[2].active = false
         this.setColor = null
@@ -1488,7 +1494,6 @@ export class YarnEditing extends Component {
         this.ChooseKuang.setPosition(target.getPosition());
         this.ChooseKuang.active = true;
         this.ChooseKuang.getComponent(UITransform).setContentSize(new Size(target.getComponent(UITransform).width + 20, target.getComponent(UITransform).height + 60))
-        console.log(this.MapColorState);
         if (this.MapColorState == 1) {
             this.MapColorState = 0
             for (let y in this.map_data) {
@@ -2211,7 +2216,10 @@ export class YarnEditing extends Component {
         let data = this.yarn_mapLayoutData[target.name]
         this.ChainData = []
         this.ShowAll()
-        this.MapColorState = data["layout"].match(/[A-Z]/) != null ? 1 : 0
+        // this.MapColorState = data["layout"].match(/[A-Z]/) != null ? 1 : 0
+        this.MapColorState = data["ColorList"] ? 1 : 0
+
+        this.ChooseKuang.active = this.MapColorState > 0 ? false : true
         this.dataJsonImport(data.layout)
         if (data.chain) {
             this.setChainData(data.chain)
@@ -2277,7 +2285,9 @@ export class YarnEditing extends Component {
         item.getChildByName('text').getComponent(Label).string = 'ID:' + data.id;
         let mapSize = new Size(200, 200)
         data.layout.indexOf("A")
-        item.getChildByName("Color").active = data["layout"].match(/[A-Z]/) != null
+        // item.getChildByName("Color").active = data["layout"].match(/[A-Z]/) != null
+
+        item.getChildByName("Color").active = data["ColorList"] ? 1 : 0
         this.ItemSetMap(item, data.layout, mapSize, data.chain)
         item.name = k
         if (this.ChooseItemKey) {
@@ -3156,6 +3166,11 @@ export class YarnEditing extends Component {
     }
     private ColorList = []
     ChooseColorData(data) {
+        if (this.node.getChildByName("seve_data").active) {
+            this.node.getChildByName("seve_data").active = false
+            this.node.getChildByName("setImportColor").active = false
+            //  this.node.getChildByName("setImportColor").active = false
+        }
         if (data.type == 1 && data.go_num <= 1 && data.json[2]) {
             this.ColorList.push([data.idx[0], data.idx[1], data.json.pop()])
             // 下方有电梯
