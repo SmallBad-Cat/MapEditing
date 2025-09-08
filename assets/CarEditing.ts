@@ -1578,11 +1578,47 @@ export class CarEditing extends Component {
                 GameUtil.ChangeStorage(true, "mapLayoutData", this.mapLayoutData)
                 this.TipTween("地图数据存储成功！")
             } else {
-                this.TipTween("出现问题300次循环生成不出有效数据，无法保存")
+                this.TipTween("出现问题1000次循环生成不出有效数据，无法保存")
             }
         } else {
             this.dataJsonImport(this.ImportEditBox.string);
         }
+    }
+    seve_Box_data(event) {
+        let target: any = event.target;
+        let data = CreateRole.getRoleData(this.getNowData(true), true, this.setColor, true)
+        if (this.MapId && data) {
+            this.mapLayoutData[this.MapId] = {
+                id: this.MapId,
+                size: data[0],
+                layout: data[1],
+                roles: data[2]
+            }
+            if (this.ChainData.length > 0) {
+                let str = ""
+                for (let data of this.ChainData) {
+                    if (data.length == 3) {
+
+                        for (let pos of data) {
+                            str += pos[0] + "," + pos[1] + "|"
+                        }
+                        str = str.slice(0, -1);
+                        str += ";"
+                    }
+                }
+                if (str != "") {
+                    this.mapLayoutData[this.MapId]["chain"] = str
+                }
+            }
+            this.initMapLayoutData()
+
+
+            GameUtil.ChangeStorage(true, "mapLayoutData", this.mapLayoutData)
+            this.TipTween("地图数据存储成功！")
+        } else {
+            this.TipTween("出现问题1000次循环生成不出有效数据，无法保存")
+        }
+
     }
     getNowData(create?): any {
         let JPKStr = ''

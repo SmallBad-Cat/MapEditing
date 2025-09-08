@@ -49,7 +49,7 @@ export class CreateRole {
         '7_7': [8, 1],
     }
     static PeopleColor = { 30: 5, 40: 6, 50: 7, 80: 8, 999: 9 }
-    static getRoleData(data, fixed, setColor) {
+    static getRoleData(data, fixed, setColor, onlyBox?) {
         // 所有类型数量
         let AllTypeCount = {}
         let all_roles = 0;//所有人数
@@ -104,16 +104,16 @@ export class CreateRole {
         if (setColor) {
             color = setColor
         }
-        console.log(setColor,color);
+        console.log(setColor, color);
         let SizeKey = { 7: { 7: 5, 9: 2 }, 9: { 8: 6 } }
         if (Number.isInteger(all_roles / 3)) {
-            return this.getRoleDataStrs(0, data, all_roles, all_lift, color, SizeKey[size.y][size.x], fixed)
+            return this.getRoleDataStrs(0, data, all_roles, all_lift, color, SizeKey[size.y][size.x], fixed, onlyBox)
         } else {
             console.error("地图数据不正确,人数不是3的倍数")
         }
 
     }
-    static getRoleDataStrs(createIdx, datas, roles, lift_roles, color, size, fixed): any {
+    static getRoleDataStrs(createIdx, datas, roles, lift_roles, color, size, fixed, onlyBox): any {
         // let data = JSON.parse(JSON.stringify(datas))
         let data = []
         // console.log(datas)
@@ -122,8 +122,8 @@ export class CreateRole {
                 data.push(JSON.parse(JSON.stringify(datas[Number(x)][Number(y)])))
             }
         }
-        if (createIdx > 300) {
-            console.log("循环次数超过300次，数据存在问题")
+        if (createIdx > 1000) {
+            console.log("循环次数超过1000次，数据存在问题")
             return
         }
         let role_str = ""
@@ -251,7 +251,8 @@ export class CreateRole {
                             lift_roles,
                             color,
                             size,
-                            fixed
+                            fixed,
+                            onlyBox
                         );
                     }
                 }
@@ -477,7 +478,7 @@ export class CreateRole {
                             newArr.push(r)
                         }
                         data[IDX] = newArr
-                    } else if (fixed && arr[2] < 10 && this.ElementType.lift.indexOf(arr[2]) >= 0) {
+                    } else if (fixed && arr[2] < 10 && this.ElementType.lift.indexOf(arr[2]) >= 0 && !onlyBox) {
                         getRole(arr[3])
                         let VipPeople = newLiftRule(arr[3])
                         let newArr = [arr[0], arr[1], this.FixedData[arr[2]]]
@@ -541,7 +542,7 @@ export class CreateRole {
                         if (newarr.length === 2 && newarr[0][1] > newarr[1][1] * 3) {
                             afresh_again.push(0);
                             console.log("电梯重来---------", count);
-                            return self.getRoleDataStrs(createIdx + 1, datas, roles, lift_roles, color, size, fixed)
+                            return self.getRoleDataStrs(createIdx + 1, datas, roles, lift_roles, color, size, fixed, onlyBox)
                         }
 
                         if (peopleArr[peopleArr.length - 1] !== Type) {
@@ -589,8 +590,8 @@ export class CreateRole {
                 }
             }
 
-            if (fixed && Roles.length > 0) {
-                return this.getRoleDataStrs(createIdx + 1, datas, roles, lift_roles, color, size, fixed)
+            if (fixed && Roles.length > 0 && !onlyBox) {
+                return this.getRoleDataStrs(createIdx + 1, datas, roles, lift_roles, color, size, fixed, onlyBox)
             }
             console.log("Roles", Roles)
             Roles = Roles.slice(1);
