@@ -328,7 +328,7 @@ export class YarnEditing extends Component {
     }
     // 地图更新
     MapChange(init?) {
-        this.ContentNode[0].getChildByName("setImportColor").getComponent(EditBox).placeholder = "设置生成颜色";
+        this.node.getChildByName("setImportColor").getComponent(EditBox).placeholder = "设置生成颜色";
         this.ContentNode[2].active = false
         this.setColor = null
         this.ContentNode[0].active = true
@@ -1576,6 +1576,43 @@ export class YarnEditing extends Component {
         this.ChooseDTJState = state;
         this.node.getChildByPath("DTJNode/dtjback").active = this.ChooseDTJState;
     }
+    // 保存地形并返回列表
+    seve_map() {
+        let data = this.getNowData()
+        if (this.MapId && data) {
+            let SizeKey = { 7: { 7: 5, 9: 2 }, 9: { 8: 6 }, 8: { 7: 7 } }
+            this.yarn_mapLayoutData[this.MapId] = {
+                id: this.MapId,
+                size: SizeKey[this.map_size.arrange][this.map_size.row],
+                layout: data,
+                roles: ""
+            }
+            if (this.ChainData.length > 0) {
+                let str = ""
+                for (let data of this.ChainData) {
+                    if (data.length == 3) {
+
+                        for (let pos of data) {
+                            str += pos[0] + "," + pos[1] + "|"
+                        }
+                        str = str.slice(0, -1);
+                        str += ";"
+                    }
+                }
+                if (str != "") {
+                    this.yarn_mapLayoutData[this.MapId]["chain"] = str
+                }
+            }
+            this.initMapLayoutData()
+
+            if (!this.yarn_mapLayoutData[this.MapId]["ColorList"]) {
+                this.yarn_mapLayoutData[this.MapId]["ColorList"] = ""
+            }
+            GameUtil.ChangeStorage(true, "yarn_mapLayoutData", this.yarn_mapLayoutData)
+            // this.setMapColor()
+        }
+        this.onLocking()
+    }
     // 数据处理
     data_handle(event: Event) {
         let target: any = event.target;
@@ -1583,6 +1620,7 @@ export class YarnEditing extends Component {
             let data = CreateRoleYarn.getRoleData(this.getNowData(true), true, this.setColor)
             console.log(data);
             if (this.MapId && data) {
+                console.log(data);
                 console.log(this.yarn_mapLayoutData);
                 this.yarn_mapLayoutData[this.MapId] = {
                     id: this.MapId,
@@ -1615,7 +1653,7 @@ export class YarnEditing extends Component {
                 this.TipTween("颜色已生成")
                 this.setMapColor()
             } else {
-                this.TipTween("出现问题300次循环生成不出有效数据，无法保存")
+                this.TipTween("出现问题1000次循环生成不出有效数据，无法保存")
             }
         } else {
             // EditOrder
@@ -1691,7 +1729,7 @@ export class YarnEditing extends Component {
     }
     setImportColor(EditBox: EditBox) {
         let color = Number(EditBox.string)
-        if (!isNaN(color) && color > 3) {
+        if (!isNaN(color) && color >= 3) {
             this.setColor = color
             this.TipTween("设置颜色数量为：" + color)
         } else {
@@ -2173,7 +2211,7 @@ export class YarnEditing extends Component {
         let data = this.yarn_mapLayoutData[target.name]
         this.ChainData = []
         this.ShowAll()
-        this.MapColorState = data["ColorList"] ? 1 : 0
+        this.MapColorState = data["layout"].match(/[A-Z]/) != null ? 1 : 0
         this.dataJsonImport(data.layout)
         if (data.chain) {
             this.setChainData(data.chain)
@@ -2238,7 +2276,8 @@ export class YarnEditing extends Component {
         let data = this.yarn_mapLayoutData[k]
         item.getChildByName('text').getComponent(Label).string = 'ID:' + data.id;
         let mapSize = new Size(200, 200)
-        item.getChildByName("Color").active = data["ColorList"]
+        data.layout.indexOf("A")
+        item.getChildByName("Color").active = data["layout"].match(/[A-Z]/) != null
         this.ItemSetMap(item, data.layout, mapSize, data.chain)
         item.name = k
         if (this.ChooseItemKey) {
@@ -3229,7 +3268,7 @@ export class YarnEditing extends Component {
     ImportYarnData() {
         this.FileDrag.active = true
         this.FileDrag.getComponent(DragDropExample).init(() => {
-             this.yarn_mapLayoutData = GameUtil.ChangeStorage(false, "yarn_mapLayoutData")
+            this.yarn_mapLayoutData = GameUtil.ChangeStorage(false, "yarn_mapLayoutData")
             this.initMapLayoutData()
         }, "yarn_mapLayoutData")
     }
