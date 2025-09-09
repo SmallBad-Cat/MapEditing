@@ -57,6 +57,7 @@ export class CreateRoleYarn {
         let no_role = 0;//无角色地图块
         let size = { x: 1, y: 1 };//地图大小
         let map_data = {}//地图数据
+
         for (let x in data) {
             if (Number(x) > size.x) {
                 size.x = Number(x)
@@ -100,23 +101,26 @@ export class CreateRoleYarn {
         }
         console.log(setColor, color);
         let SizeKey = { 7: { 7: 5, 9: 2 }, 9: { 8: 6 }, 8: { 7: 7 } }
-        return this.getRoleDataStrs(0, data, all_roles, all_lift, color, SizeKey[size.y][size.x], fixed)
+        console.log(data);
+        let getDatas = {}
+        for (let i = 0; i < 1000; i++) {
+            let getData = this.getRoleDataStrs(0, data, all_roles, all_lift, color, SizeKey[size.y][size.x], fixed)
+            if (getData) {
+                if (!getDatas[getData[3]]) {
+                    getDatas[getData[3]] = []
+                }
+                getDatas[getData[3]].push(getData)
+            }
+        }
+        console.log(getDatas);
+        let maxKey = Math.max(...Object.keys(getDatas).map(Number));
+        return getDatas[maxKey][0]
 
     }
     static getRoleDataStrs(createIdx, datas, roles, lift_roles, color, size, fixed): any {
         // let data = JSON.parse(JSON.stringify(datas))
-        let data = []
-        for (let x in datas) {
-            for (let y in datas[Number(x)]) {
-                data.push(JSON.parse(JSON.stringify(datas[Number(x)][Number(y)])))
-            }
-        }
-        if (createIdx > 1000) {
-            console.log("循环次数超过了1000次，数据存在问题")
-            return
-        }
-        let role_str = ""
-        let lift_str = ""
+
+        let ColorState = {}
         // 每组人数
         if (roles < 9) {
             color = 2
@@ -178,6 +182,26 @@ export class CreateRoleYarn {
                 }
             }
         };
+        let data = []
+        let lift_num = 0
+        for (let x in datas) {
+            for (let y in datas[Number(x)]) {
+                let arr = datas[Number(x)][Number(y)]
+                if ((arr[2] < 10 && this.ElementType.lift.indexOf(arr[2]) >= 0) || this.ElementType.VIP.indexOf(arr[2]) >= 0) {
+                    // lift_num += arr[3]
+                    getRole(arr[3])
+                }
+                data.push(JSON.parse(JSON.stringify(datas[Number(x)][Number(y)])))
+            }
+        }
+        if (createIdx > 1000) {
+            console.log("循环次数超过了1000次，数据存在问题")
+            return
+        }
+        let role_str = ""
+        let lift_str = ""
+
+
 
         // console.log("电梯人数拿出后，对应颜色数量", count);
         // console.log("电梯数量", liftPeoCount);
@@ -347,6 +371,13 @@ export class CreateRoleYarn {
                             map_role[arr[0]][arr[1]] = newRole;
                             arr[2] = 111
                             arr.push(newRole);
+                            if (!ColorState[newRole]) {
+                                ColorState[newRole] = {
+                                    value: 0,
+                                    pos: []
+                                }
+                            }
+                            ColorState[newRole].pos.push([arr[0], arr[1]])
                         }
                     } else if (this.ElementType.role.indexOf(arr[2]) >= 0) {
                         const newRole = ruleFun(arr);
@@ -360,6 +391,13 @@ export class CreateRoleYarn {
                         } else {
                             arr.push(newRole);
                         }
+                        if (!ColorState[newRole]) {
+                            ColorState[newRole] = {
+                                value: 0,
+                                pos: []
+                            }
+                        }
+                        ColorState[newRole].pos.push([arr[0], arr[1]])
                     } else if (this.ElementType.DTJ.indexOf(arr[2]) >= 0) {
                         if (!map_role[arr[0]]) map_role[arr[0]] = {};
                         if (!map_role[arr[0]][arr[1]]) map_role[arr[0]][arr[1]] = {};
@@ -419,7 +457,7 @@ export class CreateRoleYarn {
                             data[DTJIDX] = data[DTJIDX].concat(AllDTJType)
                         }
                     } else if (this.ElementType.VIP.indexOf(arr[2]) >= 0) {
-                        getRole(arr[3])
+                        // getRole(arr[3])
                         let VipPeople = newLiftRule(arr[3])
                         let IDX = getDataIdx(arr[0], arr[1])
                         let newArr = [arr[0], arr[1], arr[2]]
@@ -428,7 +466,7 @@ export class CreateRoleYarn {
                         }
                         data[IDX] = newArr
                     } else if (fixed && arr[2] < 10 && this.ElementType.lift.indexOf(arr[2]) >= 0) {
-                        getRole(arr[3])
+                        // getRole(arr[3])
                         let VipPeople = newLiftRule(arr[3])
                         let newArr = [arr[0], arr[1], this.FixedData[arr[2]]]
                         for (let r of VipPeople) {
@@ -542,12 +580,31 @@ export class CreateRoleYarn {
             if (fixed && Roles.length > 0) {
                 return this.getRoleDataStrs(createIdx + 1, datas, roles, lift_roles, color, size, fixed)
             }
+
+            let AllValue = 0
+            for (let k in ColorState) {
+                for (let i in ColorState[k].pos) {
+                    let self = ColorState[k].pos[i]
+                    for (let i_i in ColorState[k].pos) {
+                        if (i != i_i) {
+                            let the = ColorState[k].pos[i_i]
+                            let lenX = Math.abs(self[0] - the[0]);
+                            let lenY = Math.abs(self[1] - the[1]);
+                            ColorState[k].value += lenX + lenY;
+                        }
+                    }
+
+                }
+                AllValue += ColorState[k].value;
+            }
+            console.log(ColorState);
+            console.log(AllValue);
             console.log("Roles", Roles)
             Roles = Roles.slice(1);
             let result = JSON.stringify(data).slice(2, -2);
             result = result.replace(/\],\[/g, ";");
             result = result.replace(/"/g, "");
-            return [size, result, Roles]
+            return [size, result, Roles, AllValue]
         }
 
     }
