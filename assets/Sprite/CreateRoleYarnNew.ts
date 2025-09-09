@@ -959,15 +959,15 @@ export class CreateRoleYarnNew {
             }
             let Roles = ''
             // const liftArr = newLiftRule(lift_roles);
-            for (let k in count) {
-                for (let i = 0; i < count[k]; i++) {
-                    Roles += ',' + TitleType[k]
-                }
-            }
-
-            // if (fixed && Roles.length > 0) {
-            //     return this.getRoleDataStrs(createIdx + 1, datas, roles, lift_roles, color, size, fixed)
+            // for (let k in count) {
+            //     for (let i = 0; i < count[k]; i++) {
+            //         Roles += ',' + TitleType[k]
+            //     }
             // }
+
+            if (fixed && Roles.length > 0) {
+                return this.getRoleDataStrs(createIdx + 1, datas, roles, lift_roles, color, size, fixed)
+            }
 
             let AllValue = 0
             for (let k in ColorState) {
