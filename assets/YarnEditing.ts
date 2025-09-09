@@ -8,6 +8,7 @@ import { CreateRole } from './Sprite/CreateRole';
 import { GameUtil } from './Sprite/GameUtil';
 import { DragDropExample } from './Prefab/FileDrag/DragDropExample';
 import { CreateRoleYarn } from './Sprite/CreateRoleYarn';
+import { CreateRoleYarnNew } from './Sprite/CreateRoleYarnNew';
 const { ccclass, property } = _decorator;
 export class DTJLayerData {
     layer = 0;
@@ -20,16 +21,16 @@ export class DTJLayerData {
 const TitleType = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "S", "Y", "Z",]
 export const CellToColor = {
     0: color(0x8c, 0x8c, 0x8c),
-    1: color('#0198F3'),//蓝
-    2: color('#ffeb19'),//蜡黄
-    3: color('#bbfe00'),//鲜绿
-    4: color('#ff95d5'),//粉色
-    5: color('#ff0700'),//红ff3636
-    6: color('#cf88ff'),//紫
-    7: color('#46DEE5'),//蓝绿
-    8: color('#ff8726'),//亮黄 
-    9: color('#19CFA2'),//绿色
-    10: color('#CAD0D7'),//银白
+    1: color('#0198F3'),//蓝   A
+    2: color('#ffeb19'),//蜡黄 B
+    3: color('#bbfe00'),//鲜绿 C
+    4: color('#ff95d5'),//粉色 D
+    5: color('#ff0700'),//红   E
+    6: color('#cf88ff'),//紫   F
+    7: color('#46DEE5'),//蓝绿 G
+    8: color('#ff8726'),//亮黄 H 
+    9: color('#19CFA2'),//绿色 I
+    10: color('#CAD0D7'),//银白J
 }
 
 @ccclass('YarnEditing')
@@ -121,7 +122,7 @@ export class YarnEditing extends Component {
     private MapColorState = 0
 
     public loadJson() {
-
+        CreateRoleYarnNew.init_start()
         // this._loadJson("yarn_data/LevelConfig", "levelJsonData");
         this.yarn_mapLayoutData = GameUtil.ChangeStorage(false, "yarn_mapLayoutData")
         if (!this.yarn_mapLayoutData) {
@@ -1622,7 +1623,8 @@ export class YarnEditing extends Component {
     data_handle(event: Event) {
         let target: any = event.target;
         if (target.name.indexOf('seve_data') >= 0) {
-            let data = CreateRoleYarn.getRoleData(this.getNowData(true), true, this.setColor)
+            // CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor)
+            let data = CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor)
             console.log(data);
             if (this.MapId && data) {
                 console.log(data);
@@ -1654,7 +1656,7 @@ export class YarnEditing extends Component {
                 if (!this.yarn_mapLayoutData[this.MapId]["ColorList"]) {
                     this.yarn_mapLayoutData[this.MapId]["ColorList"] = ""
                 }
-                GameUtil.ChangeStorage(true, "yarn_mapLayoutData", this.yarn_mapLayoutData)
+                // GameUtil.ChangeStorage(true, "yarn_mapLayoutData", this.yarn_mapLayoutData)
                 this.TipTween("颜色已生成")
                 this.setMapColor()
             } else {
