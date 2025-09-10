@@ -74,6 +74,10 @@ export class YarnEditing extends Component {
     private FixedLift: Node = null;
     @property({ type: Node, displayName: "文件导入" })
     private FileDrag: Node = null;
+    @property({ type: Node, displayName: "改变位置按钮" })
+    private ChangePos: Node = null;
+    @property({ type: Label, displayName: "状态文字" })
+    private StateText: Label = null;
 
     private nowContent = 0;
     private ScrollViewSelect = [0, 0, 0, 0];
@@ -120,6 +124,11 @@ export class YarnEditing extends Component {
     }
     private setColor = null
     private MapColorState = 0
+    private ChangePosState = false
+    private ChangePosData = {
+        start: null
+    }
+    private TouchNode = null
 
     public loadJson() {
         CreateRoleYarnNew.init_start()
@@ -228,6 +237,7 @@ export class YarnEditing extends Component {
         this.mapSize = new Size(645, 645)
         this.Map.on(Node.EventType.TOUCH_START, this.onTouchStart, this)
         this.Map.on(Node.EventType.TOUCH_MOVE, this.onTouchMove, this)
+        this.Map.on(Node.EventType.TOUCH_END, this.onTouchEnd, this)
         // input.on(Input.EventType.MOUSE_MOVE, this.onMouseMove, this);
         // this.writeJson()
         let first = true;
@@ -589,6 +599,25 @@ export class YarnEditing extends Component {
         }
     }
     onTouchStart(event: EventTouch) {
+        // 更改颜色位置时
+        if (this.ChangePosState) {
+            let worldPos = this.Map.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(event.getUILocation().x, event.getUILocation().y));
+            let data = this.TouchData(worldPos);
+            if (data && this.Obstacle.Role.indexOf(data.type) >= 0) {
+                console.log(this.map_data);
+                console.log(data);
+                if (!this.TouchNode) {
+                    this.TouchNode = instantiate(data.child)
+                    this.node.addChild(this.TouchNode)
+                }
+                let c = TitleType.indexOf(data.json[2]) + 1
+                this.TouchNode.getComponent(Sprite).color = new Color(CellToColor[c]);
+                this.TouchNode.active = true
+                data.child.active = false
+                this.ChangePosData.start = v3(data.idx[1], data.idx[0])
+            }
+            return
+        }
         if (this.FixedLiftState.state) {
             let worldPos = this.Map.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(event.getUILocation().x, event.getUILocation().y));
             let data = this.TouchData(worldPos);
@@ -605,6 +634,7 @@ export class YarnEditing extends Component {
             }
             return
         }
+
         if (this.Piece[0]) {
             this.dataInstall(event.getUILocation())
         } else if (this.TieLianSuoState != 0) {
@@ -648,6 +678,48 @@ export class YarnEditing extends Component {
 
     }
     onTouchMove(event: EventTouch) {
+        if (this.ChangePosState) {
+            if (this.TouchNode && this.TouchNode.active) {
+                this.TouchNode.setWorldPosition(new Vec3(event.getUILocation().x, event.getUILocation().y))
+            }
+            return
+        }
+        if (this.MapColorState > 0) {
+            let worldPos = this.Map.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(event.getUILocation().x, event.getUILocation().y));
+            let data = this.TouchData(worldPos);
+            if (data) {
+                this.ChooseColorData(data)
+            }
+            return
+        }
+        if (this.Piece[0]) {
+            let localPos = event.getUILocation();
+            this.dataInstall(localPos)
+        }
+    }
+    onTouchEnd(event: EventTouch) {
+        if (this.ChangePosState) {
+            let worldPos = this.Map.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(event.getUILocation().x, event.getUILocation().y));
+            if (this.ChangePosData.start) {
+                let data = this.TouchData(worldPos);
+                let StartData = this.map_data[this.ChangePosData.start.y][this.ChangePosData.start.x]
+                StartData.child.active = true
+                if (data && this.Obstacle.Role.indexOf(data.type) >= 0) {
+                    let StartColor = StartData.json[2]
+                    let EndColor = data.json[2]
+                    StartData.json[2] = EndColor
+                    data.json[2] = StartColor
+                    StartData.child.getComponent(Sprite).color = new Color(CellToColor[TitleType.indexOf(EndColor) + 1]);
+                    data.child.getComponent(Sprite).color = new Color(CellToColor[TitleType.indexOf(StartColor) + 1]);
+                }
+            }
+            this.ChangePosData.start = null
+            this.TouchNode.active = false
+            if (this.TouchNode && this.TouchNode.active) {
+                this.TouchNode.setWorldPosition(new Vec3(event.getUILocation().x, event.getUILocation().y))
+            }
+            return
+        }
         if (this.MapColorState > 0) {
             let worldPos = this.Map.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(event.getUILocation().x, event.getUILocation().y));
             let data = this.TouchData(worldPos);
@@ -1050,7 +1122,7 @@ export class YarnEditing extends Component {
     }
     setPeopleCount() {
         let people_num = 0
-        let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 71, 72, 73, 74, 75, 68, 101, 102, 103, 104, 1111]
+        let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 71, 72, 73, 74, 75, 68, 101, 102, 103, 104, 1111, 111]
         for (let y = 1; y <= this.map_size.row; y++) {
             for (let x = 1; x <= this.map_size.arrange; x++) {
                 let t = this.map_data[y][x].type
@@ -1516,7 +1588,7 @@ export class YarnEditing extends Component {
         'D': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53],//角色
         'E': [61, 63, 64, 68],//检票口
         'F': [71, 72, 73, 74, 75],//双向电梯
-        'Role': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 68, 71, 72, 73, 74, 75, 101, 102, 103, 104, 1111],
+        'Role': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 68, 71, 72, 73, 74, 75, 101, 102, 103, 104, 1111, 111],
         'JianPiaoKey': 67,
         'DTJ': [101, 102, 103, 104],
         'VIP': [11, 12, 13]
@@ -1659,6 +1731,8 @@ export class YarnEditing extends Component {
                 // GameUtil.ChangeStorage(true, "yarn_mapLayoutData", this.yarn_mapLayoutData)
                 this.TipTween("颜色已生成")
                 this.setMapColor()
+                this.ChangePos.active = true
+                this.StateText.string = "编辑顺序"
             } else {
                 this.TipTween("出现问题1000次循环生成不出有效数据，无法保存")
             }
@@ -1666,6 +1740,21 @@ export class YarnEditing extends Component {
             // EditOrder
             // this.dataJsonImport(this.ImportEditBox.string);
         }
+    }
+
+    ChangePosStart() {
+        this.StateText.string = "修改颜色位置"
+        this.ChangePosState = true
+        this.ChangePos.getChildByName("ChangePosOK").active = true;
+        this.node.getChildByName("seve_data").active = false
+    }
+    ChangePosOk() {
+        this.StateText.string = "编辑顺序"
+        this.ChangePosState = false
+        this.SaveChange()
+        this.ChangePos.getChildByName("ChangePosOK").active = false;
+        this.node.getChildByName("seve_data").active = true;
+
     }
     getNowData(create?): any {
         let JPKStr = ''
@@ -1805,9 +1894,7 @@ export class YarnEditing extends Component {
             this.Map.getComponent(UITransform).width = newWidth * this.map_size.arrange + (3 * (this.map_size.arrange - 1)) + 12
         }
         let newNodeSize = (this.mapSize) ? new Size(newWidth, newHeight) : null;
-        // console.log("data:",data);
-
-
+        console.log("data:", data);
         this.CloseAll(data)
         let STTKey = {}
         let STTKeyArr = []
@@ -1823,7 +1910,7 @@ export class YarnEditing extends Component {
             this.map_data[idx[1]][idx[0]].json = idx
 
             if (idx.length > 3) {
-                let attrs = [31, 42, 43, 44, 45, 46, 51, 52, 53, 1111, 10]
+                let attrs = [31, 42, 43, 44, 45, 46, 51, 52, 53, 1111, 10, 111]
                 if (attrs.indexOf(idx[2]) < 0) {
                     let changeCount = 0
                     let DTJType = false
@@ -2301,6 +2388,11 @@ export class YarnEditing extends Component {
                 this.ChooseItem.active = false
             }
         }
+        this.StateText.string = "编辑地图"
+        this.ChangePosState = false
+        this.ChangePos.active = false;
+        this.TouchNode && (this.TouchNode.active = false);
+        this.ChangePos.getChildByName("ChangePosOK").active = false;
     }
     onGameListBack() {
         this.GameList.node.active = false
@@ -3121,7 +3213,7 @@ export class YarnEditing extends Component {
             // this.SaveChangeLift()
         }, 0.1)
     }
-    SaveChangeLift() {
+    SaveChange() {
         let layout = ""
         for (let y in this.map_data) {
             for (let x in this.map_data[y]) {
@@ -3168,6 +3260,8 @@ export class YarnEditing extends Component {
     }
     private ColorList = []
     ChooseColorData(data) {
+        this.ChangePos.active = false
+        this.TouchNode && (this.TouchNode.active = false);
         if (this.node.getChildByName("seve_data").active) {
             this.node.getChildByName("seve_data").active = false
             this.node.getChildByName("setImportColor").active = false
@@ -3254,6 +3348,7 @@ export class YarnEditing extends Component {
         return NoShow
     }
     SaveData() {
+        this.StateText.string = ""
         let ColorList = ""
         if (!this.yarn_mapLayoutData[this.MapId]["ColorList"]) {
             this.yarn_mapLayoutData[this.MapId]["ColorList"] = ""
@@ -3265,7 +3360,7 @@ export class YarnEditing extends Component {
         this.yarn_mapLayoutData[this.MapId]["ColorList"] = ColorList
         GameUtil.ChangeStorage(true, "yarn_mapLayoutData", this.yarn_mapLayoutData)
         this.MapColor.active = false
-        this.MapColorState = 0
+        this.MapColorState = 1
         this.dataJsonImport(this.yarn_mapLayoutData[this.MapId].layout)
         this.LayoutList.numItems = Object.keys(this.yarn_mapLayoutData).length
         // this.exportData()
