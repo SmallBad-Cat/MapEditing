@@ -116,6 +116,9 @@ export class CarEditing extends Component {
         item: null
     }
     private setColor = null
+    private ChangeColorState = false
+    private TouchItem = null
+    private ChangeColorStart = null
 
     public loadJson() {
         this._loadJson("car_data/LevelConfig", "levelJsonData");
@@ -222,6 +225,7 @@ export class CarEditing extends Component {
         this.mapSize = new Size(645, 645)
         this.Map.on(Node.EventType.TOUCH_START, this.onTouchStart, this)
         this.Map.on(Node.EventType.TOUCH_MOVE, this.onTouchMove, this)
+        this.Map.on(Node.EventType.TOUCH_END, this.onTouchEnd, this)
         // input.on(Input.EventType.MOUSE_MOVE, this.onMouseMove, this);
         // this.writeJson()
         let first = true;
@@ -333,7 +337,7 @@ export class CarEditing extends Component {
         this.ContentNode[0].getChildByName("setImportColor").getComponent(EditBox).placeholder = "设置生成颜色";
         this.ContentNode[2].active = false
         this.setColor = null
-        this.ContentNode[0].active = true
+        this.ContentNode[0].active = (this.ChangeColorState) ? false : true
         this.FixedLiftState = {
             state: false,
             idx: [],
@@ -582,6 +586,22 @@ export class CarEditing extends Component {
         }
     }
     onTouchStart(event: EventTouch) {
+        if (this.ChangeColorState) {
+            let worldPos = this.Map.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(event.getUILocation().x, event.getUILocation().y));
+            let data = this.TouchData(worldPos);
+            if (data && this.Obstacle.Role.indexOf(data.type) >= 0) {
+                if (!this.TouchItem) {
+                    this.TouchItem = instantiate(data.child)
+                    this.node.addChild(this.TouchItem)
+                }
+                let c = TitleType.indexOf(data.json[2]) + 1
+                this.TouchItem.getComponent(Sprite).color = new Color(CellToColor[c]);
+                this.ChangeColorStart = v3(data.idx[1], data.idx[0])
+                this.TouchItem.active = true
+                data.child.active = false
+            }
+            return
+        }
         if (this.FixedLiftState.state) {
             let worldPos = this.Map.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(event.getUILocation().x, event.getUILocation().y));
             let data = this.TouchData(worldPos);
@@ -633,9 +653,41 @@ export class CarEditing extends Component {
 
     }
     onTouchMove(event: EventTouch) {
+        if (this.ChangeColorState) {
+            if (this.TouchItem && this.TouchItem.active) {
+                this.TouchItem.setWorldPosition(new Vec3(event.getUILocation().x, event.getUILocation().y))
+            }
+            return
+        }
         if (this.Piece[0]) {
             let localPos = event.getUILocation();
             this.dataInstall(localPos)
+        }
+    }
+    onTouchEnd(event: EventTouch) {
+        if (this.ChangeColorState) {
+            let worldPos = this.Map.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(event.getUILocation().x, event.getUILocation().y));
+
+            let data = this.TouchData(worldPos);
+            if (this.ChangeColorStart) {
+                let data = this.TouchData(worldPos);
+                let StartData = this.map_data[this.ChangeColorStart.y][this.ChangeColorStart.x]
+                StartData.child.active = true
+                if (data && this.Obstacle.Role.indexOf(data.type) >= 0 && ((data.type != 1 && data.json.length > 3) || data.type == 1)) {
+                    let StartColor = StartData.json[StartData.type == 1 ? 2 : 3]
+                    let EndColor = data.json[data.type == 1 ? 2 : 3];
+                    StartData.json[StartData.type == 1 ? 2 : 3] = EndColor
+                    data.json[data.type == 1 ? 2 : 3] = StartColor
+                    StartData.child.getComponent(Sprite).color = new Color(CellToColor[TitleType.indexOf(EndColor) + 1]);
+                    data.child.getComponent(Sprite).color = new Color(CellToColor[TitleType.indexOf(StartColor) + 1]);
+                }
+            }
+            this.ChangeColorStart = null
+            this.TouchItem.active = false
+            if (this.TouchItem && this.TouchItem.active) {
+                this.TouchItem.setWorldPosition(new Vec3(event.getUILocation().x, event.getUILocation().y))
+            }
+            return
         }
     }
     dataInstall(localPos) {
@@ -1770,10 +1822,10 @@ export class CarEditing extends Component {
         for (let idx of new_data) {
             row = (idx[1] > row) ? idx[1] : row;
             arrange = (idx[0] > arrange) ? idx[0] : arrange;
+            this.map_data[idx[1]][idx[0]].datas = []
+            this.map_data[idx[1]][idx[0]].json = JSON.parse(JSON.stringify(idx))
             idx[2] = CreateRole.RestoreFixedData[idx[2]] ? CreateRole.RestoreFixedData[idx[2]] : idx[2]
             this.map_data[idx[1]][idx[0]].type = isNaN(Number(idx[2])) ? 1 : idx[2];
-            this.map_data[idx[1]][idx[0]].datas = []
-            this.map_data[idx[1]][idx[0]].json = idx
 
             if (idx.length > 3) {
                 let attrs = [31, 42, 43, 44, 45, 46, 51, 52, 53, 1111, 10, 111]
@@ -1821,8 +1873,15 @@ export class CarEditing extends Component {
             }
             let node = this.map_data[idx[1]][idx[0]].node;
             this.map_data[idx[1]][idx[0]].child.name = this.map_data[idx[1]][idx[0]].type + '';
-            if (this.dataParent.getChildByName(idx[2] + '')) {
-                this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).color;
+            if (this.dataParent.getChildByName(this.map_data[idx[1]][idx[0]].type + '')) {
+                this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = this.dataParent.getChildByName(this.map_data[idx[1]][idx[0]].type + '').getComponent(Sprite).color;
+                if (this.ChangeColorState && this.Obstacle.Role.indexOf(this.map_data[idx[1]][idx[0]].type) >= 0) {
+                    if (this.map_data[idx[1]][idx[0]].type == 1) {
+                        this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = new Color(CellToColor[TitleType.indexOf(this.map_data[idx[1]][idx[0]].json[2]) + 1]);
+                    } else {
+                        this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = new Color(CellToColor[TitleType.indexOf(this.map_data[idx[1]][idx[0]].json[3]) + 1]);
+                    }
+                }
             }
             if (this.map_data[idx[1]][idx[0]].child.children.length > 1) {
                 this.map_data[idx[1]][idx[0]].child.children[1].name != "go" && this.map_data[idx[1]][idx[0]].child.children[1].destroy()
@@ -1954,7 +2013,6 @@ export class CarEditing extends Component {
 
             }
         }
-
         this.map_size = {
             arrange: arrange,
             row: row,
@@ -1970,7 +2028,6 @@ export class CarEditing extends Component {
 
         for (let idx of data) {
             let Datas = JSON.parse(JSON.stringify(this.map_data[idx[1]][idx[0]].datas))
-            console.log(Datas);
             for (let Y = 0; Y < this.DoubleLiftType[idx[2]][1]; Y++) {
                 for (let X = 0; X < this.DoubleLiftType[idx[2]][0]; X++) {
                     let Y_new = idx[1] + Y
@@ -2167,6 +2224,7 @@ export class CarEditing extends Component {
         let data = this.mapLayoutData[target.name]
         this.ChainData = []
         this.ShowAll()
+        this.setChangeColorState(false);
         this.dataJsonImport(data.layout)
         if (data.chain) {
             this.setChainData(data.chain)
@@ -3224,6 +3282,55 @@ export class CarEditing extends Component {
         })
         this.ContentNode[3].active = true
 
+    }
+    ChangeColor() {
+        if (GameUtil.HaveEnglish(this.mapLayoutData[this.MapId].layout)) {
+            this.setChangeColorState(true);
+            this.dataJsonImport(this.mapLayoutData[this.MapId].layout);
+        } else {
+            this.TipTween("当前地图无法修改色块")
+        }
+    }
+    ChangeColorOut() {
+        this.setChangeColorState(false);
+        this.dataJsonImport(this.mapLayoutData[this.MapId].layout);
+    }
+    setChangeColorState(state) {
+        this.ChangeColorState = state;
+        this.ChangeColorStart = null;
+        if (this.TouchItem) {
+            this.TouchItem.active = false;
+        }
+        this.node.getChildByName("MapSet").active = !this.ChangeColorState;
+        this.node.getChildByName("ChangeColor").active = this.ChangeColorState;
+    }
+    ChangeColorSave() {
+        let layout = ""
+        for (let y in this.map_data) {
+            for (let x in this.map_data[y]) {
+                let data = this.map_data[y][x].json
+                let i = 0
+                for (let k of data) {
+                    // if (i >= 2 && CreateRole.FixedData[k]) {
+                    //     k = CreateRole.FixedData[k]
+                    // }
+                    layout += k + ",";
+
+                    i++
+                }
+                layout = layout.slice(0, layout.length - 1)
+                layout += ";"
+
+            }
+        }
+        layout = layout.slice(0, layout.length - 1)
+        this.mapLayoutData[this.MapId].layout = layout
+        console.log(layout);
+        GameUtil.ChangeStorage(true, "mapLayoutData", this.mapLayoutData)
+        console.log(this.map_data);
+        this.setChangeColorState(false);
+        this.dataJsonImport(this.mapLayoutData[this.MapId].layout);
+        // this.setChangeColorState(false);
     }
 }
 

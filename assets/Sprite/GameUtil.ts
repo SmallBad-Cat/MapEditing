@@ -422,4 +422,7 @@ export class GameUtil {
 		}
 		return result;
 	}
+	static HaveEnglish(str) {
+		return /[a-zA-Z]/.test(str);
+	}
 }
