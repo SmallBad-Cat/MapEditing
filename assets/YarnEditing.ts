@@ -22,8 +22,8 @@ const TitleType = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "
 export const CellToColor = {
     0: color(0x8c, 0x8c, 0x8c),
     1: color('#0198F3'),//蓝   A
-    2: color('#ffeb19'),//蜡黄 B
-    3: color('#bbfe00'),//鲜绿 C
+    2: color('#FFF500'),//蜡黄 B
+    3: color('#47FF00'),//鲜绿 C
     4: color('#ff95d5'),//粉色 D
     5: color('#ff0700'),//红   E
     6: color('#cf88ff'),//紫   F
