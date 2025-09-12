@@ -720,18 +720,18 @@ export class YarnEditing extends Component {
             }
             return
         }
-        if (this.MapColorState > 0) {
-            let worldPos = this.Map.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(event.getUILocation().x, event.getUILocation().y));
-            let data = this.TouchData(worldPos);
-            if (data) {
-                this.ChooseColorData(data)
-            }
-            return
-        }
-        if (this.Piece[0]) {
-            let localPos = event.getUILocation();
-            this.dataInstall(localPos)
-        }
+        // if (this.MapColorState > 0) {
+        //     let worldPos = this.Map.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(event.getUILocation().x, event.getUILocation().y));
+        //     let data = this.TouchData(worldPos);
+        //     if (data) {
+        //         this.ChooseColorData(data)
+        //     }
+        //     return
+        // }
+        // if (this.Piece[0]) {
+        //     let localPos = event.getUILocation();
+        //     this.dataInstall(localPos)
+        // }
     }
     dataInstall(localPos) {
         this.enter_map = false;
