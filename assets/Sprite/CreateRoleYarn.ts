@@ -102,6 +102,7 @@ export class CreateRoleYarn {
         console.log(setColor, color);
         let SizeKey = { 7: { 7: 5, 9: 2 }, 9: { 8: 6 }, 8: { 7: 7 } }
         console.log(data);
+        console.log("生成颜色？？？？");
         let getDatas = {}
         for (let i = 0; i < 1000; i++) {
             let getData = this.getRoleDataStrs(0, data, all_roles, all_lift, color, SizeKey[size.y][size.x], fixed)
