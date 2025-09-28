@@ -2977,7 +2977,7 @@ export class YarnEditing extends Component {
     SaveMapData() {
 
         const data = [
-            ["ID", "大小", "地图数据", "填充顺序", "角色库", "总人数", "问号人", "电梯"], ["id", "size", "layout", "ColorList", "roles", "all_people", "qusition", "lift"]
+            ["ID", "大小", "填充顺序", "总人数", "问号人", "电梯", "地图数据"], ["id", "size", "ColorList", "all_people", "qusition", "lift", "layout"]
             // ["ID", "大小", "地图数据", "角色库", "锁链数据"], ["id", "size", "layout", "roles", "chain"]
         ];
         let lifts = [6, 7, 8, 9, 116, 117, 118, 119]
@@ -2985,8 +2985,8 @@ export class YarnEditing extends Component {
         for (let k in this.yarn_mapLayoutData) {
             let d = this.yarn_mapLayoutData[k]
             let new_d = JSON.parse(JSON.stringify(d))
-            let ColorList = new_d["ColorList"] ? new_d["ColorList"] : ""
-            let Role = new_d.roles.split(",")
+            let ColorList = new_d["ColorList"] ? new_d["ColorList"] : "";
+            let Role = (new_d.roles)?new_d.roles.split(","):[]
             if (Role.length == 1) {
                 if (Role[0] == "") {
                     Role = []
@@ -3013,7 +3013,7 @@ export class YarnEditing extends Component {
                     }
                 }
             }
-            data.push([d.id, d.size, d.layout, ColorList, d.roles, all_people, qusition == 0 ? "" : qusition, lift == 0 ? "" : lift])
+            data.push([d.id, d.size, ColorList, all_people, qusition == 0 ? "" : qusition, lift == 0 ? "" : lift, d.layout])
         }
         GameUtil.getCsv(data, "YarnMapData")
 
