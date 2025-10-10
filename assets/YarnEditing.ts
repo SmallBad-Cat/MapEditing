@@ -2492,7 +2492,12 @@ export class YarnEditing extends Component {
     onList(item, idx) {
         let k = Object.keys(this.yarn_mapLayoutData)[idx]
         let data = this.yarn_mapLayoutData[k]
+        const matches = data["layout"].match(/[A-Z]/g);
+        let all_people = matches ? matches.length : 0
         item.getChildByName('text').getComponent(Label).string = 'ID:' + data.id;
+        let color_count = matches? [...new Set(matches)].length:0
+        item.getChildByName('ball_c').getComponent(Label).string = all_people+'球 ' + color_count+"色";
+        
         let mapSize = new Size(200, 200)
         data.layout.indexOf("A")
         // item.getChildByName("Color").active = data["layout"].match(/[A-Z]/) != null
@@ -2725,7 +2730,7 @@ export class YarnEditing extends Component {
                 //     Ice.getChildByName("count").getComponent(Label).string = "";
 
                 // } else {
-                    map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).color;
+                map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).color;
                 // }
             }
             if (map_data[idx[1]][idx[0]].child.children.length > 1) {
@@ -3397,7 +3402,7 @@ export class YarnEditing extends Component {
             this.node.getChildByName("setImportColor").active = false
             //  this.node.getChildByName("setImportColor").active = false
         }
-        let types = [1, 31, 111, 51, 52, 53,1111]
+        let types = [1, 31, 111, 51, 52, 53, 1111]
         if (types.indexOf(data.type) >= 0) {
             this.ColorList.push([data.idx[0], data.idx[1], data.json.pop()])
             // 下方有电梯
