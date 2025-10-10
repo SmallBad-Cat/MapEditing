@@ -78,6 +78,10 @@ export class YarnEditing extends Component {
     private ChangePos: Node = null;
     @property({ type: Label, displayName: "状态文字" })
     private StateText: Label = null;
+    @property({ type: Node, displayName: "冰冻节点" })
+    private IceNode: Node = null;
+    @property({ type: Node, displayName: "锁头节点" })
+    private LockNode: Node = null;
 
     private nowContent = 0;
     private ScrollViewSelect = [0, 0, 0, 0];
@@ -129,6 +133,7 @@ export class YarnEditing extends Component {
         start: null
     }
     private TouchNode = null
+    private AttrItemData = {}
 
     public loadJson() {
         CreateRoleYarnNew.init_start()
@@ -627,10 +632,24 @@ export class YarnEditing extends Component {
             return
         }
         if (this.MapColorState > 0) {
+
             let worldPos = this.Map.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(event.getUILocation().x, event.getUILocation().y));
             let data = this.TouchData(worldPos);
             if (data) {
-                this.ChooseColorData(data)
+                if (this.AttrItemData[data.idx[0] + "_" + data.idx[1]]) {
+                    if (!this.AttrItemData[data.idx[0] + "_" + data.idx[1]].state || this.AttrItemData[data.idx[0] + "_" + data.idx[1]].count > 0) {
+                        return
+                    }
+                }
+                if (data.go_num <= 1 && data.json[2]) {
+                    this.ChooseColorData(data)
+                    if (this.AttrItemData[data.idx[0] + "_" + data.idx[1]] && this.AttrItemData[data.idx[0] + "_" + data.idx[1]].key > 50 && this.AttrItemData[data.idx[0] + "_" + data.idx[1]].key < 54) {
+                        for (let ks of this.AttrItemData[data.idx[0] + "_" + data.idx[1]].idxs) {
+                            this.ChooseColorData(this.map_data[ks[0]][ks[1]])
+                        }
+                    }
+                    this.AttrChange(data)
+                }
             }
             return
         }
@@ -676,6 +695,32 @@ export class YarnEditing extends Component {
             this.TipTween('请先选择需要填充的类型')
         }
 
+    }
+    AttrChange(data) {
+        let k1 = Number(data.idx[0] - 1) + "_" + data.idx[1];
+        let k2 = Number(data.idx[0] + 1) + "_" + data.idx[1];
+        let k3 = Number(data.idx[0]) + "_" + Number(data.idx[1] - 1);
+        let k4 = Number(data.idx[0]) + "_" + Number(data.idx[1] + 1);
+        let keys = [k1, k2, k3, k4]
+        for (let k in this.AttrItemData) {
+            if (k != data.idx[0] + "_" + data.idx[1]) {
+                if (keys.indexOf(k) >= 0 && !this.AttrItemData[k].state) {
+                    this.AttrItemData[k].state = true
+                }
+                if (this.AttrItemData[k].state) {
+                    if (this.AttrItemData[k].key == 31 && this.AttrItemData[k].count > 0) {
+                        this.AttrItemData[k].count -= 1
+                        this.AttrItemData[k].item.getChildByName("count").getComponent(Label).string = this.AttrItemData[k].count == 0 ? "" : "" + this.AttrItemData[k].count;
+                        if (this.AttrItemData[k].count == 0) {
+                            this.AttrItemData[k].item.active = false;
+                        }
+                    } else if (this.AttrItemData[k].key == 1111) {
+                        this.AttrItemData[k].count = this.AttrItemData[k].count == 1 ? 0 : 1;
+                        this.AttrItemData[k].item.active = this.AttrItemData[k].count == 1;
+                    }
+                }
+            }
+        }
     }
     onTouchMove(event: EventTouch) {
         if (this.ChangePosState) {
@@ -1289,11 +1334,11 @@ export class YarnEditing extends Component {
                     } else {
                         min_arr = this.getMinArr(selfSTTState, y, x, type)
                     }
-                    if (type == 31) {
-                        for (let i in min_arr) {
-                            (min_arr[i] > 0) && (min_arr[i] += 2)
-                        }
-                    }
+                    // if (type == 31) {
+                    //     for (let i in min_arr) {
+                    //         (min_arr[i] > 0) && (min_arr[i] += 2)
+                    //     }
+                    // }
 
                     let minNum = (min_arr.length <= 0) ? this.map_data[y][x].go_num : Math.min(...min_arr)
 
@@ -1873,6 +1918,7 @@ export class YarnEditing extends Component {
             this.ImportEditBox.string = '';
             return;
         }
+        this.AttrItemData = {}
         let handle = this.HandleConf(data, false)
         let new_data = handle.map
         let row = 0;
@@ -1956,7 +2002,11 @@ export class YarnEditing extends Component {
             let node = this.map_data[idx[1]][idx[0]].node;
             this.map_data[idx[1]][idx[0]].child.name = this.map_data[idx[1]][idx[0]].type + '';
             if (this.dataParent.getChildByName(idx[2] + '')) {
-                this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).color;
+                if (idx[2] == 1111 && idx[2] == 31) {
+
+                } else {
+                    this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).color;
+                }
             }
             if (this.map_data[idx[1]][idx[0]].child.children.length > 1) {
                 this.map_data[idx[1]][idx[0]].child.children[1].name != "go" && this.map_data[idx[1]][idx[0]].child.children[1].destroy()
@@ -2035,6 +2085,10 @@ export class YarnEditing extends Component {
                     EditBoxNode.active = true
                     EditBoxNode.getComponent(EditBox).string = this.map_data[idx[1]][idx[0]].datas[0]
                 }
+                if (this.MapColorState > 0) {
+                    newChild.getComponent(Sprite).color = new Color("#FFFFFF50")
+
+                }
             } else if (this.Obstacle.E.indexOf(idx[2]) >= 0) {
                 this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).spriteFrame = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).spriteFrame;
             } else if (this.Obstacle.F.indexOf(idx[2]) >= 0) {
@@ -2055,12 +2109,79 @@ export class YarnEditing extends Component {
                     DTJ.push(idx)
                 }
             }
-            if (this.MapColorState > 0 && this.map_data[idx[1]][idx[0]].type == 1) {
-                let c = TitleType.indexOf(this.map_data[idx[1]][idx[0]].json[2]) + 1
-                this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = new Color(CellToColor[c]);
+            if (this.MapColorState > 0) {
+
+                if (this.map_data[idx[1]][idx[0]].type == 1) {
+                    let c = TitleType.indexOf(this.map_data[idx[1]][idx[0]].json[2]) + 1
+                    this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = new Color(CellToColor[c]);
+                } else if (this.map_data[idx[1]][idx[0]].type == 31) {
+                    let c = TitleType.indexOf(this.map_data[idx[1]][idx[0]].json[3]) + 1
+                    this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = new Color(CellToColor[c]);
+                    let Ice = instantiate(this.IceNode)
+                    this.AttrItemData[idx[1] + "_" + idx[0]] = {
+                        idx: [idx[1], idx[0]],
+                        count: 3,
+                        state: idx[1] == 1 ? true : false,
+                        key: this.map_data[idx[1]][idx[0]].type,
+                        item: Ice
+                    }
+                    Ice.getComponent(UITransform).setContentSize(this.map_data[idx[1]][idx[0]].child.getComponent(UITransform).contentSize)
+                    this.map_data[idx[1]][idx[0]].child.addChild(Ice);
+                    Ice.active = true;
+                    Ice.getChildByName("count").getComponent(Label).string = "3";
+                } else if (this.map_data[idx[1]][idx[0]].type == 1111) {
+                    let c = TitleType.indexOf(this.map_data[idx[1]][idx[0]].json[3]) + 1
+                    this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = new Color(CellToColor[c]);
+                    let Lock = instantiate(this.LockNode)
+                    this.AttrItemData[idx[1] + "_" + idx[0]] = {
+                        idx: [idx[1], idx[0]],
+                        count: 1,
+                        state: idx[1] == 1 ? true : false,
+                        key: this.map_data[idx[1]][idx[0]].type,
+                        item: Lock
+                    }
+
+                    this.map_data[idx[1]][idx[0]].child.addChild(Lock);
+                    Lock.active = true;
+                }
             }
             let pieceColor = this.Obstacle['F'].indexOf(this.Piece[1]) >= 0 ? "#FF8F53" : "6C88F8"
         }
+        for (let y in this.map_data) {
+            for (let x in this.map_data[y]) {
+                if (this.map_data[y][x].type > 50 && this.map_data[y][x].type < 54) {
+                    let hand_keys = []
+                    let handFun = (x_x, dir) => {
+                        if (this.map_data[y] && this.map_data[y][x_x] && this.map_data[y][x_x].type > 50 && this.map_data[y][x_x].type < 54) {
+                            hand_keys.push([y, x_x])
+                            handFun(Number(x_x) + dir, dir)
+                        }
+
+                    }
+                    if (this.map_data[y][x].type == 51) {
+                        handFun(Number(x) - 1, -1)
+                    } else if (this.map_data[y][x].type == 52) {
+                        handFun(Number(x) + 1, 1)
+                    } else {
+                        handFun(Number(x) - 1, -1)
+                        handFun(Number(x) + 1, 1)
+                    }
+                    this.AttrItemData[y + "_" + x] = {
+                        idxs: hand_keys,
+                        count: 0,
+                        state: true,
+                        key: this.map_data[y][x].type,
+                    }
+                    let c = TitleType.indexOf(this.map_data[y][x].json[3]) + 1
+                    this.map_data[y][x].child.getComponent(Sprite).color = new Color(CellToColor[c]);
+                    //  this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).spriteFrame = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).spriteFrame;
+                }
+            }
+        }
+
+
+
+
         this.FixedLift.active = FixedLiftState
 
         if (DTJ.length > 0 && !Editing) {
@@ -2596,7 +2717,16 @@ export class YarnEditing extends Component {
             let node = map_data[idx[1]][idx[0]].node;
             map_data[idx[1]][idx[0]].child.name = idx[2] + '';
             if (this.dataParent.getChildByName(idx[2] + '')) {
-                map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).color;
+                // if (idx[2] == 31) {
+                //     let Ice = instantiate(this.IceNode)
+                //     map_data[idx[1]][idx[0]].child.addChild(Ice);
+                //     Ice.getComponent(UITransform).setContentSize(this.map_data[idx[1]][idx[0]].child.getComponent(UITransform).contentSize)
+                //     Ice.active = true;
+                //     Ice.getChildByName("count").getComponent(Label).string = "";
+
+                // } else {
+                    map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).color;
+                // }
             }
             if (map_data[idx[1]][idx[0]].child.children.length > 1) {
                 map_data[idx[1]][idx[0]].child.children[1].name != "go" && map_data[idx[1]][idx[0]].child.children[1].destroy()
@@ -2986,7 +3116,7 @@ export class YarnEditing extends Component {
             let d = this.yarn_mapLayoutData[k]
             let new_d = JSON.parse(JSON.stringify(d))
             let ColorList = new_d["ColorList"] ? new_d["ColorList"] : "";
-            let Role = (new_d.roles)?new_d.roles.split(","):[]
+            let Role = (new_d.roles) ? new_d.roles.split(",") : []
             if (Role.length == 1) {
                 if (Role[0] == "") {
                     Role = []
@@ -3267,7 +3397,8 @@ export class YarnEditing extends Component {
             this.node.getChildByName("setImportColor").active = false
             //  this.node.getChildByName("setImportColor").active = false
         }
-        if (data.type == 1 && data.go_num <= 1 && data.json[2]) {
+        let types = [1, 31, 111, 51, 52, 53,1111]
+        if (types.indexOf(data.type) >= 0) {
             this.ColorList.push([data.idx[0], data.idx[1], data.json.pop()])
             // 下方有电梯
             let NoShow = this.AaroundLift(data)
