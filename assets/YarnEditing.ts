@@ -3486,7 +3486,7 @@ export class YarnEditing extends Component {
             // 上一次压制值
             let last_yzz = this.MapValueData.YZZChange[this.MapValueData.YZZChange.length - 1]
             // 压制值变化数
-            let yzz_bhs = Math.abs((((last_yzz - this.GoNumAll) - this.MapValueData.AverageYZZValue) / this.MapValueData.YZZValue));
+            let yzz_bhs = Math.abs((((last_yzz - this.GoNumAll) - this.MapValueData.AverageYZZValue) / this.MapValueData.AverageYZZValue));
             // 增加当前压制值
             this.MapValueData.YZZChange.push(this.GoNumAll)
             console.log("当前颜色间隔：", color_sjjg, "颜色间隔系数", color_jgxs);
