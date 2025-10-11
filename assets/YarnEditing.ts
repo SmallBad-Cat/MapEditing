@@ -134,6 +134,15 @@ export class YarnEditing extends Component {
     }
     private TouchNode = null
     private AttrItemData = {}
+    private MapValueData = {
+        BallColorValue: {},//球颜色最优间隔
+        AverageYZZValue: 0,//平均压制值
+        YZZValue: 0,//总压制值
+        YZZChange: [],//所有压制值变化队列
+        BallColorChange: {},//点击球的步数值
+        WalkDiffChange: [],//走线难度变化
+        WalkDiffValue: 0,//走线难度值
+    }
 
     public loadJson() {
         CreateRoleYarnNew.init_start()
@@ -552,7 +561,8 @@ export class YarnEditing extends Component {
             }
             this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label).string = num + ''
             this.dataParent.getChildByName('105').getChildByName('count').getComponent(Label).string = num105 + ''
-            this.GoNumAll = all_gonum
+            // this.GoNumAll = all_gonum
+            this.refish_GoNum()
             this.scheduleOnce(() => {
                 this.map_size = {
                     arrange: this.MapType.map3.arrange,
@@ -587,19 +597,20 @@ export class YarnEditing extends Component {
             this.YZZState = false
             newLabel.string = '显示压制值'
         }
-        this.node.getChildByName('theMap').getComponent(Label).enabled = (this.YZZState) ? false : true;
-        this.allLabel[1].enabled = (this.YZZState) ? true : false;
+        this.node.getChildByName('theMap').getComponent(Label).enabled = (this.YZZState || this.MapColorState > 1) ? false : true;
+        // this.allLabel[1].enabled = (this.YZZState) ? true : false;
         let anjian = [61, 62, 63, 64, 65, 66, 67, 68]
         for (let i in this.map_data) {
             let row = Number(i)
             for (let x in this.map_data[row]) {
                 let arrange = Number(x)
-                if (anjian.indexOf(this.map_data[row][arrange].type) < 0) {
+                if (anjian.indexOf(this.map_data[row][arrange].type) < 0 && this.map_data[row][arrange].type != 105) {
                     this.map_data[row][arrange].child.getChildByName('go').getComponent(Label).enabled = (this.YZZState) ? true : false;
-                } else {
-                    this.map_data[row][arrange].child.getChildByName('go').getComponent(Label).enabled = true
-                }
+                } else
+                    if (this.Obstacle.Role.indexOf(this.map_data[row].type) >= 0) {
 
+                        this.map_data[row][arrange].child.getChildByName('go').getComponent(Label).enabled = true
+                    }
             }
         }
     }
@@ -632,6 +643,7 @@ export class YarnEditing extends Component {
             return
         }
         if (this.MapColorState > 0) {
+            console.log("点击颜色顺序");
 
             let worldPos = this.Map.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(event.getUILocation().x, event.getUILocation().y));
             let data = this.TouchData(worldPos);
@@ -1252,8 +1264,8 @@ export class YarnEditing extends Component {
         }
         let min = Math.min(...arr)
         for (let key in type2Obj) {
-            this.map_data[type2Obj[key][0]][type2Obj[key][1]].go_num = (min < 0) ? 0 : min;
-            this.map_data[type2Obj[key][0]][type2Obj[key][1]].child.getChildByName('go').getComponent(Label).string = (min < 0) ? 0 : min + ''
+            this.map_data[type2Obj[key][0]][type2Obj[key][1]].go_num = (min <= 0) ? -1 : min;
+            this.map_data[type2Obj[key][0]][type2Obj[key][1]].child.getChildByName('go').getComponent(Label).string = (min <= 0) ? -1 : min + ''
         }
 
         return min
@@ -1381,8 +1393,8 @@ export class YarnEditing extends Component {
                 }
             }
         }
-        if (this.YZZState) {
-            this.allLabel[4].string = '角色步数总和：' + this.GoNumAll;
+        if (this.YZZState || this.MapColorState > 1) {
+            this.allLabel[4].string = '压制值总和：' + this.GoNumAll;
         }
 
         return this.GoNumAll;
@@ -1739,6 +1751,7 @@ export class YarnEditing extends Component {
     // 数据处理
     data_handle(event: Event) {
         let target: any = event.target;
+        this.refish_GoNum()
         if (target.name.indexOf('seve_data') >= 0) {
             // CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor)
             let data = CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor)
@@ -1773,11 +1786,48 @@ export class YarnEditing extends Component {
                 if (!this.yarn_mapLayoutData[this.MapId]["ColorList"]) {
                     this.yarn_mapLayoutData[this.MapId]["ColorList"] = ""
                 }
+                this.refish_GoNum()
                 // GameUtil.ChangeStorage(true, "yarn_mapLayoutData", this.yarn_mapLayoutData)
+                const matches = data[1].match(/[A-Z]/g);
+                let all_people = matches ? matches.length : 0
+                let color_count = matches ? [...new Set(matches)].length : 0
                 this.TipTween("颜色已生成")
                 this.setMapColor()
                 this.ChangePos.active = true
                 this.StateText.string = "编辑顺序"
+                this.MapValueData = {
+                    BallColorValue: {},//球颜色最优间隔
+                    AverageYZZValue: 0,//平均压制值
+                    YZZValue: this.GoNumAll,//总压制值
+                    YZZChange: [this.GoNumAll],//所有压制值变化队列
+                    BallColorChange: {},//点击球的步数值
+                    WalkDiffChange: [],//走线难度变化
+                    WalkDiffValue: 0,//走线难度值
+                }
+                let AllBall = {
+                }
+                for (let c of matches) {
+                    if (!this.MapValueData.BallColorChange[c]) {
+                        this.MapValueData.BallColorChange[c] = {
+                            value: 0,
+                            change: []
+                        }
+                    }
+                    if (!AllBall[c]) {
+                        AllBall[c] = 0
+                    }
+                    AllBall[c] += 1
+                    if (!this.MapValueData.BallColorValue[c]) {
+                        this.MapValueData.BallColorValue[c] = 0
+                    }
+                }
+                console.log(all_people, AllBall);
+                for (let c in this.MapValueData.BallColorValue) {
+                    this.MapValueData.BallColorValue[c] = Math.abs(all_people / AllBall[c]);
+                }
+                console.log("走线初始状态：", this.MapValueData);
+                this.MapValueData.AverageYZZValue = this.GoNumAll / all_people
+                this.FixedLift.active = false
             } else {
                 this.TipTween("出现问题1000次循环生成不出有效数据，无法保存")
             }
@@ -2336,7 +2386,8 @@ export class YarnEditing extends Component {
 
             }
         }
-        this.allLabel[1].string = '角色步数总和：' + this.GoNumAll;
+        this.refish_GoNum()
+        this.allLabel[1].string = '压制值总和：' + this.GoNumAll;
         this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label).string = String(num)
         this.dataParent.getChildByName('105').getChildByName('count').getComponent(Label).string = String(num105)
 
@@ -2495,9 +2546,10 @@ export class YarnEditing extends Component {
         const matches = data["layout"].match(/[A-Z]/g);
         let all_people = matches ? matches.length : 0
         item.getChildByName('text').getComponent(Label).string = 'ID:' + data.id;
-        let color_count = matches? [...new Set(matches)].length:0
-        item.getChildByName('ball_c').getComponent(Label).string = all_people+'球 ' + color_count+"色";
-        
+
+        let color_count = matches ? [...new Set(matches)].length : 0
+        item.getChildByName('ball_c').getComponent(Label).string = all_people + '球 ' + color_count + "色";
+
         let mapSize = new Size(200, 200)
         data.layout.indexOf("A")
         // item.getChildByName("Color").active = data["layout"].match(/[A-Z]/) != null
@@ -3112,7 +3164,7 @@ export class YarnEditing extends Component {
     SaveMapData() {
 
         const data = [
-            ["ID", "大小", "填充顺序", "总人数", "问号人", "电梯", "地图数据"], ["id", "size", "ColorList", "all_people", "qusition", "lift", "layout"]
+            ["ID", "大小", "填充顺序", "总人数", "问号人", "电梯", "走线难度", "走线队列", "地图数据"], ["id", "size", "ColorList", "all_people", "qusition", "lift", "walk_diff", "walk_list", "layout"]
             // ["ID", "大小", "地图数据", "角色库", "锁链数据"], ["id", "size", "layout", "roles", "chain"]
         ];
         let lifts = [6, 7, 8, 9, 116, 117, 118, 119]
@@ -3148,7 +3200,9 @@ export class YarnEditing extends Component {
                     }
                 }
             }
-            data.push([d.id, d.size, ColorList, all_people, qusition == 0 ? "" : qusition, lift == 0 ? "" : lift, d.layout])
+            let walk_diff = d["WalkValue"] ? d["WalkValue"] : "";
+            let walk_list = d["WalkValueChange"] ? d["WalkValueChange"] : "";
+            data.push([d.id, d.size, ColorList, all_people, qusition == 0 ? "" : qusition, lift == 0 ? "" : lift, walk_diff, walk_list, d.layout])
         }
         GameUtil.getCsv(data, "YarnMapData")
 
@@ -3403,8 +3457,11 @@ export class YarnEditing extends Component {
             //  this.node.getChildByName("setImportColor").active = false
         }
         let types = [1, 31, 111, 51, 52, 53, 1111]
+        let change = false
         if (types.indexOf(data.type) >= 0) {
+
             this.ColorList.push([data.idx[0], data.idx[1], data.json.pop()])
+            console.log(this.ColorList);
             // 下方有电梯
             let NoShow = this.AaroundLift(data)
             if (NoShow) {
@@ -3412,9 +3469,40 @@ export class YarnEditing extends Component {
                 data.type = 2;
                 data.child.name = "2";
             }
+            change = true
 
         }
         this.GoNumRefirsh(data)
+        if (change) {
+            let c = this.ColorList[this.ColorList.length - 1][2]
+            // 当前颜色实际间隔
+            let color_sjjg = this.MapValueData.BallColorChange[c].value
+            this.MapValueData.BallColorChange[c].change.push(this.MapValueData.BallColorChange[c].value)
+            this.MapValueData.BallColorChange[c].value = 0
+
+            // 当前颜色间隔系数
+            let color_jgxs = Math.abs(color_sjjg - this.MapValueData.BallColorValue[c])
+            // 上一次压制值
+            let last_yzz = this.MapValueData.YZZChange[this.MapValueData.YZZChange.length - 1]
+            // 压制值变化数
+            let yzz_bhs = Math.abs((((last_yzz - this.GoNumAll) - this.MapValueData.AverageYZZValue) / this.MapValueData.YZZValue));
+            // 增加当前压制值
+            this.MapValueData.YZZChange.push(this.GoNumAll)
+            console.log("当前颜色间隔：", color_sjjg, "颜色间隔系数", color_jgxs);
+            console.log("压制值变化：", last_yzz - this.GoNumAll, "压制值变化数：", yzz_bhs);
+            // 走线难度
+            let walkDiff = Math.abs(color_jgxs * yzz_bhs);
+            this.MapValueData.WalkDiffChange.push(walkDiff)
+            this.MapValueData.WalkDiffValue += walkDiff
+            for (let c in this.MapValueData.BallColorChange) {
+                if (this.MapValueData.BallColorChange[c].change.length > 0) {
+                    this.MapValueData.BallColorChange[c].value += 1;
+                }
+            }
+            console.log("走线难度变化：", this.MapValueData);
+        }
+
+        console.log(this.GoNumAll, "========");
         if (this.MapColorState == this.ColorList.length) {
             this.MapColor.getChildByName("Save").active = true
 
@@ -3498,6 +3586,8 @@ export class YarnEditing extends Component {
         this.MapColor.active = false
         this.MapColorState = 1
         this.dataJsonImport(this.yarn_mapLayoutData[this.MapId].layout)
+        this.yarn_mapLayoutData[this.MapId]["WalkValue"] = this.MapValueData.WalkDiffValue
+        this.yarn_mapLayoutData[this.MapId]["WalkValueChange"] = this.MapValueData.WalkDiffChange.toString();
         this.LayoutList.numItems = Object.keys(this.yarn_mapLayoutData).length
         // this.exportData()
     }
