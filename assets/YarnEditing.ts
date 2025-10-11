@@ -1394,7 +1394,7 @@ export class YarnEditing extends Component {
             }
         }
         if (this.YZZState || this.MapColorState > 1) {
-            this.allLabel[4].string = '压制值总和：' + this.GoNumAll;
+            // this.allLabel[4].string = '压制值总和：' + this.GoNumAll;
         }
 
         return this.GoNumAll;
@@ -1964,6 +1964,7 @@ export class YarnEditing extends Component {
     }
     // 数据Json导入
     dataJsonImport(data: string, Editing?) {
+        this.allLabel[4].string = ""
         if (data.length < 6) {
             this.ImportEditBox.string = '';
             return;
@@ -3500,6 +3501,7 @@ export class YarnEditing extends Component {
                 }
             }
             console.log("走线难度变化：", this.MapValueData);
+            this.allLabel[4].string = "走线难度:" + this.MapValueData.WalkDiffValue
         }
 
         console.log(this.GoNumAll, "========");
