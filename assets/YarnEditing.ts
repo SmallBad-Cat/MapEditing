@@ -9,6 +9,7 @@ import { GameUtil } from './Sprite/GameUtil';
 import { DragDropExample } from './Prefab/FileDrag/DragDropExample';
 import { CreateRoleYarn } from './Sprite/CreateRoleYarn';
 import { CreateRoleYarnNew } from './Sprite/CreateRoleYarnNew';
+import { GetWalkDiff } from './Sprite/GetWalkDiff';
 const { ccclass, property } = _decorator;
 export class DTJLayerData {
     layer = 0;
@@ -82,6 +83,8 @@ export class YarnEditing extends Component {
     private IceNode: Node = null;
     @property({ type: Node, displayName: "锁头节点" })
     private LockNode: Node = null;
+    @property({ type: Node, displayName: "编辑顺序按钮" })
+    private EditOrder: Node = null;
 
     private nowContent = 0;
     private ScrollViewSelect = [0, 0, 0, 0];
@@ -156,8 +159,36 @@ export class YarnEditing extends Component {
             this.getNextMapId()
             this.allLabel[3].string = "地图ID：" + this.MapId;
         }
+        this.changeMapWalkDiff()
         // this._loadJson("data/ProvinceLevel", "provinceLevelJsonData");
         // this._loadJson("data/AsicLevel", "allMapData");
+    }
+    changeMapWalkDiff() {
+        let change = false
+        for (let k in this.yarn_mapLayoutData) {
+            let data = this.yarn_mapLayoutData[k]
+
+            const matches_ColorList = data["ColorList"].match(/[A-Z]/g);
+            const matches_layout = data["layout"].match(/[A-Z]/g);
+            if (!data["WalkValue"]) {
+                change = true
+                let getWalk = false
+                if (matches_ColorList && matches_layout && matches_layout.length == matches_ColorList.length) {
+                    let color_count_ColorList = matches_ColorList ? [...new Set(matches_ColorList)].length : 0
+                    let color_count_layout = matches_layout ? [...new Set(matches_layout)].length : 0
+                    if (color_count_ColorList == color_count_layout) {
+                        getWalk = true
+                        GetWalkDiff.setMapColor(data);
+                    }
+                }
+                if (!getWalk) {
+                    this.yarn_mapLayoutData[k]["WalkValue"] = "地图和点击顺序配置数据对不上"
+                }
+            }
+        }
+        if (change) {
+            GameUtil.ChangeStorage(true, "yarn_mapLayoutData", this.yarn_mapLayoutData)
+        }
     }
     private yarn_mapLayoutData: any = null;//地图数据
     readonly levelJsonData: any = null;
@@ -653,9 +684,10 @@ export class YarnEditing extends Component {
                         return
                     }
                 }
-                if (data.go_num <= 1 && data.json[2]) {
+                if (data.go_num == 0 && data.json[2]) {
                     this.ChooseColorData(data)
-                    if (this.AttrItemData[data.idx[0] + "_" + data.idx[1]] && this.AttrItemData[data.idx[0] + "_" + data.idx[1]].key > 50 && this.AttrItemData[data.idx[0] + "_" + data.idx[1]].key < 54) {
+                    console.log("--------------", data);
+                    if (this.AttrItemData[data.idx[0] + "_" + data.idx[1]] && this.AttrItemData[data.idx[0] + "_" + data.idx[1]].key > 50 && this.AttrItemData[data.idx[0] + "_" + data.idx[1]].key < 56) {
                         for (let ks of this.AttrItemData[data.idx[0] + "_" + data.idx[1]].idxs) {
                             this.ChooseColorData(this.map_data[ks[0]][ks[1]])
                         }
@@ -816,7 +848,7 @@ export class YarnEditing extends Component {
         }
     }
     // Type == 11 || Type == 12 ||
-    TypeArr = [42, 43, 44, 45, 46, 51, 52, 53, 3, 6, 7, 8, 9, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 61, 63, 64]
+    TypeArr = [42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 3, 6, 7, 8, 9, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 61, 63, 64]
     TypeorAddChild(Type) {
         if (this.TypeArr.indexOf(Type) >= 0 && Type != 2) {
             return true
@@ -1179,7 +1211,7 @@ export class YarnEditing extends Component {
     }
     setPeopleCount() {
         let people_num = 0
-        let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 71, 72, 73, 74, 75, 68, 101, 102, 103, 104, 1111, 111]
+        let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 71, 72, 73, 74, 75, 68, 101, 102, 103, 104, 1111, 111]
         for (let y = 1; y <= this.map_size.row; y++) {
             for (let x = 1; x <= this.map_size.arrange; x++) {
                 let t = this.map_data[y][x].type
@@ -1306,7 +1338,7 @@ export class YarnEditing extends Component {
         this.refish_GoNum()
     }
     getHandArr(y, x, type) {
-        let HandKeyArr = [51, 52, 53]
+        let HandKeyArr = [51, 52, 53, 54, 55]
         let getFirstRole = (iy, ix) => {
             if (this.map_data[iy][ix].type > 51 && HandKeyArr.indexOf(this.map_data[iy][ix].type) >= 0) {
                 return getFirstRole(iy, ix - 1)
@@ -1333,7 +1365,7 @@ export class YarnEditing extends Component {
     }
     refish_GoNum(count: number = 0) {
         this.GoNumAll = 0
-        let HandKeyArr = [51, 52, 53]
+        let HandKeyArr = [51, 52, 53, 54, 55]
         let AJKeyRole = {}
         for (let y = 1; y <= this.map_size.row; y++) {
             for (let x = 1; x <= this.map_size.arrange; x++) {
@@ -1642,13 +1674,14 @@ export class YarnEditing extends Component {
         'A': [18, 19, 20],
         'B': [21, 22, 23, 28, 29, 30],
         'C': [24, 25, 26, 27, 6, 7, 8, 9],//电梯
-        'D': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53],//角色
+        'D': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55],//角色
         'E': [61, 63, 64, 68],//检票口
         'F': [71, 72, 73, 74, 75],//双向电梯
-        'Role': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 68, 71, 72, 73, 74, 75, 101, 102, 103, 104, 1111, 111],
+        'Role': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 68, 71, 72, 73, 74, 75, 101, 102, 103, 104, 1111, 111],
         'JianPiaoKey': 67,
         'DTJ': [101, 102, 103, 104],
-        'VIP': [11, 12, 13]
+        'VIP': [11, 12, 13],
+        'LiftExport': [99913, 99931, 99923, 99932, 99933, 131]
     }
     onObstaclePiece(event: Event, type: string) {
         let target: any = event.target;
@@ -1659,7 +1692,7 @@ export class YarnEditing extends Component {
             }
             for (let i = 0; i < this.Obstacle[type].length; i++) {
                 if (roleW.indexOf(this.Obstacle[type][i]) < 0) {
-                    this.dataParent.getChildByName(String(this.Obstacle[type][i])).active = true
+                    this.dataParent.getChildByName(String(this.Obstacle[type][i])) && (this.dataParent.getChildByName(String(this.Obstacle[type][i])).active = true)
                 }
 
             }
@@ -1680,7 +1713,12 @@ export class YarnEditing extends Component {
             if (key != 'Role' && key != 'JianPiaoKey' && key != 'VIP') {
                 for (let id of this.Obstacle[key]) {
                     if (roleW.indexOf(id) < 0) {
-                        this.dataParent.getChildByName(String(id)).active = false
+                        if (this.dataParent.getChildByName(String(id))) {
+                            this.dataParent.getChildByName(String(id)).active = false
+                        } else {
+
+                        }
+
                     }
                 }
 
@@ -1786,48 +1824,14 @@ export class YarnEditing extends Component {
                 if (!this.yarn_mapLayoutData[this.MapId]["ColorList"]) {
                     this.yarn_mapLayoutData[this.MapId]["ColorList"] = ""
                 }
+                this.yarn_mapLayoutData[this.MapId]["ColorList"] = ""
                 this.refish_GoNum()
                 // GameUtil.ChangeStorage(true, "yarn_mapLayoutData", this.yarn_mapLayoutData)
-                const matches = data[1].match(/[A-Z]/g);
-                let all_people = matches ? matches.length : 0
-                let color_count = matches ? [...new Set(matches)].length : 0
+
+
                 this.TipTween("颜色已生成")
                 this.setMapColor()
-                this.ChangePos.active = true
-                this.StateText.string = "编辑顺序"
-                this.MapValueData = {
-                    BallColorValue: {},//球颜色最优间隔
-                    AverageYZZValue: 0,//平均压制值
-                    YZZValue: this.GoNumAll,//总压制值
-                    YZZChange: [this.GoNumAll],//所有压制值变化队列
-                    BallColorChange: {},//点击球的步数值
-                    WalkDiffChange: [],//走线难度变化
-                    WalkDiffValue: 0,//走线难度值
-                }
-                let AllBall = {
-                }
-                for (let c of matches) {
-                    if (!this.MapValueData.BallColorChange[c]) {
-                        this.MapValueData.BallColorChange[c] = {
-                            value: 0,
-                            change: []
-                        }
-                    }
-                    if (!AllBall[c]) {
-                        AllBall[c] = 0
-                    }
-                    AllBall[c] += 1
-                    if (!this.MapValueData.BallColorValue[c]) {
-                        this.MapValueData.BallColorValue[c] = 0
-                    }
-                }
-                console.log(all_people, AllBall);
-                for (let c in this.MapValueData.BallColorValue) {
-                    this.MapValueData.BallColorValue[c] = Math.abs(all_people / AllBall[c]);
-                }
-                console.log("走线初始状态：", this.MapValueData);
-                this.MapValueData.AverageYZZValue = this.GoNumAll / all_people
-                this.FixedLift.active = false
+
             } else {
                 this.TipTween("出现问题1000次循环生成不出有效数据，无法保存")
             }
@@ -2007,7 +2011,7 @@ export class YarnEditing extends Component {
             this.map_data[idx[1]][idx[0]].json = idx
 
             if (idx.length > 3) {
-                let attrs = [31, 42, 43, 44, 45, 46, 51, 52, 53, 1111, 10, 111]
+                let attrs = [31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 1111, 10, 111]
                 if (attrs.indexOf(idx[2]) < 0) {
                     let changeCount = 0
                     let DTJType = false
@@ -2198,25 +2202,49 @@ export class YarnEditing extends Component {
             }
             let pieceColor = this.Obstacle['F'].indexOf(this.Piece[1]) >= 0 ? "#FF8F53" : "6C88F8"
         }
+        let OkType = {
+            RightHand: [53, 52],//牵右手1
+            LeftHand: [53, 51],//牵左手-1
+            UpHand: [53, 54],//牵上手-1
+            DownHand: [53, 55],//牵下手1
+        }
         for (let y in this.map_data) {
             for (let x in this.map_data[y]) {
-                if (this.map_data[y][x].type > 50 && this.map_data[y][x].type < 54) {
+                if (this.map_data[y][x].type > 50 && this.map_data[y][x].type < 56) {
                     let hand_keys = []
+
                     let handFun = (x_x, dir) => {
-                        if (this.map_data[y] && this.map_data[y][x_x] && this.map_data[y][x_x].type > 50 && this.map_data[y][x_x].type < 54) {
-                            hand_keys.push([y, x_x])
-                            handFun(Number(x_x) + dir, dir)
+                        if (this.map_data[y] && this.map_data[y][x_x]) {
+                            if (OkType[dir == -1 ? "RightHand" : "LeftHand"].indexOf(this.map_data[y][x_x].type) >= 0) {
+                                hand_keys.push([y, x_x])
+                                handFun(Number(x_x) + dir, dir)
+                            }
                         }
 
+                    }
+                    let handFunUD = (y_y, dir) => {
+                        if (this.map_data[y_y] && this.map_data[y_y][x]) {
+                            if (OkType[dir == -1 ? "DownHand" : "UpHand"].indexOf(this.map_data[y_y][x].type) >= 0) {
+                                hand_keys.push([y_y, x])
+                                handFunUD(Number(y_y) + dir, dir)
+                            }
+                        }
                     }
                     if (this.map_data[y][x].type == 51) {
                         handFun(Number(x) - 1, -1)
                     } else if (this.map_data[y][x].type == 52) {
                         handFun(Number(x) + 1, 1)
-                    } else {
+                    } else if (this.map_data[y][x].type == 53) {
                         handFun(Number(x) - 1, -1)
                         handFun(Number(x) + 1, 1)
+                        handFunUD(Number(y) - 1, -1)
+                        handFunUD(Number(y) + 1, 1)
+                    } else if (this.map_data[y][x].type == 54) {
+                        handFunUD(Number(y) - 1, -1)
+                    } else if (this.map_data[y][x].type == 55) {
+                        handFunUD(Number(y) + 1, 1)
                     }
+                    console.log(y + "_" + x, this.map_data[y][x].type, hand_keys);
                     this.AttrItemData[y + "_" + x] = {
                         idxs: hand_keys,
                         count: 0,
@@ -2271,6 +2299,7 @@ export class YarnEditing extends Component {
         this.EditBox_row.string = String(row);
         this.EditBox_arrange.string = String(arrange);
         this.ImportEditBox.string = '';
+        this.EditOrder.active = this.MapColorState == 1
         if (this.MapColorState > 1) return
         this.scheduleOnce(() => {
             this.MapChange();
@@ -2480,6 +2509,7 @@ export class YarnEditing extends Component {
         this.ShowAll()
         // this.MapColorState = data["layout"].match(/[A-Z]/) != null ? 1 : 0
         this.MapColorState = data["ColorList"] ? 1 : 0
+
 
         this.ChooseKuang.active = this.MapColorState > 0 ? false : true
         this.dataJsonImport(data.layout)
@@ -3219,6 +3249,7 @@ export class YarnEditing extends Component {
         this.DTJLayer = new DTJLayerData
         this.setDTJChooseState(false)
         this.CloseAll()
+        this.EditOrder.active = false;
         this.scheduleOnce(() => {
             this.MapChange()
         }, 0.05)
@@ -3446,6 +3477,44 @@ export class YarnEditing extends Component {
         this.MapColorState = this.setPeopleCount()
         this.ContentNode[0].active = false
         this.dataJsonImport(this.yarn_mapLayoutData[this.MapId].layout)
+        const matches = this.yarn_mapLayoutData[this.MapId].layout.match(/[A-Z]/g);
+        let all_people = matches ? matches.length : 0
+        let color_count = matches ? [...new Set(matches)].length : 0
+        this.ChangePos.active = true
+        this.StateText.string = "编辑顺序"
+        this.MapValueData = {
+            BallColorValue: {},//球颜色最优间隔
+            AverageYZZValue: 0,//平均压制值
+            YZZValue: this.GoNumAll,//总压制值
+            YZZChange: [this.GoNumAll],//所有压制值变化队列
+            BallColorChange: {},//点击球的步数值
+            WalkDiffChange: [],//走线难度变化
+            WalkDiffValue: 0,//走线难度值
+        }
+        let AllBall = {
+        }
+        for (let c of matches) {
+            if (!this.MapValueData.BallColorChange[c]) {
+                this.MapValueData.BallColorChange[c] = {
+                    value: 0,
+                    change: []
+                }
+            }
+            if (!AllBall[c]) {
+                AllBall[c] = 0
+            }
+            AllBall[c] += 1
+            if (!this.MapValueData.BallColorValue[c]) {
+                this.MapValueData.BallColorValue[c] = 0
+            }
+        }
+        console.log(all_people, AllBall);
+        for (let c in this.MapValueData.BallColorValue) {
+            this.MapValueData.BallColorValue[c] = Math.abs(all_people / AllBall[c]);
+        }
+        console.log("走线初始状态：", this.MapValueData);
+        this.MapValueData.AverageYZZValue = this.GoNumAll / all_people
+        this.FixedLift.active = false
 
     }
     private ColorList = []
@@ -3457,7 +3526,7 @@ export class YarnEditing extends Component {
             this.node.getChildByName("setImportColor").active = false
             //  this.node.getChildByName("setImportColor").active = false
         }
-        let types = [1, 31, 111, 51, 52, 53, 1111]
+        let types = [1, 31, 111, 51, 52, 53, 54, 55, 1111]
         let change = false
         if (types.indexOf(data.type) >= 0) {
 

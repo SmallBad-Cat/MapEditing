@@ -39,7 +39,7 @@ export class CreateRoleYarnNew {
         104: [3, 2],
     }
     static ElementType = {
-        role: [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 1111],
+        role: [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 111,1111],
         lift: [11, 12, 13, 6, 7, 8, 9, 25, 24, 26, 27],
         DTJ: [101, 102, 103, 104],
         VIP: [11, 12, 13]
@@ -496,17 +496,17 @@ export class CreateRoleYarnNew {
         let getDatas = {}
         let TitleArr = TitleType.slice(0, color)
         let LiftColor = []
-        let UseColor = all_roles-all_lift;
+        let UseColor = all_roles - all_lift;
         let t_k = 0
-        for(let i = 0;i<all_roles;i++){
+        for (let i = 0; i < all_roles; i++) {
 
-            if(UseColor>0){
-                UseColor-=1
-            }else{
+            if (UseColor > 0) {
+                UseColor -= 1
+            } else {
                 LiftColor.push(TitleArr[t_k])
-            }  
+            }
             t_k++
-            if(t_k == TitleArr.length){
+            if (t_k == TitleArr.length) {
                 t_k = 0
             }
         }
@@ -518,7 +518,7 @@ export class CreateRoleYarnNew {
         //     getDatas[getData[3]].push(getData)
         // }
         for (let i = 0; i < 1000; i++) {
-            let getData = this.getRoleDataStrs(0, this.fillColors(data, TitleType.slice(0, color)), all_roles, all_lift, color, SizeKey[size.y][size.x], fixed,LiftColor)
+            let getData = this.getRoleDataStrs(0, this.fillColors(data, TitleType.slice(0, color)), all_roles, all_lift, color, SizeKey[size.y][size.x], fixed, LiftColor)
             if (getData) {
                 if (!getDatas[getData[3]]) {
                     getDatas[getData[3]] = []
@@ -531,7 +531,7 @@ export class CreateRoleYarnNew {
         return getDatas[maxKey][0]
 
     }
-    static getRoleDataStrs(createIdx, datas, roles, lift_roles, color, size, fixed,LiftColor): any {
+    static getRoleDataStrs(createIdx, datas, roles, lift_roles, color, size, fixed, LiftColor): any {
         let NewLiftColor = JSON.parse(JSON.stringify(LiftColor))
         let ColorState = {}
         // 每组人数
@@ -602,7 +602,7 @@ export class CreateRoleYarnNew {
                 let arr = datas[Number(x)][Number(y)]
                 if ((arr[2] < 10 && this.ElementType.lift.indexOf(arr[2]) >= 0) || this.ElementType.VIP.indexOf(arr[2]) >= 0) {
                     // lift_num += arr[3]
-                    
+
                     getRole(arr[3])
                 }
                 data.push(JSON.parse(JSON.stringify(datas[Number(x)][Number(y)])))
@@ -628,7 +628,7 @@ export class CreateRoleYarnNew {
             103: [3, 3],
             104: [3, 2],
         };
-        const peopleTypes = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 111];
+        const peopleTypes = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 111,1111];
         const DTJAdd: Record<string, number> = {};
         const ruleFun = (arr: number[]) => {
             const afresh = [0, 0];
@@ -946,7 +946,7 @@ export class CreateRoleYarnNew {
                         if (newarr.length === 2 && newarr[0][1] > newarr[1][1] * 3) {
                             afresh_again.push(0);
                             console.log("电梯重来---------", count);
-                            return self.getRoleDataStrs(createIdx + 1, datas, roles, lift_roles, color, size, fixed,LiftColor)
+                            return self.getRoleDataStrs(createIdx + 1, datas, roles, lift_roles, color, size, fixed, LiftColor)
                         }
 
                         if (peopleArr[peopleArr.length - 1] !== Type) {
@@ -994,7 +994,7 @@ export class CreateRoleYarnNew {
             // }
 
             if (fixed && Roles.length > 0) {
-                return this.getRoleDataStrs(createIdx + 1, datas, roles, lift_roles, color, size, fixed,LiftColor)
+                return this.getRoleDataStrs(createIdx + 1, datas, roles, lift_roles, color, size, fixed, LiftColor)
             }
 
             let AllValue = 0
