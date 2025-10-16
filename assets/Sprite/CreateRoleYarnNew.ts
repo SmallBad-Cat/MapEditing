@@ -479,8 +479,9 @@ export class CreateRoleYarnNew {
                     all_roles += 2
                 } else if (this.ElementType.LiftExport.indexOf(t) >= 0) {
                     let len = d.length - 4
-                    all_roles += len + len * d[3]
-                    LiftExportRoles += len + len * d[3]
+                    all_roles +=  len * d[3]
+                    LiftExportRoles += len * d[3]
+                    console.log(LiftExportRoles,"-----------------------------");
                 } else {
                     no_role += 1;
                 }
@@ -514,22 +515,22 @@ export class CreateRoleYarnNew {
                 t_k = 0
             }
         }
-        // let getData = this.getRoleDataStrs(0, this.fillColors(data, TitleArr), all_roles, all_lift, color, SizeKey[size.y][size.x], fixed, LiftColor)
-        // if (getData) {
-        //     if (!getDatas[getData[3]]) {
-        //         getDatas[getData[3]] = []
-        //     }
-        //     getDatas[getData[3]].push(getData)
-        // }
-        for (let i = 0; i < 1000; i++) {
-            let getData = this.getRoleDataStrs(0, this.fillColors(data, TitleType.slice(0, color)), all_roles, all_lift, color, SizeKey[size.y][size.x], fixed, LiftColor)
-            if (getData) {
-                if (!getDatas[getData[3]]) {
-                    getDatas[getData[3]] = []
-                }
-                getDatas[getData[3]].push(getData)
+        let getData = this.getRoleDataStrs(0, this.fillColors(data, TitleArr), all_roles, all_lift, color, SizeKey[size.y][size.x], fixed, LiftColor)
+        if (getData) {
+            if (!getDatas[getData[3]]) {
+                getDatas[getData[3]] = []
             }
+            getDatas[getData[3]].push(getData)
         }
+        // for (let i = 0; i < 1000; i++) {
+        //     let getData = this.getRoleDataStrs(0, this.fillColors(data, TitleType.slice(0, color)), all_roles, all_lift, color, SizeKey[size.y][size.x], fixed, LiftColor)
+        //     if (getData) {
+        //         if (!getDatas[getData[3]]) {
+        //             getDatas[getData[3]] = []
+        //         }
+        //         getDatas[getData[3]].push(getData)
+        //     }
+        // }
         let maxKey = Math.max(...Object.keys(getDatas).map(Number));
         return getDatas[maxKey][0]
 
@@ -918,7 +919,7 @@ export class CreateRoleYarnNew {
             }
             for (let Export of LiftExport) {
                  let len = Export.length - 4
-                let neew_cound = len+len*Export[3]
+                let neew_cound = len*Export[3]
                 let Roles = "|"+NewLiftColor.splice(0, neew_cound).join();
                 let range = Export.slice(4)  // 从下标4开始（下标3后面）
                 .filter(item => Array.isArray(item))  // 确保是数组
