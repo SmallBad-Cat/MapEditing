@@ -491,7 +491,7 @@ export class CreateRoleYarnNew {
             color = setColor
         }
         console.log(setColor, color);
-        let SizeKey = { 7: { 7: 5, 9: 2 }, 9: { 8: 6 ,10:1}, 8: { 7: 7 } ,10:{11:2}}
+        let SizeKey = { 7: { 7: 5, 9: 2 }, 9: { 8: 6 }, 8: { 7: 7 } ,10:{9:1},11:{10:2}}
 
         let getDatas = {}
         let TitleArr = TitleType.slice(0, color)
