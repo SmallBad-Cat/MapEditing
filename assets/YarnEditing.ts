@@ -119,6 +119,7 @@ export class YarnEditing extends Component {
         102: [2, 3],
         103: [3, 3],
         104: [3, 2],
+        99913: [1, 3], 99931: [3, 1], 99923: [2, 3], 99932: [3, 2], 99933: [3, 3]
     }
     private MapId = 1
     private JianPiaoKou = {}
@@ -148,7 +149,11 @@ export class YarnEditing extends Component {
     }
     private LayLiftExportState = false;
     // private 
-    private LiftExportData = {};
+    private LiftExportData = {
+        key: null,
+        nowList: [],
+        data: {}
+    };
 
     public loadJson() {
         CreateRoleYarnNew.init_start()
@@ -849,12 +854,12 @@ export class YarnEditing extends Component {
         }
     }
     // Type == 11 || Type == 12 ||
-    TypeArr = [42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 3, 6, 7, 8, 9, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 61, 63, 64,131]
+    TypeArr = [42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 3, 6, 7, 8, 9, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 61, 63, 64, 131]
     TypeorAddChild(Type) {
         if (this.TypeArr.indexOf(Type) >= 0 && Type != 2) {
             return true
         }
-        if (Type == 3 || Type == 6 || Type == 7 || Type == 8 || Type == 9 || Type == 15 || Type == 16 || Type == 17 || Type == 18 || Type == 19 || Type == 20 || Type == 21 || Type == 22 || Type == 23 || Type == 24 || Type == 25 || Type == 26 || Type == 27 || Type == 28 || Type == 29 || Type == 30||Type == 131) {
+        if (Type == 3 || Type == 6 || Type == 7 || Type == 8 || Type == 9 || Type == 15 || Type == 16 || Type == 17 || Type == 18 || Type == 19 || Type == 20 || Type == 21 || Type == 22 || Type == 23 || Type == 24 || Type == 25 || Type == 26 || Type == 27 || Type == 28 || Type == 29 || Type == 30 || Type == 131) {
             return true
         } else {
             false
@@ -872,7 +877,7 @@ export class YarnEditing extends Component {
             }
         }
         if (this.Obstacle.F.indexOf(data.type) >= 0 || this.Obstacle['E'].indexOf(data.type) >= 0 || data.type == 11 || data.type == 12) {
-            data.child.getComponent(Sprite).spriteFrame = this.Map.children[0].getComponent(Sprite).spriteFrame
+            data.child.getComponent(Sprite).spriteFrame = this.Map.children[0].children[0].getComponent(Sprite).spriteFrame
         }
         if (this.HaveAnJian(data.idx[0], data.idx[1])) {
             if (this.Piece[1] == 68) {
@@ -901,12 +906,15 @@ export class YarnEditing extends Component {
             }
             // this.ClearDoubleLadder(data.idx[0], data.idx[1])
         }
+        this.DelLiftExport(data);
+
         this.ChangeChainData(data.idx)
 
         // console.log(this.map_data[data.idx[0]][data.idx[1]].type);
 
         let DataType = data.type
         data.type = this.Piece[1]
+        console.log("点击属性类型：" + this.Piece[1]);
         let delNames = []
         for (let item of data.child.children) {
             if (item.name != "go") {
@@ -1030,22 +1038,43 @@ export class YarnEditing extends Component {
 
             newChild.setPosition(v3(0, 0));
             data.child.getComponent(Sprite).color = new Color(255, 255, 255)
+            let LiftExport_state = false
+            if (this.Obstacle['LiftExport'].indexOf(this.Piece[1]) >= 0) {
+                this.LiftExportData.key = data.idx[0] + "-" + data.idx[1];
+                LiftExport_state = true
+            }
+            if (LiftExport_state) {
+                if (this.LayLiftExportState) {
+                    this.LiftExportData.data[this.LiftExportData.key] = JSON.parse(JSON.stringify(this.LiftExportData.nowList));
+                    this.LiftExportData.nowList = [];
+                    this.LiftExportData.key = null;
+                    this.LayLiftExportState = false;
+                } else {
+                    this.LayLiftExportState = true;
+                }
+            }
         } else {
             this.map_data[data.idx[0]][data.idx[1]].datas = []
             if (data.child.name != '99') {
                 let count_label = this.dataParent.getChildByName(data.child.name).getChildByName('count').getComponent(Label)
                 let count = (Number(count_label.string) - 1) * 1
-                if (this.Obstacle['DTJ'].indexOf(this.Piece[1]) >= 0) {
+                if (this.Obstacle['DTJ'].indexOf(this.Piece[1]) >= 0 || this.Obstacle['LiftExport'].indexOf(this.Piece[1]) >= 0) {
                     count = (Number(count_label.string) - (this.DoubleLiftType[this.Piece[1]][0] * this.DoubleLiftType[this.Piece[1]][1])) * 1
                 }
                 count_label.string = count + '';
             }
             data.child.name = this.Piece[1] + '';
             data.child.getComponent(Sprite).color = this.Piece[0].getComponent(Sprite).color;
-            if (this.Obstacle['F'].indexOf(this.Piece[1]) >= 0 || this.Obstacle['E'].indexOf(this.Piece[1]) >= 0 || this.Obstacle['DTJ'].indexOf(this.Piece[1]) >= 0) {
+            if (this.Obstacle['F'].indexOf(this.Piece[1]) >= 0 || this.Obstacle['E'].indexOf(this.Piece[1]) >= 0 || this.Obstacle['DTJ'].indexOf(this.Piece[1]) >= 0 || this.Obstacle['LiftExport'].indexOf(this.Piece[1]) >= 0) {
                 // 双头电梯
-                if (this.Obstacle['F'].indexOf(this.Piece[1]) >= 0 || this.Obstacle['DTJ'].indexOf(this.Piece[1]) >= 0) {
-                    let pieceColor = this.Obstacle['F'].indexOf(this.Piece[1]) >= 0 ? "#FF8F53" : "6C88F8"
+                if (this.Obstacle['F'].indexOf(this.Piece[1]) >= 0 || this.Obstacle['DTJ'].indexOf(this.Piece[1]) >= 0 || this.Obstacle['LiftExport'].indexOf(this.Piece[1]) >= 0) {
+                    let pieceColor = this.Obstacle['F'].indexOf(this.Piece[1]) >= 0 ? "#FF8F53" : "6C88F8";
+                    let LiftExport_state = false
+                    if (this.Obstacle['LiftExport'].indexOf(this.Piece[1]) >= 0) {
+                        pieceColor = this.Piece[0].getComponent(Sprite).color;
+                        this.LiftExportData.nowList = []
+                        LiftExport_state = true
+                    }
                     let w = this.DoubleLiftType[this.Piece[1]][0]
                     let h = this.DoubleLiftType[this.Piece[1]][1]
                     if (data.idx[1] + w > this.map_size.arrange + 1) {
@@ -1067,12 +1096,26 @@ export class YarnEditing extends Component {
                             this.map_data[y][x] && (this.map_data[y][x].child.getComponent(Sprite).color = new Color(pieceColor))
                             if (y == (data.idx[0] + h) - 1 && this.Obstacle['F'].indexOf(this.Piece[1]) >= 0) {
                                 this.map_data[y][x].type = this.Piece[1]
-                                this.map_data[y][x].child.getComponent(Sprite).spriteFrame = this.Piece[0].getComponent(Sprite).spriteFrame;
+                                // this.map_data[y][x].child.getComponent(Sprite).spriteFrame = this.Piece[0].getComponent(Sprite).spriteFrame;
                             } else {
                                 this.map_data[y][x].type = this.Piece[1]
+                                if (LiftExport_state) {
+                                    this.LiftExportData.nowList.push([y, x])
+                                }
                             }
                         }
                     }
+                    if (LiftExport_state) {
+                        if (this.LayLiftExportState) {
+                            this.LiftExportData.data[this.LiftExportData.key] = JSON.parse(JSON.stringify(this.LiftExportData.nowList));
+                            this.LiftExportData.nowList = [];
+                            this.LiftExportData.key = null;
+                            this.LayLiftExportState = false;
+                        } else {
+                            this.LayLiftExportState = true;
+                        }
+                    }
+
 
                     if (this.Obstacle['DTJ'].indexOf(this.Piece[1]) >= 0) {
                         this.DTJLayer = {
@@ -1220,6 +1263,9 @@ export class YarnEditing extends Component {
                     people_num += this.Obstacle.DTJ.indexOf(t) >= 0 ? 2 : 1;
                 } else if (this.Obstacle.C.indexOf(t) >= 0 || t == 11 || t == 12) {
                     people_num += this.map_data[y][x].datas[0]
+                }
+                if(t == 131){
+                    console.log(this.map_data[y][x]);
                 }
             }
         }
@@ -1544,7 +1590,7 @@ export class YarnEditing extends Component {
                                             this.map_data[Y_new][X_new].child.name = '1'
                                             this.map_data[Y_new][X_new].child.getChildByName('go').active = true
                                             this.map_data[Y_new][X_new].child.getComponent(Sprite).color = new Color('DBEEF3')
-                                            this.map_data[Y_new][X_new].child.getComponent(Sprite).spriteFrame = this.Map.children[0].getComponent(Sprite).spriteFrame
+                                            this.map_data[Y_new][X_new].child.getComponent(Sprite).spriteFrame = this.Map.children[0].children[0].getComponent(Sprite).spriteFrame
                                             this.map_data[Y_new][X_new].datas = []
                                             count_label.string = String(Number(count_label.string) + 1);
                                         }
@@ -1624,6 +1670,72 @@ export class YarnEditing extends Component {
             }
         }
     }
+    // 删除对应电梯口
+    DelLiftExport(data) {
+        if (this.Obstacle['LiftExport'].indexOf(data.type) >= 0) {
+            let y = data.idx[0];
+            let x = data.idx[1];
+            let key = y + "-" + x;
+            console.warn(key + "存在属于电梯口的数据");
+            let count_label = this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label)
+            let count = Number(count_label.string) * 1
+            let Choose = false
+            if (this.LayLiftExportState) {
+                let keyLabel = this.dataParent.getChildByName(data.type + "").getChildByName('count').getComponent(Label)
+                if (this.LiftExportData.key == key) {
+                    this.ChangeDataType1(data)
+                    this.LiftExportData.key = null;
+                    this.LayLiftExportState = false;
+                    count += 1
+                    keyLabel.string = String(Number(keyLabel.string) - 1)
+                    Choose = true;
+                } else if (this.LiftExportData.nowList.length > 0 && this.LiftExportData.nowList.some(item => item[0] === y && item[1] === x)) {
+                    let keyLabel = this.dataParent.getChildByName(this.map_data[this.LiftExportData.nowList[0][0]][this.LiftExportData.nowList[0][1]].type + "").getChildByName('count').getComponent(Label)
+                    keyLabel.string = String(Number(keyLabel.string) - 1)
+                    for (let arr of this.LiftExportData.nowList) {
+                        count += 1
+                        this.ChangeDataType1(this.map_data[arr[0]][arr[1]])
+                    }
+                    this.LiftExportData.nowList = []
+                    this.LayLiftExportState = false;
+                    Choose = true;
+                }
+            }
+            if (!Choose) {
+                for (let d_key in this.LiftExportData.data) {
+                    if (key == d_key || this.LiftExportData.data[d_key].some(item => item[0] === y && item[1] === x)) {
+                        count += 1;
+                        let karr = d_key.split('-').map(item => parseInt(item));
+                        let karrData = this.map_data[karr[0]][karr[1]]
+                        let d_keyText = this.dataParent.getChildByName(karrData.type + "").getChildByName('count').getComponent(Label)
+                        d_keyText.string = String(Number(d_keyText.string) - 1)
+                        let keyLabel = this.dataParent.getChildByName(this.map_data[this.LiftExportData.data[d_key][0][0]][this.LiftExportData.data[d_key][0][1]].type + "").getChildByName('count').getComponent(Label)
+                        keyLabel.string = String(Number(keyLabel.string) - 1)
+                        for (let arr of this.LiftExportData.data[d_key]) {
+                            this.ChangeDataType1(this.map_data[arr[0]][arr[1]])
+                            count += 1
+                        }
+                        console.log(karrData);
+                        this.ChangeDataType1(karrData)
+                        delete this.LiftExportData.data[d_key]
+                    }
+                }
+            }
+            count_label.string = String(count);
+            console.log(this.LiftExportData.data);
+        }
+    }
+    ChangeDataType1(data) {
+        if (data.child.getChildByName(String(data.type))) {
+            data.child.getChildByName(String(data.type)).destroy()
+        }
+        data.type = 1
+        data.child.name = '1'
+        data.child.getChildByName('go').active = true
+        data.child.getComponent(Sprite).color = new Color('DBEEF3')
+        data.child.getComponent(Sprite).spriteFrame = this.Map.children[0].children[0].getComponent(Sprite).spriteFrame
+        data.datas = []
+    }
     // 触摸数据
     TouchData(pos) {
         for (let i = 1; i <= this.map_size.row; i++) {
@@ -1680,7 +1792,7 @@ export class YarnEditing extends Component {
         'F': [71, 72, 73, 74, 75],//双向电梯
         'Role': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 68, 71, 72, 73, 74, 75, 101, 102, 103, 104, 1111, 111],
         'JianPiaoKey': 67,
-        'DTJ': [101, 102, 103, 104],
+        'DTJ': [101, 102, 103, 104],//电梯井
         'VIP': [11, 12, 13],
         'LiftExport': [99913, 99931, 99923, 99932, 99933, 131]
     }
@@ -1754,7 +1866,7 @@ export class YarnEditing extends Component {
     seve_map() {
         let data = this.getNowData()
         if (this.MapId && data) {
-            let SizeKey = { 7: { 7: 5, 9: 2 }, 9: { 8: 6 }, 8: { 7: 7 } }
+            let SizeKey =  { 7: { 7: 5, 9: 2 }, 9: { 8: 6 }, 8: { 7: 7 }, 10: { 9: 1 }, 11: { 10: 2 } }
             this.yarn_mapLayoutData[this.MapId] = {
                 id: this.MapId,
                 size: SizeKey[this.map_size.arrange][this.map_size.row],
@@ -1792,12 +1904,14 @@ export class YarnEditing extends Component {
         let target: any = event.target;
         this.refish_GoNum()
         if (target.name.indexOf('seve_data') >= 0) {
+            if(this.LayLiftExportState){
+                this.TipTween("电梯口未编辑完整")
+                return
+            }
             // CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor)
             let data = CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor)
             console.log(data);
             if (this.MapId && data) {
-                console.log(data);
-                console.log(this.yarn_mapLayoutData);
                 this.yarn_mapLayoutData[this.MapId] = {
                     id: this.MapId,
                     size: data[0],
@@ -1873,23 +1987,39 @@ export class YarnEditing extends Component {
             DataArrLook[y] = []
             DataArr[y] = []
             for (let x = 1; x <= this.map_size.arrange; x++) {
-                data += x + `,${y},${(this.map_data[y][x].type) ? this.map_data[y][x].type : 5}`
+                let t= this.map_data[y][x].type
+                if(t>999){
+                    t = 1
+                }
+                data += x + `,${y},${(t) ? t : 5}`
 
-
+                
                 for (let k of this.map_data[y][x].datas) {
                     if (k) {
                         data += ',' + k
                     }
                 }
+                if(t==131){
+                    data+='|'+2
+                    this.map_data[y][x]["FixedData"] = [2]
+                }
+                let LiftExportK = y+"-"+x;
+                if(this.LiftExportData.data[LiftExportK]){
+                    for(let arr of this.LiftExportData.data[LiftExportK]){
+                        data += '|'+arr[1]+","+arr[0]
+                        this.map_data[y][x]["FixedData"].push(arr)
+                    }
+                }
                 data += ';'
-                DataArrLook[y][x] = x + `,${y},${(this.map_data[y][x].type) ? this.map_data[y][x].type : 5}`
-                DataArr[y][x] = [x, y, this.map_data[y][x].type]
+                DataArrLook[y][x] = x + `,${y},${(t) ?t : 5}`
+                DataArr[y][x] = [x, y, t]
                 DataArr[y][x] = DataArr[y][x].concat(this.map_data[y][x].datas)
             }
         }
         console.log('----------数据导出----------');
         console.log(data);
         // console.log(JPKStr);
+        console.log(DataArr);
         if (create) {
             return DataArr
         }
@@ -2322,7 +2452,7 @@ export class YarnEditing extends Component {
                     this.map_data[Y_new][X_new].child.name = '' + idx[2]
                     this.map_data[Y_new][X_new].child.getComponent(Sprite).color = new Color('#6C88F8')
                     this.map_data[Y_new][X_new].datas.push(Datas.shift())
-                    // this.map_data[Y_new][X_new].child.getComponent(Sprite).spriteFrame = this.Map.children[0].getComponent(Sprite).spriteFrame
+                    // this.map_data[Y_new][X_new].child.getComponent(Sprite).spriteFrame = this.Map.children[0].children[0].getComponent(Sprite).spriteFrame
                 }
             }
             if (Datas.length > 0) {
@@ -2382,7 +2512,7 @@ export class YarnEditing extends Component {
 
                 let node = this.map_data[i][x].node;
                 if (this.Obstacle.F.indexOf(this.map_data[i][x].type) >= 0 || this.Obstacle['E'].indexOf(this.map_data[i][x].type) >= 0 || this.map_data[i][x].type == 11 || this.map_data[i][x].type == 12) {
-                    this.map_data[row][arrange].child.getComponent(Sprite).spriteFrame = this.Map.children[0].getComponent(Sprite).spriteFrame
+                    this.map_data[row][arrange].child.getComponent(Sprite).spriteFrame = this.Map.children[0].children[0].getComponent(Sprite).spriteFrame
                 }
                 this.map_data[i][x].type = type;
                 // 角色步数重新初始化
@@ -3038,7 +3168,7 @@ export class YarnEditing extends Component {
         Obstacle.child.name = '1'
         Obstacle.child.getChildByName('go').active = true
         Obstacle.child.getComponent(Sprite).color = new Color('DBEEF3')
-        Obstacle.child.getComponent(Sprite).spriteFrame = this.Map.children[0].getComponent(Sprite).spriteFrame
+        Obstacle.child.getComponent(Sprite).spriteFrame = this.Map.children[0].children[0].getComponent(Sprite).spriteFrame
         let size = this.Map.children[0].getComponent(UITransform).contentSize
         Obstacle.child.getComponent(UITransform).setContentSize(size);
         count_label.string = String(Number(count_label.string) + 1);
@@ -3055,7 +3185,7 @@ export class YarnEditing extends Component {
                 this.map_data[y][x].child.name = '1'
                 this.map_data[y][x].child.getChildByName('go').active = true
                 this.map_data[y][x].child.getComponent(Sprite).color = new Color('DBEEF3')
-                this.map_data[y][x].child.getComponent(Sprite).spriteFrame = this.Map.children[0].getComponent(Sprite).spriteFrame
+                this.map_data[y][x].child.getComponent(Sprite).spriteFrame = this.Map.children[0].children[0].getComponent(Sprite).spriteFrame
                 this.map_data[y][x].datas = []
             }
         }
@@ -3141,7 +3271,7 @@ export class YarnEditing extends Component {
                 this.map_data[idx[0]][idx[1]].node.getComponent(Sprite).enabled = true
                 this.map_data[idx[0]][idx[1]].child.active = true;
                 this.map_data[idx[0]][idx[1]].child.getComponent(Sprite).color = new Color('DBEEF3')
-                this.map_data[idx[0]][idx[1]].child.getComponent(Sprite).spriteFrame = this.Map.children[0].getComponent(Sprite).spriteFrame;
+                this.map_data[idx[0]][idx[1]].child.getComponent(Sprite).spriteFrame = this.Map.children[0].children[0].getComponent(Sprite).spriteFrame;
                 if (this.dataParent.getChildByName(idx_key + '')) {
                     let ComLabel = this.dataParent.getChildByName(idx_key + '').getChildByName('count').getComponent(Label)
                     ComLabel.string = (Number(ComLabel.string) - 1) + ''

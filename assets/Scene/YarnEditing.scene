@@ -28790,7 +28790,10 @@
       "b": 124,
       "a": 255
     },
-    "_normalSprite": null,
+    "_normalSprite": {
+      "__uuid__": "2c4ecb8c-cb51-4caf-a6be-ab71d4f1df40@f9941",
+      "__expectedType__": "cc.SpriteFrame"
+    },
     "_hoverSprite": null,
     "_pressedSprite": null,
     "_disabledSprite": null,
@@ -28842,8 +28845,8 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -145.856,
-      "y": 113.379,
+      "x": -34.198,
+      "y": 96.694,
       "z": 0
     },
     "_lrot": {
@@ -28891,7 +28894,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -47.603,
+      "y": -63.004,
       "z": 0
     },
     "_lrot": {
@@ -28987,7 +28990,7 @@
       "__id__": 803
     },
     "_children": [],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 808
@@ -29122,8 +29125,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 99.4,
-      "height": 40
+      "width": 40,
+      "height": 100
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -29216,7 +29219,10 @@
       "b": 124,
       "a": 255
     },
-    "_normalSprite": null,
+    "_normalSprite": {
+      "__uuid__": "7d8f9b89-4fd1-4c9f-a3ab-38ec7cded7ca@f9941",
+      "__expectedType__": "cc.SpriteFrame"
+    },
     "_hoverSprite": null,
     "_pressedSprite": null,
     "_disabledSprite": null,
@@ -29268,7 +29274,7 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -12.434,
+      "x": -143.344,
       "y": 105.143,
       "z": 0
     },
@@ -29317,7 +29323,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -64.075,
+      "y": -42.257,
       "z": 0
     },
     "_lrot": {
@@ -29413,7 +29419,7 @@
       "__id__": 815
     },
     "_children": [],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 820
@@ -29548,8 +29554,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 40,
-      "height": 88.9
+      "width": 100,
+      "height": 40
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -29842,7 +29848,7 @@
       "__id__": 827
     },
     "_children": [],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 832
@@ -30271,7 +30277,7 @@
       "__id__": 839
     },
     "_children": [],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 844
@@ -30700,7 +30706,7 @@
       "__id__": 851
     },
     "_children": [],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 856

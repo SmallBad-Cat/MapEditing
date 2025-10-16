@@ -39,10 +39,11 @@ export class CreateRoleYarnNew {
         104: [3, 2],
     }
     static ElementType = {
-        role: [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 111,1111],
+        role: [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 111, 1111],
         lift: [11, 12, 13, 6, 7, 8, 9, 25, 24, 26, 27],
         DTJ: [101, 102, 103, 104],
-        VIP: [11, 12, 13]
+        VIP: [11, 12, 13],
+        LiftExport: [99913, 99931, 99923, 99932, 99933, 131]
     }
     static MapType = {
         '5_8': [8, 1],
@@ -448,7 +449,7 @@ export class CreateRoleYarnNew {
         let no_role = 0;//无角色地图块
         let size = { x: 1, y: 1 };//地图大小
         let map_data = {}//地图数据
-
+        let LiftExportRoles = 0;
         for (let x in data) {
             if (Number(x) > size.x) {
                 size.x = Number(x)
@@ -476,6 +477,10 @@ export class CreateRoleYarnNew {
                 } else if (this.ElementType.DTJ.indexOf(t) >= 0) {
                     //电梯井
                     all_roles += 2
+                } else if (this.ElementType.LiftExport.indexOf(t) >= 0) {
+                    let len = d.length - 4
+                    all_roles += len + len * d[3]
+                    LiftExportRoles += len + len * d[3]
                 } else {
                     no_role += 1;
                 }
@@ -490,13 +495,12 @@ export class CreateRoleYarnNew {
         if (setColor) {
             color = setColor
         }
-        console.log(setColor, color);
-        let SizeKey = { 7: { 7: 5, 9: 2 }, 9: { 8: 6 }, 8: { 7: 7 } ,10:{9:1},11:{10:2}}
+        let SizeKey = { 7: { 7: 5, 9: 2 }, 9: { 8: 6 }, 8: { 7: 7 }, 10: { 9: 1 }, 11: { 10: 2 } }
 
         let getDatas = {}
         let TitleArr = TitleType.slice(0, color)
         let LiftColor = []
-        let UseColor = all_roles - all_lift;
+        let UseColor = all_roles - all_lift - LiftExportRoles;
         let t_k = 0
         for (let i = 0; i < all_roles; i++) {
 
@@ -510,14 +514,13 @@ export class CreateRoleYarnNew {
                 t_k = 0
             }
         }
-        // let getData = this.getRoleDataStrs(0, this.fillColors(data, TitleArr), all_roles, all_lift, color, SizeKey[size.y][size.x], fixed,LiftColor)
+        // let getData = this.getRoleDataStrs(0, this.fillColors(data, TitleArr), all_roles, all_lift, color, SizeKey[size.y][size.x], fixed, LiftColor)
         // if (getData) {
         //     if (!getDatas[getData[3]]) {
         //         getDatas[getData[3]] = []
         //     }
         //     getDatas[getData[3]].push(getData)
         // }
-        console.log(data);
         for (let i = 0; i < 1000; i++) {
             let getData = this.getRoleDataStrs(0, this.fillColors(data, TitleType.slice(0, color)), all_roles, all_lift, color, SizeKey[size.y][size.x], fixed, LiftColor)
             if (getData) {
@@ -527,7 +530,6 @@ export class CreateRoleYarnNew {
                 getDatas[getData[3]].push(getData)
             }
         }
-        console.log(getDatas);
         let maxKey = Math.max(...Object.keys(getDatas).map(Number));
         return getDatas[maxKey][0]
 
@@ -629,9 +631,18 @@ export class CreateRoleYarnNew {
             103: [3, 3],
             104: [3, 2],
         };
-        const peopleTypes = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 111,1111];
+        const peopleTypes = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 111, 1111];
         const DTJAdd: Record<string, number> = {};
         const ruleFun = (arr: number[]) => {
+            if (arr[3]) {
+                let K = String(arr.pop())
+                let idx = TitleType.indexOf(K)
+                count[idx]--;
+                if (count[idx] === 0) {
+                    delete count[idx];
+                }
+                return TitleType[idx];
+            }
             const afresh = [0, 0];
             let type = 0;
             const liftPeo = [0];
@@ -775,12 +786,13 @@ export class CreateRoleYarnNew {
             let RoleArr: any[] = [];
             let lift = 0;
             let MapDataLan: [number, number] = [0, 0];
+            let LiftExport = []
             for (let arr of data) {
                 if (arr.length > 0) {
                     if (arr[2] == 10) {
                         if (fixed) {
-                            const newRole = arr[3] ? arr.pop() : ruleFun(arr);
-                            // const newRole = ruleFun(arr);
+                            // const newRole = arr[3] ? arr.pop() : ruleFun(arr);
+                            const newRole = ruleFun(arr);
                             if (!map_role[arr[0]]) map_role[arr[0]] = {};
                             if (!map_role[arr[0]][arr[1]]) map_role[arr[0]][arr[1]] = {};
                             RoleArr.push(newRole);
@@ -796,8 +808,8 @@ export class CreateRoleYarnNew {
                             ColorState[newRole].pos.push([arr[0], arr[1], 0])
                         }
                     } else if (this.ElementType.role.indexOf(arr[2]) >= 0) {
-                        const newRole = arr[3] ? arr.pop() : ruleFun(arr);
-                        // const newRole = ruleFun(arr);
+                        // const newRole = arr[3] ? arr.pop() : ruleFun(arr);
+                        const newRole = ruleFun(arr);
                         if (!map_role[arr[0]]) map_role[arr[0]] = {};
                         if (!map_role[arr[0]][arr[1]]) map_role[arr[0]][arr[1]] = {};
                         RoleArr.push(newRole);
@@ -816,6 +828,7 @@ export class CreateRoleYarnNew {
                         }
                         ColorState[newRole].pos.push([arr[0], arr[1], 0])
                     } else if (this.ElementType.DTJ.indexOf(arr[2]) >= 0) {
+                        continue
                         if (!map_role[arr[0]]) map_role[arr[0]] = {};
                         if (!map_role[arr[0]][arr[1]]) map_role[arr[0]][arr[1]] = {};
                         const DTJIDX = getDataIdx(arr[0], arr[1]);
@@ -893,13 +906,35 @@ export class CreateRoleYarnNew {
                         let IDX = getDataIdx(arr[0], arr[1])
                         data[IDX] = newArr
 
+                    } else if (arr[2] == 131) {
+                        // LiftExportRoles+=len+len*d[3]
+                        // 
+                        LiftExport.push(arr)
                     }
 
                     if (arr[0] > MapDataLan[0]) MapDataLan[0] = arr[0];
                     if (arr[1] > MapDataLan[1]) MapDataLan[1] = arr[1];
                 }
             }
-
+            for (let Export of LiftExport) {
+                 let len = Export.length - 4
+                let neew_cound = len+len*Export[3]
+                let Roles = "|"+NewLiftColor.splice(0, neew_cound).join();
+                let range = Export.slice(4)  // 从下标4开始（下标3后面）
+                .filter(item => Array.isArray(item))  // 确保是数组
+                .map(item => `${item[0]},${item[1]}`)  // 转换为 "x,y" 格式
+                .join('|'); 
+                 
+                let newArr = [Export[0],Export[1],Export[2]+Roles+"|"+range]
+                // for (let count = 0; count < Export[3]; count++) {
+                //     for (let i = 4; i < Export.length; i++) {
+                //         console.log(Export[i]);
+                //         console.log("============");
+                //     }
+                // }
+                let IDX = getDataIdx(newArr[0], newArr[1])
+                        data[IDX] = newArr
+            }
             // console.log("角色：", RoleArr, liftPeoCount);
 
             let self = this
