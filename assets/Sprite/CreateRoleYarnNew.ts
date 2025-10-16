@@ -491,7 +491,7 @@ export class CreateRoleYarnNew {
             color = setColor
         }
         console.log(setColor, color);
-        let SizeKey = { 7: { 7: 5, 9: 2 }, 9: { 8: 6 }, 8: { 7: 7 } }
+        let SizeKey = { 7: { 7: 5, 9: 2 }, 9: { 8: 6 ,10:1}, 8: { 7: 7 } ,10:{11:2}}
 
         let getDatas = {}
         let TitleArr = TitleType.slice(0, color)
@@ -517,6 +517,7 @@ export class CreateRoleYarnNew {
         //     }
         //     getDatas[getData[3]].push(getData)
         // }
+        console.log(data);
         for (let i = 0; i < 1000; i++) {
             let getData = this.getRoleDataStrs(0, this.fillColors(data, TitleType.slice(0, color)), all_roles, all_lift, color, SizeKey[size.y][size.x], fixed, LiftColor)
             if (getData) {

@@ -146,6 +146,9 @@ export class YarnEditing extends Component {
         WalkDiffChange: [],//走线难度变化
         WalkDiffValue: 0,//走线难度值
     }
+    private LayLiftExportState = false;
+    // private 
+    private LiftExportData = {};
 
     public loadJson() {
         CreateRoleYarnNew.init_start()
@@ -297,12 +300,12 @@ export class YarnEditing extends Component {
     }
     private MapType = {
         'map1': {
-            arrange: 5,
-            row: 8,
+            arrange: 10,
+            row: 9,
         },
         'map2': {
-            arrange: 7,
-            row: 9,
+            arrange: 11,
+            row: 10,
         },
         'map3': {
             arrange: 9,
@@ -651,8 +654,6 @@ export class YarnEditing extends Component {
             let worldPos = this.Map.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(event.getUILocation().x, event.getUILocation().y));
             let data = this.TouchData(worldPos);
             if (data && this.Obstacle.Role.indexOf(data.type) >= 0) {
-                console.log(this.map_data);
-                console.log(data);
                 if (!this.TouchNode) {
                     this.TouchNode = instantiate(data.child)
                     this.node.addChild(this.TouchNode)
@@ -848,12 +849,12 @@ export class YarnEditing extends Component {
         }
     }
     // Type == 11 || Type == 12 ||
-    TypeArr = [42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 3, 6, 7, 8, 9, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 61, 63, 64]
+    TypeArr = [42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 3, 6, 7, 8, 9, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 61, 63, 64,131]
     TypeorAddChild(Type) {
         if (this.TypeArr.indexOf(Type) >= 0 && Type != 2) {
             return true
         }
-        if (Type == 3 || Type == 6 || Type == 7 || Type == 8 || Type == 9 || Type == 15 || Type == 16 || Type == 17 || Type == 18 || Type == 19 || Type == 20 || Type == 21 || Type == 22 || Type == 23 || Type == 24 || Type == 25 || Type == 26 || Type == 27 || Type == 28 || Type == 29 || Type == 30) {
+        if (Type == 3 || Type == 6 || Type == 7 || Type == 8 || Type == 9 || Type == 15 || Type == 16 || Type == 17 || Type == 18 || Type == 19 || Type == 20 || Type == 21 || Type == 22 || Type == 23 || Type == 24 || Type == 25 || Type == 26 || Type == 27 || Type == 28 || Type == 29 || Type == 30||Type == 131) {
             return true
         } else {
             false
