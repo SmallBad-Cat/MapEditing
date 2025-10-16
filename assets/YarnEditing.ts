@@ -265,7 +265,6 @@ export class YarnEditing extends Component {
         this.GameList.numItems = this.LevelConf.length
     }
     initMapLayoutData() {
-        console.log(this.yarn_mapLayoutData);
         this.LayoutList.numItems = Object.keys(this.yarn_mapLayoutData).length
         for (let k in this.yarn_mapLayoutData) {
             let data = this.yarn_mapLayoutData[k]
@@ -471,7 +470,7 @@ export class YarnEditing extends Component {
                         datas: this.map_data[i][x].datas,
                         json: this.map_data[i][x].json
                     }
-                    if(this.map_data[i][x].FixedData){
+                    if (this.map_data[i][x].FixedData) {
                         data["FixedData"] = this.map_data[i][x].FixedData
                     }
                     if (this.map_data[row][arrange].child.getChildByName('go')) {
@@ -1060,7 +1059,6 @@ export class YarnEditing extends Component {
                 } else {
                     this.LayLiftExportState = true;
                 }
-                console.log(data);
             }
         } else {
             this.map_data[data.idx[0]][data.idx[1]].datas = []
@@ -1278,7 +1276,7 @@ export class YarnEditing extends Component {
                 }
                 if (t == 131 && this.map_data[y][x].FixedData) {
                     let len = this.map_data[y][x].FixedData.length - 1
-                    people_num += len + len * this.map_data[y][x].FixedData[0]
+                    people_num +=  len * this.map_data[y][x].FixedData[0]
                 }
             }
         }
@@ -1728,14 +1726,12 @@ export class YarnEditing extends Component {
                             this.ChangeDataType1(this.map_data[arr[0]][arr[1]])
                             count += 1
                         }
-                        console.log(karrData);
                         this.ChangeDataType1(karrData)
                         delete this.LiftExportData.data[d_key]
                     }
                 }
             }
             count_label.string = String(count);
-            console.log(this.LiftExportData.data);
         }
     }
     ChangeDataType1(data) {
@@ -1925,9 +1921,9 @@ export class YarnEditing extends Component {
                 this.TipTween("电梯口未编辑完整")
                 return
             }
+            console.log(this.ChainData);
             // CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor)
             let data = CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor)
-            console.log(data);
             if (this.MapId && data) {
                 this.yarn_mapLayoutData[this.MapId] = {
                     id: this.MapId,
@@ -2017,7 +2013,6 @@ export class YarnEditing extends Component {
                     }
                 }
                 if (t == 131) {
-                    console.log(this.map_data[y][x]["FixedData"]);
                     data += '|' + this.map_data[y][x]["FixedData"][0]
                     // this.map_data[y][x]["FixedData"] = [2]
                 }
@@ -2128,7 +2123,6 @@ export class YarnEditing extends Component {
     }
     // 数据Json导入
     dataJsonImport(data: string, Editing?) {
-        console.log(data);
         this.allLabel[4].string = ""
         if (data.length < 6) {
             this.ImportEditBox.string = '';
@@ -2336,7 +2330,6 @@ export class YarnEditing extends Component {
                     EditBoxNode.name = idx[1] + "-" + idx[0]
                     EditBoxNode.active = true
                     EditBoxNode.getComponent(EditBox).string = this.map_data[idx[1]][idx[0]].FixedData[0]
-                    console.log(this.map_data[idx[1]][idx[0]]);
                 }
             } else if (this.Obstacle.E.indexOf(idx[2]) >= 0) {
                 this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).spriteFrame = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).spriteFrame;
@@ -2395,11 +2388,8 @@ export class YarnEditing extends Component {
                 }
             }
             let pieceColor = this.Obstacle['F'].indexOf(this.Piece[1]) >= 0 ? "#FF8F53" : "6C88F8"
-            if (idx[2] == 131) {
-                console.log(this.map_data[idx[1]][idx[0]]);
-            }
+           
         }
-        console.log(JSON.parse(JSON.stringify(this.map_data[1][5].FixedData)));
         let OkType = {
             RightHand: [53, 52],//牵右手1
             LeftHand: [53, 51],//牵左手-1
@@ -2442,7 +2432,6 @@ export class YarnEditing extends Component {
                     } else if (this.map_data[y][x].type == 55) {
                         handFunUD(Number(y) + 1, 1)
                     }
-                    console.log(y + "_" + x, this.map_data[y][x].type, hand_keys);
                     this.AttrItemData[y + "_" + x] = {
                         idxs: hand_keys,
                         count: 0,
@@ -2492,16 +2481,29 @@ export class YarnEditing extends Component {
         }
         // 电梯口
         if (Object.keys(this.LiftExportData.data).length > 0) {
+
             for (let key in this.LiftExportData.data) {
+                let type = "999"
+                if (this.MapColorState == 0) {
+                    let start = this.LiftExportData.data[key][0];
+                    let end = this.LiftExportData.data[key][this.LiftExportData.data[key].length - 1];
+                    type += (end[0] - start[0] + 1)
+                    type += (end[1] - start[1] + 1)
+                }
                 for (let arr of this.LiftExportData.data[key]) {
                     let data = this.map_data[arr[0]][arr[1]]
-                    let node = instantiate(this.dataParent.getChildByName('131'))
-                    node.destroyAllChildren();
-                    node.getComponent(Button) && node.getComponent(Button).destroy();
-                    node.getComponent(UITransform).setContentSize(new Size(15, 15))
-                    data.child.addChild(node)
-                    node.setPosition(v3(0, 0))
-                    node.active = true
+                    if (this.MapColorState == 0) {
+                        data.type = Number(type)
+                        data.child.getComponent(Sprite).color = this.dataParent.getChildByName('99923').getComponent(Sprite).color;
+                    } else {
+                        let node = instantiate(this.dataParent.getChildByName('131'))
+                        node.destroyAllChildren();
+                        node.getComponent(Button) && node.getComponent(Button).destroy();
+                        node.getComponent(UITransform).setContentSize(new Size(15, 15))
+                        data.child.addChild(node)
+                        node.setPosition(v3(0, 0))
+                        node.active = true
+                    }
                 }
             }
         }
@@ -2522,7 +2524,6 @@ export class YarnEditing extends Component {
 
         for (let idx of data) {
             let Datas = JSON.parse(JSON.stringify(this.map_data[idx[1]][idx[0]].datas))
-            console.log(Datas);
             for (let Y = 0; Y < this.DoubleLiftType[idx[2]][1]; Y++) {
                 for (let X = 0; X < this.DoubleLiftType[idx[2]][0]; X++) {
                     let Y_new = idx[1] + Y
@@ -2935,7 +2936,6 @@ export class YarnEditing extends Component {
         //     }
         //     layout = this.yarn_mapLayoutData[data.layout].layout
         // }
-        console.log(this.yarn_mapLayoutData[data[2]]);
 
         this.ItemSetMap(item, layout, mapSize, this.yarn_mapLayoutData[data[2]].chain)
     }
@@ -3443,7 +3443,7 @@ export class YarnEditing extends Component {
     SaveMapData() {
 
         const data = [
-            ["ID", "大小", "填充顺序", "总人数", "问号人", "电梯", "走线难度", "走线队列", "地图数据","铁链锁"], ["id", "size", "ColorList", "all_people", "qusition", "lift", "walk_diff", "walk_list", "layout","exLayout"]
+            ["ID", "大小", "填充顺序", "总人数", "问号人", "电梯", "走线难度", "走线队列", "地图数据", "铁链锁"], ["id", "size", "ColorList", "all_people", "qusition", "lift", "walk_diff", "walk_list", "layout", "exLayout"]
             // ["ID", "大小", "地图数据", "角色库", "锁链数据"], ["id", "size", "layout", "roles", "chain"]
         ];
         let lifts = [6, 7, 8, 9, 116, 117, 118, 119]
@@ -3785,7 +3785,6 @@ export class YarnEditing extends Component {
         if (types.indexOf(data.type) >= 0) {
 
             this.ColorList.push([data.idx[0], data.idx[1], data.json.pop()])
-            console.log(this.ColorList);
             // 下方有电梯
             let NoShow = this.AaroundLift(data)
             if (NoShow) {
@@ -3899,7 +3898,6 @@ export class YarnEditing extends Component {
         return NoShow
     }
     ExportGroup() {
-        console.log(this.LiftExportData.data);
         if (Object.keys(this.LiftExportData.data).length > 0) {
             for (let key in this.LiftExportData.data) {
                 let karr = key.split('-').map(item => parseInt(item));
@@ -3914,11 +3912,9 @@ export class YarnEditing extends Component {
                     }
                     if (!have) {
                         let len = this.LiftExportData.data[key].length
-                        console.log(key_data);
                         const result = Array.from({ length: Math.ceil(key_data.json[3].length / len) }, (_, i) => key_data.json[3].slice(i * len, i * len + len));
                         let idx = result.length - key_data["FixedData"][0];
                         let Colors = result[idx]
-                        console.log(idx, Colors, result);
                         for (let arr of this.LiftExportData.data[key]) {
                             let data = this.map_data[arr[0]][arr[1]]
                             data.type = 1
