@@ -335,9 +335,17 @@ export class GameUtil {
 	}
 	static getCsv(data, name) {
 		// DealExcel
-		let csvContent = data.map(row =>
-			row.map((cell, idx) => idx >= 0 ? `"${cell}"` : cell).join(",")
-		).join("\n");
+			let csvContent = data.map(row =>
+		row.map((cell, idx) => {
+			// 只在单元格包含逗号、引号或换行符时加引号
+			if (typeof cell === 'string' && (cell.includes(',') || cell.includes('"') || cell.includes('\n'))) {
+				// 转义已有的双引号
+				const escapedCell = cell.replace(/"/g, '""');
+				return `"${escapedCell}"`;
+			}
+			return cell;
+		}).join(",")
+	).join("\n");
 		// let csvContent = data.map(row => row.join(",")).join("\n");
 		// 创建一个 Blob 对象并创建一个下载链接
 		const blob = new Blob([csvContent], { type: 'text/csv' });

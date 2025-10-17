@@ -144,9 +144,15 @@ export class DragDropExample extends Component {
             this.updateStatus("文本文件导入成功");
             let data = GameUtil.csvToJson(result.content);
             if (data) {
-                console.log(data);
                 this.onJsonFile = {}
                 for (let d of data) {
+                    if(d.exLayout){
+                        d["chain"] = "";
+                        for(let obj of JSON.parse(d.exLayout).lock){
+                            d["chain"]+= obj.startPos+"|"+obj.endPos+"|"+obj.keyPos+";"
+                        }
+                        delete d.exLayout
+                    }
                     this.onJsonFile[d.id] = d
                 }
                 this.node.getChildByName("HaveFile").active = true

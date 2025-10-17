@@ -137,6 +137,7 @@ export class YarnEditing extends Component {
         start: null
     }
     private TouchNode = null
+    // 冰冻开关牵手属性
     private AttrItemData = {}
     private MapValueData = {
         BallColorValue: {},//球颜色最优间隔
@@ -148,7 +149,7 @@ export class YarnEditing extends Component {
         WalkDiffValue: 0,//走线难度值
     }
     private LayLiftExportState = false;
-    // private 
+    // 电梯口 
     private LiftExportData = {
         key: null,
         nowList: [],
@@ -1276,7 +1277,7 @@ export class YarnEditing extends Component {
                 }
                 if (t == 131 && this.map_data[y][x].FixedData) {
                     let len = this.map_data[y][x].FixedData.length - 1
-                    people_num +=  len * this.map_data[y][x].FixedData[0]
+                    people_num += len * this.map_data[y][x].FixedData[0]
                 }
             }
         }
@@ -1921,7 +1922,6 @@ export class YarnEditing extends Component {
                 this.TipTween("电梯口未编辑完整")
                 return
             }
-            console.log(this.ChainData);
             // CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor)
             let data = CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor)
             if (this.MapId && data) {
@@ -2388,7 +2388,7 @@ export class YarnEditing extends Component {
                 }
             }
             let pieceColor = this.Obstacle['F'].indexOf(this.Piece[1]) >= 0 ? "#FF8F53" : "6C88F8"
-           
+
         }
         let OkType = {
             RightHand: [53, 52],//牵右手1
@@ -2728,7 +2728,6 @@ export class YarnEditing extends Component {
         this.ShowAll()
         // this.MapColorState = data["layout"].match(/[A-Z]/) != null ? 1 : 0
         this.MapColorState = data["ColorList"] ? 1 : 0
-
 
         this.ChooseKuang.active = this.MapColorState > 0 ? false : true
         this.dataJsonImport(data.layout)
@@ -3479,9 +3478,27 @@ export class YarnEditing extends Component {
                     }
                 }
             }
+            let chain = "";
+            if (d.chain) {
+                console.log("铁链锁",);
+                let d_chain = this.setChainData(d.chain, true)
+                let chain_data = {
+                    lock: []
+                }
+                for (let d of d_chain) {
+                    let obj_chain = {
+                        startPos: d[0][0]+","+ d[0][1],
+                        endPos: d[1][0]+","+d[1][1],
+                        keyPos: d[2][0]+","+ d[2][1]
+                    }
+                    chain_data.lock.push(obj_chain)
+                }
+                chain =JSON.stringify(chain_data)
+                console.log(chain);
+            }
             let walk_diff = d["WalkValue"] ? d["WalkValue"] : "";
             let walk_list = d["WalkValueChange"] ? d["WalkValueChange"] : "";
-            data.push([d.id, d.size, ColorList, all_people, qusition == 0 ? "" : qusition, lift == 0 ? "" : lift, walk_diff, walk_list, d.layout])
+            data.push([d.id, d.size, ColorList, all_people, qusition == 0 ? "" : qusition, lift == 0 ? "" : lift, walk_diff, walk_list, d.layout, chain])
         }
         GameUtil.getCsv(data, "YarnMapData")
 
@@ -3731,6 +3748,9 @@ export class YarnEditing extends Component {
         this.MapColorState = this.setPeopleCount()
         this.ContentNode[0].active = false
         this.dataJsonImport(this.yarn_mapLayoutData[this.MapId].layout)
+        if (this.yarn_mapLayoutData[this.MapId].chain) {
+            this.setChainData(this.yarn_mapLayoutData[this.MapId].chain)
+        }
         const matches = this.yarn_mapLayoutData[this.MapId].layout.match(/[A-Z]/g);
         let all_people = matches ? matches.length : 0
         let color_count = matches ? [...new Set(matches)].length : 0
@@ -3951,6 +3971,9 @@ export class YarnEditing extends Component {
         this.MapColor.active = false
         this.MapColorState = 1
         this.dataJsonImport(this.yarn_mapLayoutData[this.MapId].layout)
+        if (this.yarn_mapLayoutData[this.MapId].chain) {
+            this.setChainData(this.yarn_mapLayoutData[this.MapId].chain)
+        }
         this.yarn_mapLayoutData[this.MapId]["WalkValue"] = this.MapValueData.WalkDiffValue
         this.yarn_mapLayoutData[this.MapId]["WalkValueChange"] = this.MapValueData.WalkDiffChange.toString();
         this.LayoutList.numItems = Object.keys(this.yarn_mapLayoutData).length
