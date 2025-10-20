@@ -2001,7 +2001,7 @@ export class YarnEditing extends Component {
             DataArr[y] = []
             for (let x = 1; x <= this.map_size.arrange; x++) {
                 let t = this.map_data[y][x].type
-                if (t > 999) {
+                if (t > 9999) {
                     t = 1
                 }
                 data += x + `,${y},${(t) ? t : 5}`
