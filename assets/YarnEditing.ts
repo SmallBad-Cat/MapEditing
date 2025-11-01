@@ -155,6 +155,10 @@ export class YarnEditing extends Component {
         nowList: [],
         data: {}
     };
+    private locking = {
+        data: {},
+        key: [],
+    }
 
     public loadJson() {
         CreateRoleYarnNew.init_start()
@@ -168,6 +172,21 @@ export class YarnEditing extends Component {
             this.getNextMapId()
             this.allLabel[3].string = "地图ID：" + this.MapId;
         }
+        // let change = [76,79,80,82,83]
+        // for(let k in this.yarn_mapLayoutData){
+        //     if(change.indexOf(Number(k))>=0){
+        //         let data =  this.yarn_mapLayoutData[k]
+        //         let layout = JSON.parse(JSON.stringify(data.layout))
+        //         const result = layout
+        //         .replace(/10,\d+,105;?/g, '')  // 去除 10,x,105
+        //         .replace(/\d+,9,105;?/g, '')   // 去除 x,9,105
+        //         .replace(/;+$/, '');  
+        //         data.layout = result
+        //                  // 去除末尾可能多余的分号
+        //         console.log(result);
+
+        //     }
+        // }
         this.changeMapWalkDiff()
         // this._loadJson("data/ProvinceLevel", "provinceLevelJsonData");
         // this._loadJson("data/AsicLevel", "allMapData");
@@ -734,6 +753,9 @@ export class YarnEditing extends Component {
                     yao_shi.getChildByName('text').getComponent(Label).string = key + "";
                     this.ChainData[key].push([data.idx[1], data.idx[0]])
                 }
+                if (this.ChainData[key].length == 3) {
+                    this.ChainData[key].push([0, 0])
+                }
                 if (this.TieLianSuoState == 0) {
                     this.dataParent.active = true
                     this.allLabel[4].string = ""
@@ -855,12 +877,14 @@ export class YarnEditing extends Component {
         }
     }
     // Type == 11 || Type == 12 ||
-    TypeArr = [42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 3, 6, 7, 8, 9, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 61, 63, 64, 131]
+    TypeArr = [42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 3, 6, 7, 8, 9, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 61, 63, 64, 131]
     TypeorAddChild(Type) {
         if (this.TypeArr.indexOf(Type) >= 0 && Type != 2) {
             return true
         }
         if (Type == 3 || Type == 6 || Type == 7 || Type == 8 || Type == 9 || Type == 15 || Type == 16 || Type == 17 || Type == 18 || Type == 19 || Type == 20 || Type == 21 || Type == 22 || Type == 23 || Type == 24 || Type == 25 || Type == 26 || Type == 27 || Type == 28 || Type == 29 || Type == 30 || Type == 131) {
+            return true
+        } else if (this.Obstacle.bolt.indexOf(Type) >= 0) {
             return true
         } else {
             false
@@ -872,6 +896,11 @@ export class YarnEditing extends Component {
         if (id) {
             this.Piece = [this.dataParent.getChildByName(id + ''), id]
         }
+        if (!this.onBoltState(data, this.Piece[1])) {
+
+            return
+        }
+
         if (this.TypeorAddChild(data.type)) {
             if (data.child.getChildByName(String(data.type))) {
                 data.child.getChildByName(String(data.type)).destroy()
@@ -894,6 +923,7 @@ export class YarnEditing extends Component {
                 }
             }
         }
+
         // 双头梯
         if (!this.broadsideOK(data.idx[0], data.idx[1])) {
             this.ClearDoubleLadder(data.idx[0], data.idx[1])
@@ -915,6 +945,7 @@ export class YarnEditing extends Component {
 
         let DataType = data.type
         data.type = this.Piece[1]
+
         console.log("点击属性类型：" + this.Piece[1]);
         let delNames = []
         for (let item of data.child.children) {
@@ -1059,6 +1090,18 @@ export class YarnEditing extends Component {
                     this.LayLiftExportState = false;
                 } else {
                     this.LayLiftExportState = true;
+                }
+            }
+            let lockingState = false
+
+            // 锁和钥匙
+            console.log(this.Piece[1]);
+            if (this.Obstacle.locking.indexOf(this.Piece[1]) >= 0) {
+                if (this.Piece[1] == 57) {
+                    this.locking.key.push([data.idx[0], data.idx[1]])
+                } else {
+                    this.locking.data[data.idx[0] + "-" + data.idx[1]] = [JSON.parse(JSON.stringify(this.locking.key)), 0]
+                    this.locking.key = []
                 }
             }
         } else {
@@ -1266,7 +1309,7 @@ export class YarnEditing extends Component {
     }
     setPeopleCount() {
         let people_num = 0
-        let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 71, 72, 73, 74, 75, 68, 101, 102, 103, 104, 1111, 111]
+        let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 71, 72, 73, 74, 75, 68, 101, 102, 103, 104, 1111, 111]
         for (let y = 1; y <= this.map_size.row; y++) {
             for (let x = 1; x <= this.map_size.arrange; x++) {
                 let t = this.map_data[y][x].type
@@ -1801,14 +1844,16 @@ export class YarnEditing extends Component {
         'A': [18, 19, 20],
         'B': [21, 22, 23, 28, 29, 30],
         'C': [24, 25, 26, 27, 6, 7, 8, 9],//电梯
-        'D': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55],//角色
+        'D': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57],//角色
         'E': [61, 63, 64, 68],//检票口
         'F': [71, 72, 73, 74, 75],//双向电梯
-        'Role': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 68, 71, 72, 73, 74, 75, 101, 102, 103, 104, 1111, 111],
+        'Role': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 68, 71, 72, 73, 74, 75, 101, 102, 103, 104, 1111, 111],
         'JianPiaoKey': 67,
         'DTJ': [101, 102, 103, 104],//电梯井
         'VIP': [11, 12, 13],
-        'LiftExport': [99913, 99931, 99923, 99932, 99933, 131]
+        'LiftExport': [99913, 99931, 99923, 99932, 99933, 131],
+        'bolt': [141, 142, 143, 144],
+        'locking': [56, 57],//锁和钥匙
     }
     onObstaclePiece(event: Event, type: string) {
         let target: any = event.target;
@@ -1890,7 +1935,7 @@ export class YarnEditing extends Component {
             if (this.ChainData.length > 0) {
                 let str = ""
                 for (let data of this.ChainData) {
-                    if (data.length == 3) {
+                    if (data.length >= 3) {
 
                         for (let pos of data) {
                             str += pos[0] + "," + pos[1] + "|"
@@ -1902,6 +1947,13 @@ export class YarnEditing extends Component {
                 if (str != "") {
                     this.yarn_mapLayoutData[this.MapId]["chain"] = str
                 }
+
+            }
+            const copy = JSON.parse(JSON.stringify(this.locking.data));
+            if (Object.keys(copy).length > 0) {
+                // 存在钥匙锁
+
+                this.yarn_mapLayoutData[this.MapId]["locking"] = JSON.stringify(copy);
             }
             this.initMapLayoutData()
 
@@ -1922,6 +1974,10 @@ export class YarnEditing extends Component {
                 this.TipTween("电梯口未编辑完整")
                 return
             }
+            if (this.locking.key.length > 0) {
+                this.TipTween("缺少钥匙人的锁")
+                return
+            }
             // CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor)
             let data = CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor)
             if (this.MapId && data) {
@@ -1933,8 +1989,9 @@ export class YarnEditing extends Component {
                 }
                 if (this.ChainData.length > 0) {
                     let str = ""
+                    console.log(this.ChainData);
                     for (let data of this.ChainData) {
-                        if (data.length == 3) {
+                        if (data.length >= 3) {
 
                             for (let pos of data) {
                                 str += pos[0] + "," + pos[1] + "|"
@@ -1946,6 +2003,10 @@ export class YarnEditing extends Component {
                     if (str != "") {
                         this.yarn_mapLayoutData[this.MapId]["chain"] = str
                     }
+                }
+                if (Object.keys(this.locking.data).length > 0) {
+                    // 存在钥匙锁
+                    this.yarn_mapLayoutData[this.MapId]["locking"] = JSON.stringify(this.locking.data);
                 }
                 this.initMapLayoutData()
 
@@ -2169,7 +2230,7 @@ export class YarnEditing extends Component {
                 this.map_data[idx[1]][idx[0]]["FixedData"] = [0]
             }
             if (idx.length > 3) {
-                let attrs = [31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 1111, 10, 111]
+                let attrs = [31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 1111, 10, 111]
                 if (attrs.indexOf(idx[2]) < 0) {
                     let changeCount = 0
                     let DTJType = false
@@ -2236,8 +2297,10 @@ export class YarnEditing extends Component {
                 }
             }
             this.map_data[idx[1]][idx[0]].child.name = this.map_data[idx[1]][idx[0]].type + '';
+            let types = [31, 1111, 56, 57, 42, 43, 44, 45, 46,]
             if (this.dataParent.getChildByName(idx[2] + '')) {
-                if (idx[2] == 1111 && idx[2] == 31) {
+
+                if (types.indexOf(idx[2]) >= 0) {
 
                 } else {
                     this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).color;
@@ -2385,6 +2448,9 @@ export class YarnEditing extends Component {
 
                     this.map_data[idx[1]][idx[0]].child.addChild(Lock);
                     Lock.active = true;
+                } else if (types.indexOf(this.map_data[idx[1]][idx[0]].type) >= 0) {
+                    let c = TitleType.indexOf(this.map_data[idx[1]][idx[0]].json[3]) + 1
+                    this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = new Color(CellToColor[c]);
                 }
             }
             let pieceColor = this.Obstacle['F'].indexOf(this.Piece[1]) >= 0 ? "#FF8F53" : "6C88F8"
@@ -2734,6 +2800,9 @@ export class YarnEditing extends Component {
         if (data.chain) {
             this.setChainData(data.chain)
         }
+        if (data.locking) {
+            this.locking.data = JSON.parse(data.locking);
+        }
         this.MapId = target.name
     }
     setChainData(str, look?) {
@@ -2747,17 +2816,19 @@ export class YarnEditing extends Component {
         let key = 0
         for (let arr of data_str) {
             for (let i in arr) {
-                let pos = arr[i]
-                let node = null
-                let data = this.map_data[pos[1]][pos[0]]
+                if (Number(i) <= 2) {
+                    let pos = arr[i]
+                    let node = null
+                    let data = this.map_data[pos[1]][pos[0]]
 
-                if (Number(i) != 2) {
-                    node = instantiate(this.node.getChildByPath("chain/suo"))
-                } else {
-                    node = instantiate(this.node.getChildByPath("chain/yao_shi"))
+                    if (Number(i) != 2) {
+                        node = instantiate(this.node.getChildByPath("chain/suo"))
+                    } else {
+                        node = instantiate(this.node.getChildByPath("chain/yao_shi"))
+                    }
+                    node.getChildByName('text').getComponent(Label).string = key + "";
+                    data.child.addChild(node)
                 }
-                node.getChildByName('text').getComponent(Label).string = key + "";
-                data.child.addChild(node)
             }
             key++
         }
@@ -2780,14 +2851,64 @@ export class YarnEditing extends Component {
         }
         if (del_idx > -1) {
             for (let arr of this.ChainData[del_idx]) {
-                let data = this.map_data[arr[1]][arr[0]]
-                let suo = data.child.getChildByName("suo")
-                suo && suo.destroy()
-                let yao_shi = data.child.getChildByName("yao_shi")
-                yao_shi && yao_shi.destroy()
+                if (this.map_data[arr[1]]) {
+                    let data = this.map_data[arr[1]][arr[0]]
+                    if (data) {
+                        let suo = data.child.getChildByName("suo")
+                        suo && suo.destroy()
+                        let yao_shi = data.child.getChildByName("yao_shi")
+                        yao_shi && yao_shi.destroy()
+                    }
+                }
+
             }
             this.ChainData.splice(del_idx, 1);
         }
+    }
+    // 插销状态，是否可以放置
+    onBoltState(data, type) {
+        let Y = data.idx[0];
+        let X = data.idx[1];
+        let up_down = [141, 143]
+        let left_right = [142, 144]
+        let up_bolt = (this.map_data[Y + 2] && up_down.indexOf(this.map_data[Y + 2][X].type) >= 0) || (this.map_data[Y + 1] && up_down.indexOf(this.map_data[Y + 1][X].type) >= 0);
+        let right_bolt = (this.map_data[Y][X - 2] && left_right.indexOf(this.map_data[Y][X - 2].type) >= 0) || (this.map_data[Y][X - 1] && left_right.indexOf(this.map_data[Y][X - 1].type) >= 0);
+        let down_bolt = (this.map_data[Y - 2] && up_down.indexOf(this.map_data[Y - 2][X].type) >= 0 || this.map_data[Y - 1] && up_down.indexOf(this.map_data[Y - 1][X].type) >= 0);
+        let left_bolt = (this.map_data[Y][X + 2] && left_right.indexOf(this.map_data[Y][X + 2].type) >= 0) || this.map_data[Y][X + 1] && left_right.indexOf(this.map_data[Y][X + 1].type) >= 0;
+
+        if (this.Obstacle.bolt.indexOf(type) >= 0) {
+            if (type == 141) {
+                // 向上插销,超出边界了
+                if (data.idx[0] < 3) {
+                    this.TipTween("插销已超出边界")
+                    return false
+                }
+
+            } else if (type == 142) {
+                if (data.idx[1] > this.map_size.arrange - 2) {
+                    // 向右插销
+                }
+
+                // return false
+            } else if (type == 143) {
+                if (data.idx[0] > this.map_size.row - 2) {
+
+                }
+                // 向下插销
+                // return false
+            } else if (type == 144) {
+                if (data.idx[1] < 3) {
+
+                }
+                // 向左插销
+                // return false
+            }
+            if (up_bolt || right_bolt || down_bolt || left_bolt) {
+                this.TipTween("不可在插销上放置插销")
+                return false
+            }
+        }
+        return true
     }
     onList(item, idx) {
         let k = Object.keys(this.yarn_mapLayoutData)[idx]
@@ -3174,18 +3295,20 @@ export class YarnEditing extends Component {
             let key = 0
             for (let arr of ChainData) {
                 for (let i in arr) {
-                    let pos = arr[i]
-                    let node = null
-                    let data = map_data[pos[1]][pos[0]]
+                    if (Number(i) <= 2) {
+                        let pos = arr[i]
+                        let node = null
+                        let data = map_data[pos[1]][pos[0]]
 
-                    if (Number(i) != 2) {
-                        node = instantiate(this.node.getChildByPath("chain/suo"))
-                    } else {
-                        node = instantiate(this.node.getChildByPath("chain/yao_shi"))
+                        if (Number(i) != 2) {
+                            node = instantiate(this.node.getChildByPath("chain/suo"))
+                        } else {
+                            node = instantiate(this.node.getChildByPath("chain/yao_shi"))
+                        }
+                        node.scale = v3(0.5, 0.5, 1)
+                        node.getChildByName('text').getComponent(Label).string = key + "";
+                        data.child.addChild(node)
                     }
-                    node.scale = v3(0.5, 0.5, 1)
-                    node.getChildByName('text').getComponent(Label).string = key + "";
-                    data.child.addChild(node)
                 }
                 key++
             }
@@ -3479,23 +3602,45 @@ export class YarnEditing extends Component {
                 }
             }
             let chain = "";
+            let chain_data = {
+                lock: [],
+                locking: []
+            }
             if (d.chain) {
                 console.log("铁链锁",);
                 let d_chain = this.setChainData(d.chain, true)
-                let chain_data = {
-                    lock: []
-                }
                 for (let d of d_chain) {
                     let obj_chain = {
-                        startPos: d[0][0]+","+ d[0][1],
-                        endPos: d[1][0]+","+d[1][1],
-                        keyPos: d[2][0]+","+ d[2][1]
+                        startPos: d[0][0] + "," + d[0][1],
+                        endPos: d[1][0] + "," + d[1][1],
+                        keyPos: d[2][0] + "," + d[2][1],
+                        color: d[3][1]
                     }
                     chain_data.lock.push(obj_chain)
                 }
-                chain =JSON.stringify(chain_data)
-                console.log(chain);
+
+            } else {
+                delete chain_data.lock
             }
+            if (d.locking) {
+                let locking = JSON.parse(d.locking)
+                // let lock_data ={
+                //     lock:}
+                for (let k in locking) {
+                    let lock = k.replace("-", ",");
+                    let key = locking[k][0].map(innerArr => innerArr.join(',')).join('|');
+                    let obj = {
+                        lock: lock,
+                        key: key,
+                        color: locking[k][1]
+                    }
+                    chain_data.locking.push(obj)
+                }
+
+            } else {
+                delete chain_data.locking
+            }
+            chain = JSON.stringify(chain_data)
             let walk_diff = d["WalkValue"] ? d["WalkValue"] : "";
             let walk_list = d["WalkValueChange"] ? d["WalkValueChange"] : "";
             data.push([d.id, d.size, ColorList, all_people, qusition == 0 ? "" : qusition, lift == 0 ? "" : lift, walk_diff, walk_list, d.layout, chain])
@@ -3789,7 +3934,76 @@ export class YarnEditing extends Component {
         console.log("走线初始状态：", this.MapValueData);
         this.MapValueData.AverageYZZValue = this.GoNumAll / all_people
         this.FixedLift.active = false
+        this.getChainDataAndLockingColor()
 
+    }
+    getChainDataAndLockingColor(idx = 0) {
+        let ChainData = JSON.parse(JSON.stringify(this.ChainData))
+        let locking = JSON.parse(JSON.stringify(this.locking.data))
+        console.log(ChainData);
+        console.log(locking);
+        if (ChainData.length > 0 || Object.keys(locking).length > 0) {
+            const TitleType = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "S", "Y", "Z",]
+
+            let Colors = TitleType.filter((_, index) => index < 10);
+            for (let i in ChainData) {
+                let d = ChainData[i]
+                let priceColor = this.map_data[d[2][1]][d[2][0]].json[3]
+                Colors.splice(Colors.indexOf(priceColor), 1);
+                const randomIndex = Math.floor(Math.random() * Colors.length);
+                let color = TitleType.indexOf(Colors.splice(randomIndex, 1)[0]) + 1
+                ChainData[i][3][1] = color
+                Colors.push(priceColor)
+            }
+            for (let k in locking) {
+                let d = locking[k]
+                let c_s = []
+                if (idx < 10) {
+                    for (let i in d[0]) {
+                        let k_s = d[0][i]
+                        let priceColor = this.map_data[k_s[0]][k_s[1]].json[2]
+                        console.warn(priceColor, "????????");
+                        Colors.splice(Colors.indexOf(priceColor), 1);
+                        c_s.push(priceColor)
+                    }
+                }
+                if (Colors.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * Colors.length);
+                    let c = TitleType.indexOf(Colors.splice(randomIndex, 1)[0]) + 1
+                    locking[k][1] = c
+                    console.log(locking);
+                    Colors = Colors.concat(c_s)
+                } else {
+                    return this.getChainDataAndLockingColor(idx + 1)
+                }
+            }
+
+        }
+        this.ChainData = JSON.parse(JSON.stringify(ChainData))
+
+        this.locking.data = JSON.parse(JSON.stringify(locking))
+        console.log(this.locking.data);
+        if (this.ChainData.length > 0) {
+            let str = ""
+            console.log(this.ChainData);
+            for (let data of this.ChainData) {
+                if (data.length >= 3) {
+
+                    for (let pos of data) {
+                        str += pos[0] + "," + pos[1] + "|"
+                    }
+                    str = str.slice(0, -1);
+                    str += ";"
+                }
+            }
+            if (str != "") {
+                this.yarn_mapLayoutData[this.MapId]["chain"] = str
+            }
+        }
+        if (Object.keys(this.locking.data).length > 0) {
+            // 存在钥匙锁
+            this.yarn_mapLayoutData[this.MapId]["locking"] = JSON.stringify(this.locking.data);
+        }
     }
     private ColorList = []
     ChooseColorData(data) {
@@ -3798,9 +4012,9 @@ export class YarnEditing extends Component {
         if (this.node.getChildByName("seve_data").active) {
             this.node.getChildByName("seve_data").active = false
             this.node.getChildByName("setImportColor").active = false
-            //  this.node.getChildByName("setImportColor").active = false
+            //  this.node.getChildByName("setImportColor").active = false 
         }
-        let types = [1, 31, 111, 51, 52, 53, 54, 55, 1111]
+        let types = [1, 31, 42, 43, 44, 45, 46, 111, 51, 52, 53, 54, 55, 56, 57, 1111]
         let change = false
         if (types.indexOf(data.type) >= 0) {
 
@@ -3811,6 +4025,13 @@ export class YarnEditing extends Component {
                 data.child.active = false;
                 data.type = 2;
                 data.child.name = "2";
+            } else {
+                data.child.getComponent(Sprite).spriteFrame = this.dataParent.getChildByName('1').getComponent(Sprite).spriteFrame;
+                console.log(data.child);
+                for(let child of data.child.children){
+                    child.active = false
+                }
+                
             }
             change = true
 
