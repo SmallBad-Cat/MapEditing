@@ -3852,20 +3852,25 @@ export class YarnEditing extends Component {
     }
     SaveChange() {
         let layout = ""
-        for (let y in this.map_data) {
-            for (let x in this.map_data[y]) {
-                let data = this.map_data[y][x].json
-                let i = 0
-                for (let k of data) {
-                    if (i >= 2 && CreateRole.FixedData[k]) {
-                        k = CreateRole.FixedData[k]
-                    }
-                    layout += k + ",";
 
-                    i++
+        for (let i in this.map_data) {
+            let row = Number(i)
+            for (let x in this.map_data[row]) {
+                let arrange = Number(x)
+                if (row <= this.map_size.row && arrange <= this.map_size.arrange) {
+                    let data = this.map_data[row][arrange].json
+                    let i = 0
+                    for (let k of data) {
+                        if (i >= 2 && CreateRole.FixedData[k]) {
+                            k = CreateRole.FixedData[k]
+                        }
+                        layout += k + ",";
+
+                        i++
+                    }
+                    layout = layout.slice(0, layout.length - 1)
+                    layout += ";"
                 }
-                layout = layout.slice(0, layout.length - 1)
-                layout += ";"
 
             }
         }
@@ -4028,10 +4033,10 @@ export class YarnEditing extends Component {
             } else {
                 data.child.getComponent(Sprite).spriteFrame = this.dataParent.getChildByName('1').getComponent(Sprite).spriteFrame;
                 console.log(data.child);
-                for(let child of data.child.children){
+                for (let child of data.child.children) {
                     child.active = false
                 }
-                
+
             }
             change = true
 
