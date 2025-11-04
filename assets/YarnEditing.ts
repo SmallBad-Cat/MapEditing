@@ -893,6 +893,7 @@ export class YarnEditing extends Component {
     private DTJLayer = new DTJLayerData;
 
     setNewData(data, id?) {
+        
         if (id) {
             this.Piece = [this.dataParent.getChildByName(id + ''), id]
         }
@@ -940,7 +941,9 @@ export class YarnEditing extends Component {
         this.DelLiftExport(data);
 
         this.ChangeChainData(data.idx)
-
+        if(!this.setLockingState(data)){
+            return;
+        }
         // console.log(this.map_data[data.idx[0]][data.idx[1]].type);
 
         let DataType = data.type
@@ -1095,7 +1098,6 @@ export class YarnEditing extends Component {
             let lockingState = false
 
             // 锁和钥匙
-            console.log(this.Piece[1]);
             if (this.Obstacle.locking.indexOf(this.Piece[1]) >= 0) {
                 if (this.Piece[1] == 57) {
                     this.locking.key.push([data.idx[0], data.idx[1]])
@@ -1103,6 +1105,9 @@ export class YarnEditing extends Component {
                     this.locking.data[data.idx[0] + "-" + data.idx[1]] = [JSON.parse(JSON.stringify(this.locking.key)), 0]
                     this.locking.key = []
                 }
+            }
+            if(this.Obstacle.locking.indexOf(data.type)>=0){
+                data.type =1
             }
         } else {
             this.map_data[data.idx[0]][data.idx[1]].datas = []
@@ -1792,6 +1797,66 @@ export class YarnEditing extends Component {
             delete data["FixedData"];
         }
 
+    }
+    setLockingState(data){
+        let data_k = data.idx[0]+"-"+data.idx[1]
+        if(this.Piece[1]==56){
+            if(this.locking.key.length == 0){
+                 this.TipTween("请先放钥匙");
+                 return false;
+            }
+            for(let key in this.locking.data){
+                if(key == data_k){
+                    this.TipTween("该位置已有钥匙和锁");
+                    return false;
+                }
+            }
+            
+        }else if(this.Piece[1]==57){
+            for(let pos of this.locking.key){
+                if(pos[0]==data.idx[0]&&pos[1]==data.idx[1]){
+                    this.TipTween("该位置已放置钥匙");
+                     return false;
+                }
+            }
+            for(let k in this.locking.data){
+                for(let pos of this.locking.data[k]){
+                    if(pos[0]==data.idx[0]&&pos[1]==data.idx[1]){
+                        this.TipTween("该位置已放置钥匙和锁");
+                        return false;
+                    }
+                }
+            }
+        }else{
+            for(let idx in this.locking.key){
+                let pos = this.locking.key[idx]
+                if(pos[0]==data.idx[0]&&pos[1]==data.idx[1]){
+                    // 去除单个钥匙
+                    this.locking.key.splice(Number(idx),1);
+                    console.log(data.child);
+                    if (data.child.getChildByName(String(56))) {
+                        data.child.getChildByName(String(56)).destroy()
+                    }
+                    data.child.getComponent(Sprite).spriteFrame = this.Map.children[0].children[0].getComponent(Sprite).spriteFrame
+            
+                    }
+                }
+                
+            for(let k in this.locking.data){
+                if(k == data_k){
+                    delete this.locking.data[k]
+                    return true;
+                }
+                for(let pos of this.locking.data[k]){
+                    if(pos[0]==data.idx[0]&&pos[1]==data.idx[1]){
+                        delete this.locking.data[k]
+                        return true;
+                    }
+                }
+            }
+
+        }
+        return true;
     }
     // 触摸数据
     TouchData(pos) {
@@ -2801,7 +2866,8 @@ export class YarnEditing extends Component {
             this.setChainData(data.chain)
         }
         if (data.locking) {
-            this.locking.data = JSON.parse(data.locking);
+            this.setLockingData(data.locking)
+            
         }
         this.MapId = target.name
     }
@@ -2836,6 +2902,13 @@ export class YarnEditing extends Component {
         // for(let data of data)
         // 
         // 
+    }
+    setLockingData(str,look?){
+        let data_str = JSON.parse(str);
+        if (look) {
+            return data_str
+        }
+       
     }
     ChangeChainData(pos) {
         let del_idx = -1
@@ -3565,7 +3638,7 @@ export class YarnEditing extends Component {
     SaveMapData() {
 
         const data = [
-            ["ID", "大小", "填充顺序", "总人数", "问号人", "电梯", "走线难度", "走线队列", "地图数据", "铁链锁"], ["id", "size", "ColorList", "all_people", "qusition", "lift", "walk_diff", "walk_list", "layout", "exLayout"]
+            ["ID", "大小", "填充顺序", "总人数", "问号人", "电梯", "走线难度", "走线队列", "地图数据", "铁链锁","毛线配置ID"], ["id", "size", "ColorList", "all_people", "qusition", "lift", "walk_diff", "walk_list", "layout", "exLayout","TopId"]
             // ["ID", "大小", "地图数据", "角色库", "锁链数据"], ["id", "size", "layout", "roles", "chain"]
         ];
         let lifts = [6, 7, 8, 9, 116, 117, 118, 119]
@@ -3643,7 +3716,8 @@ export class YarnEditing extends Component {
             chain = JSON.stringify(chain_data)
             let walk_diff = d["WalkValue"] ? d["WalkValue"] : "";
             let walk_list = d["WalkValueChange"] ? d["WalkValueChange"] : "";
-            data.push([d.id, d.size, ColorList, all_people, qusition == 0 ? "" : qusition, lift == 0 ? "" : lift, walk_diff, walk_list, d.layout, chain])
+            let TopId = d["TopId"] ? d["TopId"] : "";
+            data.push([d.id, d.size, ColorList, all_people, qusition == 0 ? "" : qusition, lift == 0 ? "" : lift, walk_diff, walk_list, d.layout, chain,TopId])
         }
         GameUtil.getCsv(data, "YarnMapData")
 
@@ -3901,6 +3975,10 @@ export class YarnEditing extends Component {
         if (this.yarn_mapLayoutData[this.MapId].chain) {
             this.setChainData(this.yarn_mapLayoutData[this.MapId].chain)
         }
+         if (this.yarn_mapLayoutData[this.MapId].locking) {
+            this.setLockingData(this.yarn_mapLayoutData[this.MapId].locking)
+        }
+        
         const matches = this.yarn_mapLayoutData[this.MapId].layout.match(/[A-Z]/g);
         let all_people = matches ? matches.length : 0
         let color_count = matches ? [...new Set(matches)].length : 0
