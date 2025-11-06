@@ -109,7 +109,7 @@ export class DragDropExample extends Component {
             this.handleTextImport(result);
         } else if (result && result.content) {
             // 处理普通文本
-             this.handleTextImport(result);
+            this.handleTextImport(result);
         }
     }
 
@@ -146,11 +146,22 @@ export class DragDropExample extends Component {
             if (data) {
                 this.onJsonFile = {}
                 for (let d of data) {
-                    if(d.exLayout){
+                    if (d.exLayout) {
                         d["chain"] = "";
-                        for(let obj of JSON.parse(d.exLayout).lock){
-                            d["chain"]+= obj.startPos+"|"+obj.endPos+"|"+obj.keyPos+";"
+                        let exLayout = JSON.parse(d.exLayout)
+                        if ("lock" in exLayout) {
+                            for (let obj of exLayout.lock) {
+                                d["chain"] += obj.startPos + "|" + obj.endPos + "|" + obj.keyPos + "|0,"+obj.color+";"
+                            }
                         }
+                        let locking_Data = {}
+                        if ("locking" in exLayout) {
+                            for (let obj of exLayout.locking) {
+                                let k = obj.lock.split(',').join('-')
+                                locking_Data[k] = [obj.key.split('|').map(item => item.split(',').map(Number)),obj.color]
+                            }
+                        }
+                        d["locking"] = JSON.stringify(locking_Data)
                         delete d.exLayout
                     }
                     this.onJsonFile[d.id] = d

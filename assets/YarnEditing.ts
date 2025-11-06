@@ -868,7 +868,9 @@ export class YarnEditing extends Component {
                 return
             }
         }
-
+        if (!this.setLockingState(data)) {
+            return;
+        }
         if (data && (data.type != this.Piece[1] || this.ChooseDTJState)) {
             this.setNewData(data)
         }
@@ -893,7 +895,7 @@ export class YarnEditing extends Component {
     private DTJLayer = new DTJLayerData;
 
     setNewData(data, id?) {
-        
+
         if (id) {
             this.Piece = [this.dataParent.getChildByName(id + ''), id]
         }
@@ -941,9 +943,7 @@ export class YarnEditing extends Component {
         this.DelLiftExport(data);
 
         this.ChangeChainData(data.idx)
-        if(!this.setLockingState(data)){
-            return;
-        }
+
         // console.log(this.map_data[data.idx[0]][data.idx[1]].type);
 
         let DataType = data.type
@@ -1106,8 +1106,8 @@ export class YarnEditing extends Component {
                     this.locking.key = []
                 }
             }
-            if(this.Obstacle.locking.indexOf(data.type)>=0){
-                data.type =1
+            if (this.Obstacle.locking.indexOf(data.type) >= 0) {
+                data.type = 1
             }
         } else {
             this.map_data[data.idx[0]][data.idx[1]].datas = []
@@ -1798,63 +1798,87 @@ export class YarnEditing extends Component {
         }
 
     }
-    setLockingState(data){
-        let data_k = data.idx[0]+"-"+data.idx[1]
-        if(this.Piece[1]==56){
-            if(this.locking.key.length == 0){
-                 this.TipTween("请先放钥匙");
-                 return false;
+    // 判断钥匙锁状态
+    setLockingState(data) {
+        let data_k = data.idx[0] + "-" + data.idx[1]
+        if (this.Piece[1] == 56) {
+            let keys = Object.keys(this.locking.data);
+            if (keys.indexOf(data_k) >= 0) {
+                return false;
             }
-            for(let key in this.locking.data){
-                if(key == data_k){
+            if (this.locking.key.length == 0) {
+                this.TipTween("请先放钥匙");
+                return false;
+            }
+            for (let key in this.locking.data) {
+                if (key == data_k) {
                     this.TipTween("该位置已有钥匙和锁");
                     return false;
                 }
             }
-            
-        }else if(this.Piece[1]==57){
-            for(let pos of this.locking.key){
-                if(pos[0]==data.idx[0]&&pos[1]==data.idx[1]){
-                    this.TipTween("该位置已放置钥匙");
-                     return false;
+
+        } else if (this.Piece[1] == 57) {
+            for (let pos of this.locking.key) {
+                if (pos[0] == data.idx[0] && pos[1] == data.idx[1]) {
+                    return false;
                 }
             }
-            for(let k in this.locking.data){
-                for(let pos of this.locking.data[k]){
-                    if(pos[0]==data.idx[0]&&pos[1]==data.idx[1]){
+            for (let k in this.locking.data) {
+                for (let pos of this.locking.data[k][0]) {
+                    if (pos[0] == data.idx[0] && pos[1] == data.idx[1]) {
                         this.TipTween("该位置已放置钥匙和锁");
                         return false;
                     }
                 }
             }
-        }else{
-            for(let idx in this.locking.key){
-                let pos = this.locking.key[idx]
-                if(pos[0]==data.idx[0]&&pos[1]==data.idx[1]){
-                    // 去除单个钥匙
-                    this.locking.key.splice(Number(idx),1);
-                    console.log(data.child);
-                    if (data.child.getChildByName(String(56))) {
-                        data.child.getChildByName(String(56)).destroy()
-                    }
-                    data.child.getComponent(Sprite).spriteFrame = this.Map.children[0].children[0].getComponent(Sprite).spriteFrame
-            
-                    }
+        } else {
+            let DelType = (node) => {
+                node.getComponent(Sprite).color = new Color('DBEEF3');
+                if (node.getChildByName(String(57))) {
+                    node.getChildByName(String(57)).destroy();
+                    let countLabel = this.dataParent.getChildByName('57').getChildByName('count').getComponent(Label)
+                    countLabel.string = String(Number(countLabel.string) - 1);
+
+                } else if (node.getChildByName(String(56))) {
+                    node.getChildByName(String(56)).destroy();
+                    let countLabel = this.dataParent.getChildByName('56').getChildByName('count').getComponent(Label)
+                    countLabel.string = String(Number(countLabel.string) - 1);
                 }
-                
-            for(let k in this.locking.data){
-                if(k == data_k){
+                let count_Label = this.dataParent.getChildByName('1').getChildByName('count').getComponent(Label)
+                count_Label.string = String(Number(count_Label.string) + 1);
+            }
+            for (let idx in this.locking.key) {
+                let pos = this.locking.key[idx]
+                if (pos[0] == data.idx[0] && pos[1] == data.idx[1]) {
+                    // 去除单个钥匙
+                    this.locking.key.splice(Number(idx), 1);
+                    DelType(data.child);
+                    return true;
+                }
+            }
+
+            for (let k in this.locking.data) {
+                if (k == data_k) {
+                    // 去除一组锁和钥匙
+                    for (let pos of this.locking.data[k][0]) {
+                        DelType(this.map_data[pos[0]][pos[1]].child);
+                    }
+                    DelType(data.child);
                     delete this.locking.data[k]
                     return true;
                 }
-                for(let pos of this.locking.data[k]){
-                    if(pos[0]==data.idx[0]&&pos[1]==data.idx[1]){
+                for (let pos of this.locking.data[k][0]) {
+                    if (pos[0] == data.idx[0] && pos[1] == data.idx[1]) {
+                        for (let pos of this.locking.data[k][0]) {
+                            DelType(this.map_data[pos[0]][pos[1]].child);
+                        }
+                        const result = k.split('-').map(Number);
+                        DelType(this.map_data[result[0]][result[1]].child);
                         delete this.locking.data[k]
                         return true;
                     }
                 }
             }
-
         }
         return true;
     }
@@ -2689,6 +2713,11 @@ export class YarnEditing extends Component {
             nowList: [],
             data: {}
         };
+        this.ChainData = []
+        this.locking = {
+            data: {},
+            key: [],
+        };
         // if (this.DTJLayer.row > 0) {
         //     this.Map.scale = v3(1, 1, 1)
         //     this.map_size = {
@@ -2867,7 +2896,6 @@ export class YarnEditing extends Component {
         }
         if (data.locking) {
             this.setLockingData(data.locking)
-            
         }
         this.MapId = target.name
     }
@@ -2903,12 +2931,29 @@ export class YarnEditing extends Component {
         // 
         // 
     }
-    setLockingData(str,look?){
+    setLockingData(str, look?) {
         let data_str = JSON.parse(str);
         if (look) {
             return data_str
         }
-       
+        this.locking.data = data_str
+        this.locking.key = []
+        let idx = 1;
+        for (let k in data_str) {
+            let KeyPos = this.getPosIDX(k, "-");
+            let Suo_data = this.map_data[KeyPos[0]][KeyPos[1]]
+            let suo_node = instantiate(this.node.getChildByPath("chain/suo"))
+            Suo_data.child.addChild(suo_node)
+            suo_node.getChildByName('text').getComponent(Label).string = idx + "-" + data_str[k][1];
+            for (let pos of data_str[k][0]) {
+                let data = this.map_data[pos[0]][pos[1]]
+                let key_node = instantiate(this.node.getChildByPath("chain/yao_shi"))
+                data.child.addChild(key_node)
+                key_node.getChildByName('text').getComponent(Label).string = idx + "-" + data_str[k][1];
+            }
+            idx++
+        }
+
     }
     ChangeChainData(pos) {
         let del_idx = -1
@@ -2998,7 +3043,7 @@ export class YarnEditing extends Component {
         // item.getChildByName("Color").active = data["layout"].match(/[A-Z]/) != null
 
         item.getChildByName("Color").active = data["ColorList"] ? 1 : 0
-        this.ItemSetMap(item, data.layout, mapSize, data.chain)
+        this.ItemSetMap(item, data.layout, mapSize, data.chain, data.locking)
         item.name = k
         if (this.ChooseItemKey) {
             if (k == this.ChooseItemKey) {
@@ -3130,11 +3175,14 @@ export class YarnEditing extends Component {
         //     layout = this.yarn_mapLayoutData[data.layout].layout
         // }
 
-        this.ItemSetMap(item, layout, mapSize, this.yarn_mapLayoutData[data[2]].chain)
+        this.ItemSetMap(item, layout, mapSize, this.yarn_mapLayoutData[data[2]].chain, this.yarn_mapLayoutData[data[2]].locking)
     }
     // 
-    ItemSetMap(item, data, mapSize, chain?) {
-
+    ItemSetMap(item, data, mapSize, chain = null, locking = null) {
+        this.locking = {
+            data: {},
+            key: [],
+        }
         let handle = this.HandleConf(data)
         let new_data = handle.map
         let map_size = handle.size
@@ -3384,6 +3432,26 @@ export class YarnEditing extends Component {
                     }
                 }
                 key++
+            }
+        }
+        if (locking) {
+            let locking_data = JSON.parse(locking);
+            let idx = 1
+            for (let k in locking_data) {
+                let KeyPos = this.getPosIDX(k, "-");
+                let Suo_data = map_data[KeyPos[0]][KeyPos[1]]
+                let suo_node = instantiate(this.node.getChildByPath("chain/suo"))
+                suo_node.scale = v3(0.5, 0.5, 1)
+                Suo_data.child.addChild(suo_node)
+                suo_node.getChildByName('text').getComponent(Label).string = idx + "-" + locking_data[k][1];
+                for (let pos of locking_data[k][0]) {
+                    let data = map_data[pos[0]][pos[1]]
+                    let key_node = instantiate(this.node.getChildByPath("chain/yao_shi"))
+                    key_node.scale = v3(0.5, 0.5, 1)
+                    data.child.addChild(key_node)
+                    key_node.getChildByName('text').getComponent(Label).string = idx + "-" + locking_data[k][1];
+                }
+                idx++
             }
         }
         if (Object.keys(LiftExportData).length > 0) {
@@ -3638,7 +3706,7 @@ export class YarnEditing extends Component {
     SaveMapData() {
 
         const data = [
-            ["ID", "大小", "填充顺序", "总人数", "问号人", "电梯", "走线难度", "走线队列", "地图数据", "铁链锁","毛线配置ID"], ["id", "size", "ColorList", "all_people", "qusition", "lift", "walk_diff", "walk_list", "layout", "exLayout","TopId"]
+            ["ID", "大小", "填充顺序", "总人数", "问号人", "电梯", "走线难度", "走线队列", "地图数据", "铁链锁", "毛线配置ID"], ["id", "size", "ColorList", "all_people", "qusition", "lift", "walk_diff", "walk_list", "layout", "exLayout", "TopId"]
             // ["ID", "大小", "地图数据", "角色库", "锁链数据"], ["id", "size", "layout", "roles", "chain"]
         ];
         let lifts = [6, 7, 8, 9, 116, 117, 118, 119]
@@ -3717,7 +3785,7 @@ export class YarnEditing extends Component {
             let walk_diff = d["WalkValue"] ? d["WalkValue"] : "";
             let walk_list = d["WalkValueChange"] ? d["WalkValueChange"] : "";
             let TopId = d["TopId"] ? d["TopId"] : "";
-            data.push([d.id, d.size, ColorList, all_people, qusition == 0 ? "" : qusition, lift == 0 ? "" : lift, walk_diff, walk_list, d.layout, chain,TopId])
+            data.push([d.id, d.size, ColorList, all_people, qusition == 0 ? "" : qusition, lift == 0 ? "" : lift, walk_diff, walk_list, d.layout, chain, TopId])
         }
         GameUtil.getCsv(data, "YarnMapData")
 
@@ -3975,10 +4043,10 @@ export class YarnEditing extends Component {
         if (this.yarn_mapLayoutData[this.MapId].chain) {
             this.setChainData(this.yarn_mapLayoutData[this.MapId].chain)
         }
-         if (this.yarn_mapLayoutData[this.MapId].locking) {
+        if (this.yarn_mapLayoutData[this.MapId].locking) {
             this.setLockingData(this.yarn_mapLayoutData[this.MapId].locking)
         }
-        
+
         const matches = this.yarn_mapLayoutData[this.MapId].layout.match(/[A-Z]/g);
         let all_people = matches ? matches.length : 0
         let color_count = matches ? [...new Set(matches)].length : 0
@@ -4023,8 +4091,6 @@ export class YarnEditing extends Component {
     getChainDataAndLockingColor(idx = 0) {
         let ChainData = JSON.parse(JSON.stringify(this.ChainData))
         let locking = JSON.parse(JSON.stringify(this.locking.data))
-        console.log(ChainData);
-        console.log(locking);
         if (ChainData.length > 0 || Object.keys(locking).length > 0) {
             const TitleType = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "S", "Y", "Z",]
 
@@ -4065,7 +4131,6 @@ export class YarnEditing extends Component {
         this.ChainData = JSON.parse(JSON.stringify(ChainData))
 
         this.locking.data = JSON.parse(JSON.stringify(locking))
-        console.log(this.locking.data);
         if (this.ChainData.length > 0) {
             let str = ""
             console.log(this.ChainData);
@@ -4301,6 +4366,9 @@ export class YarnEditing extends Component {
             this.yarn_mapLayoutData = GameUtil.ChangeStorage(false, "yarn_mapLayoutData")
             this.initMapLayoutData()
         }, "yarn_mapLayoutData")
+    }
+    getPosIDX(str, change?) {
+        return str.split(change ? change : ',').map(Number);
     }
 
 }
