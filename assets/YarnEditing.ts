@@ -2391,7 +2391,7 @@ export class YarnEditing extends Component {
 
                 if (types.indexOf(idx[2]) >= 0) {
                     if (this.MapColorState <= 0&&idx[2] == 31) {
-                            this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).color;
+                        this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).color;
                     }
                 } else {
                     this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).color;
@@ -4109,11 +4109,14 @@ export class YarnEditing extends Component {
             for (let k in locking) {
                 let d = locking[k]
                 let c_s = []
+                let k_pos = this.getPosIDX(d,"-")
+                let k_color = this.map_data[k_pos[0]][k_pos[1]].json[2]
+                Colors.splice(Colors.indexOf(k_color), 1);
+                c_s.push(k_color)
                 if (idx < 10) {
                     for (let i in d[0]) {
                         let k_s = d[0][i]
                         let priceColor = this.map_data[k_s[0]][k_s[1]].json[2]
-                        console.warn(priceColor, "????????");
                         Colors.splice(Colors.indexOf(priceColor), 1);
                         c_s.push(priceColor)
                     }
