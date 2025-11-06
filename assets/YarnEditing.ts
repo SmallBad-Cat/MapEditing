@@ -2390,7 +2390,9 @@ export class YarnEditing extends Component {
             if (this.dataParent.getChildByName(idx[2] + '')) {
 
                 if (types.indexOf(idx[2]) >= 0) {
-
+                    if (this.MapColorState <= 0&&idx[2] == 31) {
+                            this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).color;
+                    }
                 } else {
                     this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).color;
                 }
