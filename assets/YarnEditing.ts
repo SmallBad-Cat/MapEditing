@@ -1315,7 +1315,7 @@ export class YarnEditing extends Component {
     }
     setPeopleCount() {
         let people_num = 0
-        let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 71, 72, 73, 74, 75, 68, 101, 102, 103, 104, 1111, 111]
+        let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 71, 72, 73, 74, 75, 68, 101, 102, 103, 104, 1111, 111,141,142,143,144]
         for (let y = 1; y <= this.map_size.row; y++) {
             for (let x = 1; x <= this.map_size.arrange; x++) {
                 let t = this.map_data[y][x].type
@@ -4126,7 +4126,7 @@ export class YarnEditing extends Component {
             for (let k in locking) {
                 let d = locking[k]
                 let c_s = []
-                let k_pos = this.getPosIDX(d,"-")
+                let k_pos = this.getPosIDX(k,"-")
                 let k_color = this.map_data[k_pos[0]][k_pos[1]].json[2]
                 Colors.splice(Colors.indexOf(k_color), 1);
                 c_s.push(k_color)
