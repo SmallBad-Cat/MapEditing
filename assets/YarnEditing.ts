@@ -705,6 +705,7 @@ export class YarnEditing extends Component {
 
             let worldPos = this.Map.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(event.getUILocation().x, event.getUILocation().y));
             let data = this.TouchData(worldPos);
+           
             if (data) {
                 if (this.AttrItemData[data.idx[0] + "_" + data.idx[1]]) {
                     if (!this.AttrItemData[data.idx[0] + "_" + data.idx[1]].state || this.AttrItemData[data.idx[0] + "_" + data.idx[1]].count > 0) {
@@ -1936,7 +1937,7 @@ export class YarnEditing extends Component {
         'D': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57],//角色
         'E': [61, 63, 64, 68],//检票口
         'F': [71, 72, 73, 74, 75],//双向电梯
-        'Role': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 68, 71, 72, 73, 74, 75, 101, 102, 103, 104, 1111, 111],
+        'Role': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 68, 71, 72, 73, 74, 75, 101, 102, 103, 104,141,142,143,144, 1111, 111],
         'JianPiaoKey': 67,
         'DTJ': [101, 102, 103, 104],//电梯井
         'VIP': [11, 12, 13],
@@ -2319,7 +2320,7 @@ export class YarnEditing extends Component {
                 this.map_data[idx[1]][idx[0]]["FixedData"] = [0]
             }
             if (idx.length > 3) {
-                let attrs = [31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 1111, 10, 111]
+                let attrs = [31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57,141,142,143,144, 1111, 10, 111]
                 if (attrs.indexOf(idx[2]) < 0) {
                     let changeCount = 0
                     let DTJType = false
@@ -2386,7 +2387,7 @@ export class YarnEditing extends Component {
                 }
             }
             this.map_data[idx[1]][idx[0]].child.name = this.map_data[idx[1]][idx[0]].type + '';
-            let types = [31, 1111, 56, 57, 42, 43, 44, 45, 46,]
+            let types = [31, 1111, 56, 57, 42, 43, 44, 45, 46,141,142,143,144]
             if (this.dataParent.getChildByName(idx[2] + '')) {
 
                 if (types.indexOf(idx[2]) >= 0) {
@@ -2998,6 +2999,10 @@ export class YarnEditing extends Component {
 
         if (this.Obstacle.bolt.indexOf(type) >= 0) {
             if (type == 141) {
+                if(this.map_data[Y + 1] && this.Obstacle.Role.indexOf(this.map_data[Y + 1][X].type)<0){
+                    this.TipTween("上插销下方必须为角色")
+                    return false
+                }
                 // 向上插销,超出边界了
                 if (data.idx[0] < 3) {
                     this.TipTween("插销已超出边界")
@@ -3005,18 +3010,30 @@ export class YarnEditing extends Component {
                 }
 
             } else if (type == 142) {
+                if(this.map_data[Y][X-1] && this.Obstacle.Role.indexOf(this.map_data[Y][X-1].type)<0){
+                    this.TipTween("右插销左方必须为角色")
+                    return false
+                }
                 if (data.idx[1] > this.map_size.arrange - 2) {
                     // 向右插销
                 }
 
                 // return false
             } else if (type == 143) {
+                if(this.map_data[Y - 1] && this.Obstacle.Role.indexOf(this.map_data[Y - 1][X].type)<0){
+                    this.TipTween("下插销上方必须为角色")
+                    return false
+                }
                 if (data.idx[0] > this.map_size.row - 2) {
 
                 }
                 // 向下插销
                 // return false
             } else if (type == 144) {
+                if(this.map_data[Y][X+1] && this.Obstacle.Role.indexOf(this.map_data[Y][X+1].type)<0){
+                    this.TipTween("左插销右方必须为角色")
+                    return false
+                }
                 if (data.idx[1] < 3) {
 
                 }
@@ -4167,7 +4184,7 @@ export class YarnEditing extends Component {
             this.node.getChildByName("setImportColor").active = false
             //  this.node.getChildByName("setImportColor").active = false 
         }
-        let types = [1, 31, 42, 43, 44, 45, 46, 111, 51, 52, 53, 54, 55, 56, 57, 1111]
+        let types = [1, 31, 42, 43, 44, 45, 46, 111, 51, 52, 53, 54, 55, 56, 57, 1111,141,142,143,144]
         let change = false
         if (types.indexOf(data.type) >= 0) {
 
