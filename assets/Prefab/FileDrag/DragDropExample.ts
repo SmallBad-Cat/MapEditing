@@ -162,6 +162,18 @@ export class DragDropExample extends Component {
                             }
                         }
                         d["locking"] = JSON.stringify(locking_Data)
+                        let curtain_Data = {}
+                        if ("curtain" in exLayout) {
+                            for (let obj of exLayout.curtain) {
+                                let k = obj.startPos.split(',').join('_')
+                                curtain_Data[k] = {
+                                    count:obj.count,
+                                    pos:obj.startPos.split(',').map(Number),
+                                    size:obj.size.split(',').map(Number)
+                                }
+                            }
+                        }
+                         d["Curtain"] = JSON.stringify(curtain_Data)
                         delete d.exLayout
                     }
                     this.onJsonFile[d.id] = d

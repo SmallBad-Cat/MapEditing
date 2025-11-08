@@ -2187,15 +2187,12 @@ export class YarnEditing extends Component {
                     // 存在钥匙锁
                     this.yarn_mapLayoutData[this.MapId]["locking"] = JSON.stringify(this.locking.data);
                 }
+                this.yarn_mapLayoutData[this.MapId]["Curtain"] = JSON.stringify(this.CurtainData);
                 this.initMapLayoutData()
-
                 if (!this.yarn_mapLayoutData[this.MapId]["ColorList"]) {
                     this.yarn_mapLayoutData[this.MapId]["ColorList"] = ""
                 }
                 this.yarn_mapLayoutData[this.MapId]["ColorList"] = ""
-                if (Object.keys(this.CurtainData).length > 0) {
-                    this.yarn_mapLayoutData[this.MapId]["Curtain"] = JSON.stringify(this.CurtainData);
-                }
                 this.refish_GoNum()
                 // GameUtil.ChangeStorage(true, "yarn_mapLayoutData", this.yarn_mapLayoutData)
 
@@ -2995,7 +2992,7 @@ export class YarnEditing extends Component {
             this.setLockingData(data.locking)
         }
         if(data.Curtain){
-            this.setCurtainData(data.locking)
+            this.setCurtainData(data.Curtain)
         }
         this.MapId = target.name
     }
@@ -3056,23 +3053,23 @@ export class YarnEditing extends Component {
 
     }
     setCurtainData(str, look?) {
-        console.log(str);
         let data_str = JSON.parse(str);
         if (look) {
             return data_str
         }
         this.CurtainData = data_str
-        let node_size = this.map_data[1][1].getComponent(UITransform).contentSize
+        let node_size = this.map_data[2][2].child.getComponent(UITransform).contentSize
         for(let k in data_str){
             let Curtain = instantiate(this.dataParent.getChildByName('99822'))
-            let setSize = new Size(node_size.width * node_size[k].size[0], node_size.height *  node_size[k].size[1])
+            let setSize = new Size(node_size.width * data_str[k].size[0], node_size.height *  data_str[k].size[1])
             Curtain.getComponent(UITransform).setContentSize(setSize)
-            let worldPos = this.map_data[node_size[k].pos[0]][node_size[k].pos[1]].child.getWorldPosition()
+            let worldPos = this.map_data[data_str[k].pos[0]][data_str[k].pos[1]].child.getWorldPosition()
             console.log(worldPos);
             Curtain.destroyAllChildren()
             this.node.getChildByName("CurtainPage").addChild(Curtain);
             Curtain.getComponent(Button).destroy()
-            Curtain.getComponent(UIOpacity).opacity = 130
+            Curtain.getComponent(UIOpacity).opacity = this.MapColorState>5?80:150
+            Curtain.active = true
             //  Curtain.setWorldPosition(worldPos)
             Curtain.setWorldPosition(v3(worldPos.x + (setSize.width / 2) - node_size.width / 2, worldPos.y - (setSize.height / 2) + node_size.height / 2, 1))
 
@@ -3080,9 +3077,10 @@ export class YarnEditing extends Component {
             Curtain.addChild(EditBoxNode);
             EditBoxNode.name = k + "_998"
             EditBoxNode.active = true
-            EditBoxNode.getComponent(EditBox).string = node_size[k].count + "";
+            EditBoxNode.getComponent(EditBox).string = data_str[k].count + "";
             Curtain.name = k
         }
+        console.log(this.node.getChildByName("CurtainPage"));
     }
     ChangeChainData(pos) {
         let del_idx = -1
@@ -3188,7 +3186,7 @@ export class YarnEditing extends Component {
         // item.getChildByName("Color").active = data["layout"].match(/[A-Z]/) != null
 
         item.getChildByName("Color").active = data["ColorList"] ? 1 : 0
-        this.ItemSetMap(item, data.layout, mapSize, data.chain, data.locking)
+        this.ItemSetMap(item, data.layout, mapSize, data.chain, data.locking,data.Curtain)
         item.name = k
         if (this.ChooseItemKey) {
             if (k == this.ChooseItemKey) {
@@ -3320,10 +3318,10 @@ export class YarnEditing extends Component {
         //     layout = this.yarn_mapLayoutData[data.layout].layout
         // }
 
-        this.ItemSetMap(item, layout, mapSize, this.yarn_mapLayoutData[data[2]].chain, this.yarn_mapLayoutData[data[2]].locking)
+        this.ItemSetMap(item, layout, mapSize, this.yarn_mapLayoutData[data[2]].chain, this.yarn_mapLayoutData[data[2]].locking, this.yarn_mapLayoutData[data[2]].Curtain)
     }
     // 
-    ItemSetMap(item, data, mapSize, chain = null, locking = null) {
+    ItemSetMap(item, data, mapSize, chain = null, locking = null,CurtainData = null) {
         this.locking = {
             data: {},
             key: [],
@@ -3599,7 +3597,24 @@ export class YarnEditing extends Component {
                 idx++
             }
         }
-        // if(){}
+        if(CurtainData){
+            let node_size = newNodeSize
+            CurtainData = JSON.parse(CurtainData)
+            for(let k in CurtainData){
+                let Curtain = instantiate(this.dataParent.getChildByName('99822'))
+                let setSize = new Size(node_size.width * CurtainData[k].size[0], node_size.height *  CurtainData[k].size[1])
+                Curtain.getComponent(UITransform).setContentSize(setSize)
+                let worldPos = map_data[CurtainData[k].pos[0]][CurtainData[k].pos[1]].child.getWorldPosition()
+                Curtain.getChildByName("name").destroy()
+                Curtain.getChildByName("count").getComponent(Label).string = CurtainData[k].count+"";
+                map_data[CurtainData[k].pos[0]+CurtainData[k].size[1]-1][CurtainData[k].pos[1]+CurtainData[k].size[0]-1].child.addChild(Curtain);
+                Curtain.getComponent(Button).destroy()
+                Curtain.getComponent(UIOpacity).opacity = 255
+                Curtain.active = true
+                Curtain.setPosition(v3(-setSize.width/2+node_size.width/2, setSize.height/2-node_size.height/2, 0))
+                // Curtain.setPosition(v3(0,0,0))
+            }
+        }
         if (Object.keys(LiftExportData).length > 0) {
             for (let key in LiftExportData) {
                 for (let arr of LiftExportData[key]) {
@@ -3852,7 +3867,7 @@ export class YarnEditing extends Component {
     SaveMapData() {
 
         const data = [
-            ["ID", "大小", "填充顺序", "总人数", "问号人", "电梯", "走线难度", "走线队列", "地图数据", "铁链锁", "毛线配置ID"], ["id", "size", "ColorList", "all_people", "qusition", "lift", "walk_diff", "walk_list", "layout", "exLayout", "TopId"]
+            ["ID", "大小", "填充顺序", "总人数", "问号人", "电梯", "走线难度", "走线队列", "地图数据", "机制配置", "毛线配置ID"], ["id", "size", "ColorList", "all_people", "qusition", "lift", "walk_diff", "walk_list", "layout", "exLayout", "TopId"]
             // ["ID", "大小", "地图数据", "角色库", "锁链数据"], ["id", "size", "layout", "roles", "chain"]
         ];
         let lifts = [6, 7, 8, 9, 116, 117, 118, 119]
@@ -3891,7 +3906,8 @@ export class YarnEditing extends Component {
             let chain = "";
             let chain_data = {
                 lock: [],
-                locking: []
+                locking: [],
+                curtain:[]
             }
             if (d.chain) {
                 console.log("铁链锁",);
@@ -3926,6 +3942,19 @@ export class YarnEditing extends Component {
 
             } else {
                 delete chain_data.locking
+            }
+            if(d.Curtain){
+                let CurtainData = JSON.parse(d.Curtain)
+                for(let k in CurtainData){
+                    let obj = {
+                        startPos:  k.replace("_", ","),
+                        size: CurtainData[k].size.join(','),
+                        count:  CurtainData[k].count
+                    }
+                    chain_data.curtain.push(obj)
+                }
+            }else{
+                 delete chain_data.curtain
             }
             chain = JSON.stringify(chain_data)
             let walk_diff = d["WalkValue"] ? d["WalkValue"] : "";
@@ -4502,6 +4531,12 @@ export class YarnEditing extends Component {
         this.dataJsonImport(this.yarn_mapLayoutData[this.MapId].layout)
         if (this.yarn_mapLayoutData[this.MapId].chain) {
             this.setChainData(this.yarn_mapLayoutData[this.MapId].chain)
+        }
+        if (this.yarn_mapLayoutData[this.MapId].locking) {
+            this.setLockingData(this.yarn_mapLayoutData[this.MapId].locking)
+        }
+        if(this.yarn_mapLayoutData[this.MapId].Curtain){
+            this.setCurtainData(this.yarn_mapLayoutData[this.MapId].Curtain)
         }
         this.yarn_mapLayoutData[this.MapId]["WalkValue"] = this.MapValueData.WalkDiffValue
         this.yarn_mapLayoutData[this.MapId]["WalkValueChange"] = this.MapValueData.WalkDiffChange.toString();
