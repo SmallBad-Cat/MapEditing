@@ -1,4 +1,4 @@
-import { _decorator, Button, color, Color, Component, dynamicAtlasManager, EditBox, error, EventMouse, EventTouch, Input, input, instantiate, JsonAsset, Label, Layout, loader, Node, Prefab, resources, ScrollView, size, Size, Sprite, TextAsset, tween, UITransform, v3, Vec3, VerticalTextAlignment } from 'cc';
+import { _decorator, Button, color, Color, Component, dynamicAtlasManager, EditBox, error, EventMouse, EventTouch, Input, input, instantiate, JsonAsset, Label, Layout, loader, Node, Prefab, resources, ScrollView, size, Size, Sprite, TextAsset, tween, UIOpacity, UITransform, v3, Vec3, VerticalTextAlignment } from 'cc';
 import { MapLayoutIdConf } from './resources/Conf/MapLayoutIdConf';
 import { RoleConf } from './resources/Conf/RoleConf';
 import { CollectConf } from './resources/Conf/CollectConf';
@@ -1327,7 +1327,7 @@ export class YarnEditing extends Component {
 
     }
     addCurtain(data, type) {
-        let node_size = data.child.getComponent(UITransform).contentSize   
+        let node_size = data.child.getComponent(UITransform).contentSize
         let size = (num) => {
             return [
                 Math.floor(num % 100 / 10),
@@ -1335,17 +1335,49 @@ export class YarnEditing extends Component {
             ];
         }
         // CurtainData
+
+        let sizeWH = size(Number(type))
+        if (sizeWH[0] + data.idx[1] > this.map_size.arrange + 1) {
+            this.TipTween("幕布不可横向超过边界")
+            return
+        } else if (sizeWH[1] + data.idx[0] > this.map_size.row + 1) {
+            this.TipTween("幕布不可纵向超过边界")
+            return
+        }
+        for (let k in this.CurtainData) {
+            let p = this.CurtainData[k].pos
+            let s = this.CurtainData[k].size
+            // 判断是否存在幕布
+            let max_pos = [p[0] + s[1] - 1, p[1] + s[0] - 1]
+            for (let x = data.idx[0]; x < data.idx[0] + sizeWH[1]; x++) {
+                for (let y = data.idx[1]; y < data.idx[1] + sizeWH[0]; y++) {
+                    if (p[0] <= x && x <= max_pos[0] && p[1] <= y && y <= max_pos[1]) {
+                        this.TipTween("删除之前幕布")
+                        delete this.CurtainData[k]
+                        this.node.getChildByName("CurtainPage").getChildByName(k).destroy()
+                        return
+                    }
+                }
+            }
+
+        }
         let name = data.idx[0] + "_" + data.idx[1]
         this.CurtainData[name] = {
             pos: [data.idx[0], data.idx[1]],
-            size: size(Number(type)),
+            size: sizeWH,
             count: 10
         }
         let Curtain = instantiate(this.dataParent.getChildByName(type + ''))
-        Curtain.getComponent(UITransform).setContentSize(new Size(node_size.width* this.CurtainData[name].size[0], node_size.height* this.CurtainData[name].size[1]))
-        Curtain.getChildByName("name").destroy();
-        Curtain.getChildByName("count").destroy();
+        let setSize = new Size(node_size.width * sizeWH[0], node_size.height * sizeWH[1])
+        Curtain.getComponent(UITransform).setContentSize(setSize)
+        let worldPos = data.child.getWorldPosition()
+        console.log(worldPos);
+        Curtain.destroyAllChildren()
         this.node.getChildByName("CurtainPage").addChild(Curtain);
+        Curtain.getComponent(Button).destroy()
+        Curtain.getComponent(UIOpacity).opacity = 130
+        //  Curtain.setWorldPosition(worldPos)
+        Curtain.setWorldPosition(v3(worldPos.x + (setSize.width / 2) - node_size.width / 2, worldPos.y - (setSize.height / 2) + node_size.height / 2, 1))
 
         let EditBoxNode = instantiate(this.node.getChildByName("setEditBox"))
         Curtain.addChild(EditBoxNode);
@@ -1353,7 +1385,6 @@ export class YarnEditing extends Component {
         EditBoxNode.active = true
         EditBoxNode.getComponent(EditBox).string = 10 + "";
         Curtain.name = name
-        console.log(this.CurtainData);
     }
     setPeopleCount() {
         let people_num = 0
@@ -2040,16 +2071,16 @@ export class YarnEditing extends Component {
         this.BackTLS.active = true
 
     }
-    BackTieLianSuo(){
-        if(this.TieLianSuoState!=3){
+    BackTieLianSuo() {
+        if (this.TieLianSuoState != 3) {
             this.TipTween("请把铁链锁设置完成")
-        }else{
+        } else {
             this.TieLianSuoState = 0
             this.dataParent.active = true
             this.allLabel[4].string = ""
             this.BackTLS.active = false
         }
-      
+
     }
     private ChooseDTJState = false
     onButton(event: Event) {
@@ -2101,7 +2132,10 @@ export class YarnEditing extends Component {
                 this.yarn_mapLayoutData[this.MapId]["locking"] = JSON.stringify(copy);
             }
             this.initMapLayoutData()
-
+            const CurtainData = JSON.parse(JSON.stringify(this.CurtainData));
+            if (Object.keys(this.CurtainData).length > 0) {
+                this.yarn_mapLayoutData[this.MapId]["Curtain"] = JSON.stringify(CurtainData);
+            }
             if (!this.yarn_mapLayoutData[this.MapId]["ColorList"]) {
                 this.yarn_mapLayoutData[this.MapId]["ColorList"] = ""
             }
@@ -2159,6 +2193,9 @@ export class YarnEditing extends Component {
                     this.yarn_mapLayoutData[this.MapId]["ColorList"] = ""
                 }
                 this.yarn_mapLayoutData[this.MapId]["ColorList"] = ""
+                if (Object.keys(this.CurtainData).length > 0) {
+                    this.yarn_mapLayoutData[this.MapId]["Curtain"] = JSON.stringify(this.CurtainData);
+                }
                 this.refish_GoNum()
                 // GameUtil.ChangeStorage(true, "yarn_mapLayoutData", this.yarn_mapLayoutData)
 
@@ -2334,6 +2371,7 @@ export class YarnEditing extends Component {
             this.ImportEditBox.string = '';
             return;
         }
+        this.node.getChildByName("CurtainPage").destroyAllChildren();
         this.AttrItemData = {}
         let handle = this.HandleConf(data, false)
         let new_data = handle.map
@@ -2766,6 +2804,7 @@ export class YarnEditing extends Component {
         return str.replace(new RegExp(find, 'g'), replace);
     }
     CloseAll(MapChange?) {
+        this.CurtainData = {}
         this.LiftExportData = {
             key: null,
             nowList: [],
@@ -2955,6 +2994,9 @@ export class YarnEditing extends Component {
         if (data.locking) {
             this.setLockingData(data.locking)
         }
+        if(data.Curtain){
+            this.setCurtainData(data.locking)
+        }
         this.MapId = target.name
     }
     setChainData(str, look?) {
@@ -3000,18 +3042,47 @@ export class YarnEditing extends Component {
         for (let k in data_str) {
             let KeyPos = this.getPosIDX(k, "-");
             let Suo_data = this.map_data[KeyPos[0]][KeyPos[1]]
-            let suo_node = instantiate(this.node.getChildByPath("chain/suo"))
+            let suo_node = instantiate(this.node.getChildByPath("chain/Xsuo"))
             Suo_data.child.addChild(suo_node)
             suo_node.getChildByName('text').getComponent(Label).string = idx + "-" + data_str[k][1];
             for (let pos of data_str[k][0]) {
                 let data = this.map_data[pos[0]][pos[1]]
-                let key_node = instantiate(this.node.getChildByPath("chain/yao_shi"))
+                let key_node = instantiate(this.node.getChildByPath("chain/Xyao_shi"))
                 data.child.addChild(key_node)
                 key_node.getChildByName('text').getComponent(Label).string = idx + "-" + data_str[k][1];
             }
             idx++
         }
 
+    }
+    setCurtainData(str, look?) {
+        console.log(str);
+        let data_str = JSON.parse(str);
+        if (look) {
+            return data_str
+        }
+        this.CurtainData = data_str
+        let node_size = this.map_data[1][1].getComponent(UITransform).contentSize
+        for(let k in data_str){
+            let Curtain = instantiate(this.dataParent.getChildByName('99822'))
+            let setSize = new Size(node_size.width * node_size[k].size[0], node_size.height *  node_size[k].size[1])
+            Curtain.getComponent(UITransform).setContentSize(setSize)
+            let worldPos = this.map_data[node_size[k].pos[0]][node_size[k].pos[1]].child.getWorldPosition()
+            console.log(worldPos);
+            Curtain.destroyAllChildren()
+            this.node.getChildByName("CurtainPage").addChild(Curtain);
+            Curtain.getComponent(Button).destroy()
+            Curtain.getComponent(UIOpacity).opacity = 130
+            //  Curtain.setWorldPosition(worldPos)
+            Curtain.setWorldPosition(v3(worldPos.x + (setSize.width / 2) - node_size.width / 2, worldPos.y - (setSize.height / 2) + node_size.height / 2, 1))
+
+            let EditBoxNode = instantiate(this.node.getChildByName("setEditBox"))
+            Curtain.addChild(EditBoxNode);
+            EditBoxNode.name = k + "_998"
+            EditBoxNode.active = true
+            EditBoxNode.getComponent(EditBox).string = node_size[k].count + "";
+            Curtain.name = k
+        }
     }
     ChangeChainData(pos) {
         let del_idx = -1
@@ -3514,13 +3585,13 @@ export class YarnEditing extends Component {
             for (let k in locking_data) {
                 let KeyPos = this.getPosIDX(k, "-");
                 let Suo_data = map_data[KeyPos[0]][KeyPos[1]]
-                let suo_node = instantiate(this.node.getChildByPath("chain/suo"))
+                let suo_node = instantiate(this.node.getChildByPath("chain/Xsuo"))
                 suo_node.scale = v3(0.5, 0.5, 1)
                 Suo_data.child.addChild(suo_node)
                 suo_node.getChildByName('text').getComponent(Label).string = idx + "-" + locking_data[k][1];
                 for (let pos of locking_data[k][0]) {
                     let data = map_data[pos[0]][pos[1]]
-                    let key_node = instantiate(this.node.getChildByPath("chain/yao_shi"))
+                    let key_node = instantiate(this.node.getChildByPath("chain/Xyao_shi"))
                     key_node.scale = v3(0.5, 0.5, 1)
                     data.child.addChild(key_node)
                     key_node.getChildByName('text').getComponent(Label).string = idx + "-" + locking_data[k][1];
@@ -3528,6 +3599,7 @@ export class YarnEditing extends Component {
                 idx++
             }
         }
+        // if(){}
         if (Object.keys(LiftExportData).length > 0) {
             for (let key in LiftExportData) {
                 for (let arr of LiftExportData[key]) {
@@ -3922,8 +3994,8 @@ export class YarnEditing extends Component {
         let Name = e.node.name;
         let arr = JSON.parse("[" + Name.replace(/_/g, ',') + "]");
         if (Name.indexOf("_998") >= 0) {
-            if(!isNaN(count)&&this.CurtainData[arr[0]+"_"+arr[1]]){
-                this.CurtainData[arr[0]+"_"+arr[1]].count= count
+            if (!isNaN(count) && this.CurtainData[arr[0] + "_" + arr[1]]) {
+                this.CurtainData[arr[0] + "_" + arr[1]].count = count
             }
         } else {
             let lift = this.map_data[arr[0]][arr[1]].type != 131
@@ -4127,6 +4199,10 @@ export class YarnEditing extends Component {
         if (this.yarn_mapLayoutData[this.MapId].locking) {
             this.setLockingData(this.yarn_mapLayoutData[this.MapId].locking)
         }
+        if(this.yarn_mapLayoutData[this.MapId].Curtain){
+            this.setCurtainData(this.yarn_mapLayoutData[this.MapId].Curtain)
+        }
+      
 
         const matches = this.yarn_mapLayoutData[this.MapId].layout.match(/[A-Z]/g);
         let all_people = matches ? matches.length : 0
