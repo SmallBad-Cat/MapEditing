@@ -4279,41 +4279,42 @@ export class YarnEditing extends Component {
         let locking = JSON.parse(JSON.stringify(this.locking.data))
         if (ChainData.length > 0 || Object.keys(locking).length > 0) {
             const TitleType = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "S", "Y", "Z",]
-
             let Colors = TitleType.filter((_, index) => index < 10);
             for (let i in ChainData) {
-                let d = ChainData[i]
-                let priceColor = this.map_data[d[2][1]][d[2][0]].json[3]
-                Colors.splice(Colors.indexOf(priceColor), 1);
-                const randomIndex = Math.floor(Math.random() * Colors.length);
-                let color = TitleType.indexOf(Colors.splice(randomIndex, 1)[0]) + 1
-                ChainData[i][3][1] = color
-                Colors.push(priceColor)
+                // let d = ChainData[i]
+                // let priceColor = this.map_data[d[2][1]][d[2][0]].json[3]
+                // Colors.splice(Colors.indexOf(priceColor), 1);
+                // const randomIndex = Math.floor(Math.random() * Colors.length);
+                // let color = TitleType.indexOf(Colors.splice(randomIndex, 1)[0]) + 1
+                // ChainData[i][3][1] = color
+                // Colors.push(priceColor)
+                ChainData[i][3][1] = 1
             }
             for (let k in locking) {
-                let d = locking[k]
-                let c_s = []
-                let k_pos = this.getPosIDX(k, "-")
-                let k_color = this.map_data[k_pos[0]][k_pos[1]].json[2]
-                Colors.splice(Colors.indexOf(k_color), 1);
-                c_s.push(k_color)
-                if (idx < 10) {
-                    for (let i in d[0]) {
-                        let k_s = d[0][i]
-                        let priceColor = this.map_data[k_s[0]][k_s[1]].json[2]
-                        Colors.splice(Colors.indexOf(priceColor), 1);
-                        c_s.push(priceColor)
-                    }
-                }
-                if (Colors.length > 0) {
-                    const randomIndex = Math.floor(Math.random() * Colors.length);
-                    let c = TitleType.indexOf(Colors.splice(randomIndex, 1)[0]) + 1
-                    locking[k][1] = c
-                    console.log(locking);
-                    Colors = Colors.concat(c_s)
-                } else {
-                    return this.getChainDataAndLockingColor(idx + 1)
-                }
+                // let d = locking[k]
+                // let c_s = []
+                // let k_pos = this.getPosIDX(k, "-")
+                // let k_color = this.map_data[k_pos[0]][k_pos[1]].json[2]
+                // Colors.splice(Colors.indexOf(k_color), 1);
+                // c_s.push(k_color)
+                // if (idx < 10) {
+                //     for (let i in d[0]) {
+                //         let k_s = d[0][i]
+                //         let priceColor = this.map_data[k_s[0]][k_s[1]].json[2]
+                //         Colors.splice(Colors.indexOf(priceColor), 1);
+                //         c_s.push(priceColor)
+                //     }
+                // }
+                // if (Colors.length > 0) {
+                //     const randomIndex = Math.floor(Math.random() * Colors.length);
+                //     let c = TitleType.indexOf(Colors.splice(randomIndex, 1)[0]) + 1
+                //     locking[k][1] = c
+                //     console.log(locking);
+                //     Colors = Colors.concat(c_s)
+                // } else {
+                //     return this.getChainDataAndLockingColor(idx + 1)
+                // }
+                locking[k][1] = 1
             }
 
         }
