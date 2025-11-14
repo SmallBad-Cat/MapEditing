@@ -39,7 +39,7 @@ export class CreateRoleYarnNew {
         104: [3, 2],
     }
     static ElementType = {
-        role: [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56,57,111, 1111,141,142,143,144],
+        role: [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 111, 1111, 141, 142, 143, 144],
         lift: [11, 12, 13, 6, 7, 8, 9, 25, 24, 26, 27],
         DTJ: [101, 102, 103, 104],
         VIP: [11, 12, 13],
@@ -441,7 +441,7 @@ export class CreateRoleYarnNew {
         ]
     ]
     static PeopleColor = { 30: 5, 40: 6, 50: 7, 80: 8, 999: 9 }
-    static getRoleData(data, fixed, setColor) {
+    static getRoleData(data, fixed, setColor, easy?) {
         // 所有类型数量
         let AllTypeCount = {}
         let all_roles = 0;//所有人数
@@ -479,9 +479,9 @@ export class CreateRoleYarnNew {
                     all_roles += 2
                 } else if (this.ElementType.LiftExport.indexOf(t) >= 0) {
                     let len = d.length - 4
-                    all_roles +=  len * d[3]
+                    all_roles += len * d[3]
                     LiftExportRoles += len * d[3]
-                    console.log(LiftExportRoles,"-----------------------------");
+                    console.log(LiftExportRoles, "-----------------------------");
                 } else {
                     no_role += 1;
                 }
@@ -503,34 +503,58 @@ export class CreateRoleYarnNew {
         let LiftColor = []
         let UseColor = all_roles - all_lift - LiftExportRoles;
         let t_k = 0
-        for (let i = 0; i < all_roles; i++) {
-
-            if (UseColor > 0) {
-                UseColor -= 1
-            } else {
-                LiftColor.push(TitleArr[t_k])
+        let colorCounts = {}
+        if (easy) {
+            colorCounts = this.getEasyColor(color, all_roles)
+            let ColorK = Object.keys(colorCounts)
+            let ColorKIIdx = 0;
+            for (let i = 0; i < all_roles; i++) {
+                if (UseColor > 0) {
+                    UseColor -= 1
+                } else {
+                    LiftColor.push(ColorK[ColorKIIdx])
+                    colorCounts[ColorK[ColorKIIdx]] -= 1
+                    if (colorCounts[ColorK[ColorKIIdx]] == 0) {
+                        delete colorCounts[ColorK[ColorKIIdx]]
+                        ColorK = Object.keys(colorCounts)
+                    } else {
+                        ColorKIIdx += 1
+                    }
+                    if (ColorKIIdx >= ColorK.length) {
+                        ColorKIIdx = 0
+                    }
+                }
             }
-            t_k++
-            if (t_k == TitleArr.length) {
-                t_k = 0
+        } else {
+            for (let i = 0; i < all_roles; i++) {
+                if (UseColor > 0) {
+                    UseColor -= 1
+                } else {
+                    LiftColor.push(TitleArr[t_k])
+                }
+                t_k++
+                if (t_k == TitleArr.length) {
+                    t_k = 0
+                }
             }
         }
-        let getData = this.getRoleDataStrs(0, this.fillColors(data, TitleArr), all_roles, all_lift, color, SizeKey[size.y][size.x], fixed, LiftColor)
-        if (getData) {
-            if (!getDatas[getData[3]]) {
-                getDatas[getData[3]] = []
-            }
-            getDatas[getData[3]].push(getData)
-        }
-        // for (let i = 0; i < 1000; i++) {
-        //     let getData = this.getRoleDataStrs(0, this.fillColors(data, TitleType.slice(0, color)), all_roles, all_lift, color, SizeKey[size.y][size.x], fixed, LiftColor)
-        //     if (getData) {
-        //         if (!getDatas[getData[3]]) {
-        //             getDatas[getData[3]] = []
-        //         }
-        //         getDatas[getData[3]].push(getData)
+        console.error(colorCounts);
+        // let getData = this.getRoleDataStrs(0, this.fillColors(data, TitleArr, colorCounts), all_roles, all_lift, color, SizeKey[size.y][size.x], fixed, LiftColor)
+        // if (getData) {
+        //     if (!getDatas[getData[3]]) {
+        //         getDatas[getData[3]] = []
         //     }
+        //     getDatas[getData[3]].push(getData)
         // }
+        for (let i = 0; i < 1000; i++) {
+            let getData = this.getRoleDataStrs(0, this.fillColors(data, TitleArr, colorCounts), all_roles, all_lift, color, SizeKey[size.y][size.x], fixed, LiftColor)
+            if (getData) {
+                if (!getDatas[getData[3]]) {
+                    getDatas[getData[3]] = []
+                }
+                getDatas[getData[3]].push(getData)
+            }
+        }
         let maxKey = Math.max(...Object.keys(getDatas).map(Number));
         return getDatas[maxKey][0]
 
@@ -632,7 +656,7 @@ export class CreateRoleYarnNew {
             103: [3, 3],
             104: [3, 2],
         };
-        const peopleTypes = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55,56,57, 111, 1111];
+        const peopleTypes = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 111, 1111];
         const DTJAdd: Record<string, number> = {};
         const ruleFun = (arr: number[]) => {
             if (arr[3]) {
@@ -918,15 +942,15 @@ export class CreateRoleYarnNew {
                 }
             }
             for (let Export of LiftExport) {
-                 let len = Export.length - 4
-                let neew_cound = len*Export[3]
-                let Roles = "|"+NewLiftColor.splice(0, neew_cound).join();
+                let len = Export.length - 4
+                let neew_cound = len * Export[3]
+                let Roles = "|" + NewLiftColor.splice(0, neew_cound).join();
                 let range = Export.slice(4)  // 从下标4开始（下标3后面）
-                .filter(item => Array.isArray(item))  // 确保是数组
-                .map(item => `${item[0]},${item[1]}`)  // 转换为 "x,y" 格式
-                .join('|'); 
-                 
-                let newArr = [Export[0],Export[1],Export[2]+Roles+"|"+range]
+                    .filter(item => Array.isArray(item))  // 确保是数组
+                    .map(item => `${item[0]},${item[1]}`)  // 转换为 "x,y" 格式
+                    .join('|');
+
+                let newArr = [Export[0], Export[1], Export[2] + Roles + "|" + range]
                 // for (let count = 0; count < Export[3]; count++) {
                 //     for (let i = 4; i < Export.length; i++) {
                 //         console.log(Export[i]);
@@ -934,7 +958,7 @@ export class CreateRoleYarnNew {
                 //     }
                 // }
                 let IDX = getDataIdx(newArr[0], newArr[1])
-                        data[IDX] = newArr
+                data[IDX] = newArr
             }
             // console.log("角色：", RoleArr, liftPeoCount);
 
@@ -1073,20 +1097,26 @@ export class CreateRoleYarnNew {
         }
         return arr;
     }
-    // 通用随机填色函数
-    static fillColors(grid: any[][], colors: string[]): any[][] {
+    // 通用随机填色函数 - 支持两种模式
+    static fillColors(grid: any[][], colors: string[], colorCounts?: { [color: string]: number }): any[][] {
         const emptyCells: { x: number, y: number, cell: any }[] = [];
         for (let y = 1; y < grid.length; y++) {
             const row = grid[y];
             for (let x = 1; x < row.length; x++) {
                 const cell = row[x];
                 if (!cell) continue;
-                if ([1, 10, 111].indexOf(cell[2]) >= 0) {
+                if (this.ElementType.role.indexOf(cell[2]) >= 0) {
                     emptyCells.push({ x: cell[0], y: cell[1], cell });
                 }
             }
         }
 
+        // 模式1：固定颜色数量
+        if (colorCounts && Object.keys(colorCounts).length) {
+            return this.fillColorsWithFixedCounts(grid, emptyCells, colorCounts);
+        }
+
+        // 模式2：均匀分布（原算法）
         const colorPositions: { [key: string]: { x: number, y: number }[] } = {};
         colors.forEach(c => colorPositions[c] = []);
 
@@ -1117,9 +1147,7 @@ export class CreateRoleYarnNew {
                 const chosenIndex = candidateCells[Math.floor(Math.random() * candidateCells.length)];
                 const chosen = emptyCells.splice(chosenIndex, 1)[0];
 
-                // 直接赋值颜色，而不是数组
                 chosen.cell[3] = color;
-
                 colorPositions[color].push({ x: chosen.x, y: chosen.y });
             }
         }
@@ -1127,6 +1155,115 @@ export class CreateRoleYarnNew {
         return grid;
     }
 
+    // 新增：固定颜色数量的填色算法
+    static fillColorsWithFixedCounts(grid: any[][], emptyCells: { x: number, y: number, cell: any }[], colorCounts: { [color: string]: number }): any[][] {
+        const colors = Object.keys(colorCounts);
+
+        let hasAdjacentSameColor = true;
+        let attempts = 0;
+
+        while (hasAdjacentSameColor && attempts < 100) {
+            attempts++;
+            hasAdjacentSameColor = false;
+
+            // 创建颜色分布数组
+            const colorDistribution: string[] = [];
+            for (const color of colors) {
+                const count = colorCounts[color];
+                for (let j = 0; j < count; j++) {
+                    colorDistribution.push(color);
+                }
+            }
+
+            // 随机打乱颜色
+            this.shuffleArray(colorDistribution);
+
+            // 按网格位置排序
+            emptyCells.sort((a, b) => {
+                if (a.y !== b.y) return a.y - b.y;
+                return a.x - b.x;
+            });
+
+            // 逐个分配颜色
+            for (let i = 0; i < emptyCells.length; i++) {
+                const cell = emptyCells[i];
+                const { x, y } = cell;
+
+                // 获取相邻单元格的颜色
+                const adjacentColors = new Set<string>();
+                const neighbors = [
+                    { dx: -1, dy: 0 }, { dx: 1, dy: 0 },
+                    { dx: 0, dy: -1 }, { dx: 0, dy: 1 }
+                ];
+
+                for (const neighbor of neighbors) {
+                    const nx = x + neighbor.dx;
+                    const ny = y + neighbor.dy;
+
+                    if (ny >= 0 && ny < grid.length) {
+                        const row = grid[ny];
+                        if (row && nx >= 0 && nx < row.length) {
+                            const neighborCell = row[nx];
+                            if (neighborCell && neighborCell[3]) {
+                                adjacentColors.add(neighborCell[3]);
+                            }
+                        }
+                    }
+                }
+
+                // 从剩余颜色中选择不与相邻颜色冲突的
+                let availableColorIndex = -1;
+                for (let j = i; j < colorDistribution.length; j++) {
+                    if (!adjacentColors.has(colorDistribution[j])) {
+                        availableColorIndex = j;
+                        break;
+                    }
+                }
+
+                if (availableColorIndex === -1) {
+                    availableColorIndex = i;
+                }
+
+                if (availableColorIndex !== i) {
+                    const temp = colorDistribution[i];
+                    colorDistribution[i] = colorDistribution[availableColorIndex];
+                    colorDistribution[availableColorIndex] = temp;
+                }
+
+                cell.cell[3] = colorDistribution[i];
+            }
+
+            // 检查是否有相邻同色
+            for (const cell of emptyCells) {
+                const { x, y } = cell;
+                const currentColor = cell.cell[3];
+
+                const neighbors = [
+                    { dx: -1, dy: 0 }, { dx: 1, dy: 0 },
+                    { dx: 0, dy: -1 }, { dx: 0, dy: 1 }
+                ];
+
+                for (const neighbor of neighbors) {
+                    const nx = x + neighbor.dx;
+                    const ny = y + neighbor.dy;
+
+                    if (ny >= 0 && ny < grid.length) {
+                        const row = grid[ny];
+                        if (row && nx >= 0 && nx < row.length) {
+                            const neighborCell = row[nx];
+                            if (neighborCell && neighborCell[3] === currentColor) {
+                                hasAdjacentSameColor = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (hasAdjacentSameColor) break;
+            }
+        }
+
+        return grid;
+    }
     // Fisher-Yates 随机打乱
     static shuffleArray(arr) {
         for (let i = arr.length - 1; i > 0; i--) {
@@ -1140,8 +1277,54 @@ export class CreateRoleYarnNew {
         const newGrid = this.fillColors(this.MapData, colors);
         console.log(newGrid);
     }
+    static ColorRatio = {
+        color3: [0.4, 0.3, 0.3],
+        color4: [0.3, 0.3, 0.2, 0.2],
+        color5: [0.25, 0.25, 0.2, 0.15, 0.15],
+        color6: [0.2, 0.2, 0.15, 0.15, 0.15, 0.15],
+        color7: [0.2, 0.2, 0.15, 0.15, 0.1, 0.1, 0.05, 0.05],
+        color8: [0.2, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+        color9: [0.2, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.05, 0.05],
+        color10: [0.2, 0.2, 0.1, 0.1, 0.1, 0.1, 0.05, 0.05, 0.05, 0.05]
+    }
     // 使用示例
-
+    static getEasyColor(color, count) {
+        let colorCounts = {}
+        let ValueNo = {}
+        let NeedAdd = 0
+        for (let i in this.ColorRatio['color' + color]) {
+            let v = this.ColorRatio['color' + color][i]
+            colorCounts[TitleType[i]] = count * v;
+            if (!Number.isInteger(colorCounts[TitleType[i]])) {
+                ValueNo[TitleType[i]] = 1
+                NeedAdd += (count * v) % 1
+            }
+        }
+        while (Object.keys(ValueNo).length > 0) {
+            for (let k in ValueNo) {
+                const maxKey1 = Object.keys(colorCounts).reduce((a, b) => colorCounts[a] > colorCounts[b] ? a : b);
+                if (NeedAdd >= 1) {
+                    colorCounts[k] = Math.ceil(colorCounts[k]);
+                    NeedAdd -= 1
+                } else if (maxKey1 != k) {
+                    colorCounts[maxKey1] -= 1;
+                    colorCounts[k] = Math.ceil(colorCounts[k]);
+                } else {
+                    // 方法1：先过滤非整数，再找最小值
+                    const nonIntegerKeys = Object.keys(colorCounts).filter(key => !Number.isInteger(colorCounts[key]));
+                    let minNonIntegerKey = Object.keys(colorCounts).reduce((a, b) => colorCounts[a] < colorCounts[b] ? a : b);
+                    if (nonIntegerKeys.length > 0) {
+                        // 有非整数，找最小的非整数
+                        minNonIntegerKey = nonIntegerKeys.reduce((a, b) => colorCounts[a] < colorCounts[b] ? a : b);
+                    }
+                    colorCounts[minNonIntegerKey] += 1;
+                    colorCounts[k] = parseInt(colorCounts[k])
+                }
+                delete ValueNo[k]
+            }
+        }
+        return colorCounts;
+    }
 
     // 打印可视化
 

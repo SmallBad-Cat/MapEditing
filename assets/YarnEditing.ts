@@ -419,6 +419,7 @@ export class YarnEditing extends Component {
     MapChange(init?) {
         if (!this.node.getChildByName("seve_data").active) {
             this.node.getChildByName("seve_data").active = true
+            this.node.getChildByName("seve_data_easy").active = true;
             this.node.getChildByName("setImportColor").active = true
             //  this.node.getChildByName("setImportColor").active = false
         }
@@ -2158,7 +2159,7 @@ export class YarnEditing extends Component {
                 return
             }
             // CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor)
-            let data = CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor)
+            let data = CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor,target.name == "seve_data_easy")
             if (this.MapId && data) {
                 this.yarn_mapLayoutData[this.MapId] = {
                     id: this.MapId,
@@ -2214,6 +2215,7 @@ export class YarnEditing extends Component {
         this.ChangePosState = true
         this.ChangePos.getChildByName("ChangePosOK").active = true;
         this.node.getChildByName("seve_data").active = false
+        this.node.getChildByName("seve_data_easy").active = false
     }
     ChangePosOk() {
         this.StateText.string = "编辑顺序"
@@ -2221,6 +2223,7 @@ export class YarnEditing extends Component {
         this.SaveChange()
         this.ChangePos.getChildByName("ChangePosOK").active = false;
         this.node.getChildByName("seve_data").active = true;
+        this.node.getChildByName("seve_data_easy").active = true;
 
     }
     getNowData(create?): any {
@@ -4349,6 +4352,7 @@ export class YarnEditing extends Component {
         this.TouchNode && (this.TouchNode.active = false);
         if (this.node.getChildByName("seve_data").active) {
             this.node.getChildByName("seve_data").active = false
+            this.node.getChildByName("seve_data_easy").active = false;
             this.node.getChildByName("setImportColor").active = false
             //  this.node.getChildByName("setImportColor").active = false 
         }
