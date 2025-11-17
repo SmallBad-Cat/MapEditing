@@ -442,6 +442,8 @@ export class CreateRoleYarnNew {
     ]
     static PeopleColor = { 30: 5, 40: 6, 50: 7, 80: 8, 999: 9 }
     static getRoleData(data, fixed, setColor, easy?) {
+        console.log(data);
+        // console.error(object);
         // 所有类型数量
         let AllTypeCount = {}
         let all_roles = 0;//所有人数
@@ -1282,7 +1284,7 @@ export class CreateRoleYarnNew {
         color4: [0.3, 0.3, 0.2, 0.2],
         color5: [0.25, 0.25, 0.2, 0.15, 0.15],
         color6: [0.2, 0.2, 0.15, 0.15, 0.15, 0.15],
-        color7: [0.2, 0.2, 0.15, 0.15, 0.1, 0.1, 0.05, 0.05],
+        color7: [0.2, 0.2, 0.15, 0.15, 0.1, 0.1, 0.1],
         color8: [0.2, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
         color9: [0.2, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.05, 0.05],
         color10: [0.2, 0.2, 0.1, 0.1, 0.1, 0.1, 0.05, 0.05, 0.05, 0.05]
@@ -1292,6 +1294,7 @@ export class CreateRoleYarnNew {
         let colorCounts = {}
         let ValueNo = {}
         let NeedAdd = 0
+        console.log("颜色数量：",color);
         for (let i in this.ColorRatio['color' + color]) {
             let v = this.ColorRatio['color' + color][i]
             colorCounts[TitleType[i]] = count * v;
