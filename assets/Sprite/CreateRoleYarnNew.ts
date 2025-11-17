@@ -1294,7 +1294,6 @@ export class CreateRoleYarnNew {
         let colorCounts = {}
         let ValueNo = {}
         let NeedAdd = 0
-        console.log("颜色数量：",color);
         for (let i in this.ColorRatio['color' + color]) {
             let v = this.ColorRatio['color' + color][i]
             colorCounts[TitleType[i]] = count * v;
@@ -1306,7 +1305,7 @@ export class CreateRoleYarnNew {
         while (Object.keys(ValueNo).length > 0) {
             for (let k in ValueNo) {
                 const maxKey1 = Object.keys(colorCounts).reduce((a, b) => colorCounts[a] > colorCounts[b] ? a : b);
-                if (NeedAdd >= 1) {
+                if (NeedAdd > 0) {
                     colorCounts[k] = Math.ceil(colorCounts[k]);
                     NeedAdd -= 1
                 } else if (maxKey1 != k) {
