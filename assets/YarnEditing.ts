@@ -564,6 +564,7 @@ export class YarnEditing extends Component {
                             for (let X = 0; X < this.DoubleLiftType[idx[2]][0]; X++) {
                                 let Y_new = idx[1] + Y
                                 let X_new = idx[0] + X
+                                console.log(this.map_data[Y_new][X_new]);
                                 let t1 = this.map_data[Y_new][X_new].datas[0]
                                 let t2 = this.map_data[Y_new][X_new].datas[1]
                                 let newChild1 = instantiate(this.Map.children[0].getChildByName("1"))
@@ -2698,7 +2699,6 @@ export class YarnEditing extends Component {
 
 
 
-
         this.FixedLift.active = FixedLiftState
 
         if (DTJ.length > 0 && !Editing) {
@@ -2772,29 +2772,41 @@ export class YarnEditing extends Component {
         }, 0.05)
     }
     setDTJData(data) {
-
         for (let idx of data) {
             let Datas = JSON.parse(JSON.stringify(this.map_data[idx[1]][idx[0]].datas))
-            for (let Y = 0; Y < this.DoubleLiftType[idx[2]][1]; Y++) {
-                for (let X = 0; X < this.DoubleLiftType[idx[2]][0]; X++) {
-                    let Y_new = idx[1] + Y
-                    let X_new = idx[0] + X
-                    if (X == 0 && Y == 0) {
-                        this.map_data[Y_new][X_new].datas = []
-                    }
-                    this.map_data[Y_new][X_new].type = idx[2]
-                    this.map_data[Y_new][X_new].child.name = '' + idx[2]
-                    this.map_data[Y_new][X_new].child.getComponent(Sprite).color = new Color('#6C88F8')
-                    this.map_data[Y_new][X_new].datas.push(Datas.shift())
-                    // this.map_data[Y_new][X_new].child.getComponent(Sprite).spriteFrame = this.Map.children[0].children[0].getComponent(Sprite).spriteFrame
-                }
-            }
-            if (Datas.length > 0) {
+            console.log(Datas);
+            console.log(this.map_data);
+            if(Datas.length>6){
                 for (let Y = 0; Y < this.DoubleLiftType[idx[2]][1]; Y++) {
                     for (let X = 0; X < this.DoubleLiftType[idx[2]][0]; X++) {
                         let Y_new = idx[1] + Y
                         let X_new = idx[0] + X
+                        if (X == 0 && Y == 0) {
+                            this.map_data[Y_new][X_new].datas = []
+                        }
+                        this.map_data[Y_new][X_new].type = idx[2]
+                        this.map_data[Y_new][X_new].child.name = '' + idx[2]
+                        this.map_data[Y_new][X_new].child.getComponent(Sprite).color = new Color('#6C88F8')
                         this.map_data[Y_new][X_new].datas.push(Datas.shift())
+                    }
+                }
+                if (Datas.length > 0) {
+                    for (let Y = 0; Y < this.DoubleLiftType[idx[2]][1]; Y++) {
+                        for (let X = 0; X < this.DoubleLiftType[idx[2]][0]; X++) {
+                            let Y_new = idx[1] + Y
+                            let X_new = idx[0] + X
+                            this.map_data[Y_new][X_new].datas.push(Datas.shift())
+                        }
+                    }
+                }
+            }else{
+                 for (let Y = 0; Y < this.DoubleLiftType[idx[2]][1]; Y++) {
+                    for (let X = 0; X < this.DoubleLiftType[idx[2]][0]; X++) {
+                        let Y_new = idx[1] + Y
+                        let X_new = idx[0] + X
+                        this.map_data[Y_new][X_new].type = idx[2]
+                        this.map_data[Y_new][X_new].child.name = '' + idx[2]
+                        this.map_data[Y_new][X_new].child.getComponent(Sprite).color = new Color('#6C88F8')
                     }
                 }
             }
@@ -2804,6 +2816,7 @@ export class YarnEditing extends Component {
         return str.replace(new RegExp(find, 'g'), replace);
     }
     CloseAll(MapChange?) {
+        this.node.getChildByName("CurtainPage").destroyAllChildren();
         this.CurtainData = {}
         this.LiftExportData = {
             key: null,
@@ -2987,6 +3000,7 @@ export class YarnEditing extends Component {
         this.MapColorState = data["ColorList"] ? 1 : 0
 
         this.ChooseKuang.active = this.MapColorState > 0 ? false : true
+        this.node.getChildByName("CurtainPage").destroyAllChildren();
         this.dataJsonImport(data.layout)
         if (data.chain) {
             this.setChainData(data.chain)
@@ -4356,7 +4370,7 @@ export class YarnEditing extends Component {
             this.node.getChildByName("setImportColor").active = false
             //  this.node.getChildByName("setImportColor").active = false 
         }
-        let types = [1, 31, 42, 43, 44, 45, 46, 111, 51, 52, 53, 54, 55, 56, 57, 1111, 141, 142, 143, 144]
+        let types = [1, 31, 42, 43, 44, 45, 46, 111, 51, 52, 53, 54, 55, 56, 57, 1111, 141, 142, 143, 144,101,102,103,104]
         let change = false
         if (types.indexOf(data.type) >= 0) {
 
@@ -4380,8 +4394,10 @@ export class YarnEditing extends Component {
         }
         this.GoNumRefirsh(data)
         if (change) {
+            console.log(this.ColorList);
             let c = this.ColorList[this.ColorList.length - 1][2]
             // 当前颜色实际间隔
+            console.log(c);
             let color_sjjg = this.MapValueData.BallColorChange[c].value
             this.MapValueData.BallColorChange[c].change.push(this.MapValueData.BallColorChange[c].value)
             this.MapValueData.BallColorChange[c].value = 0
