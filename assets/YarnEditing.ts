@@ -4752,11 +4752,8 @@ export class YarnEditing extends Component {
         }
     }
     unLockKey(data) {
-        console.log(this.AttrItemData);
         for (let chain of this.ChainData) {
-            let k_name = chain[2][1] + "-" + chain[2][0]
-            // if (data.idx[0] + "-" + data.idx[1] == )
-            if (this.map_data[chain[2][1]] && this.map_data[chain[2][1]][chain[2][0]] && !this.map_data[chain[2][1]][chain[2][0]].child.active && this.map_data[chain[0][1]][chain[0][0]].child.getChildByName("suo")) {
+            if (this.map_data[chain[2][1]] && this.map_data[chain[2][1]][chain[2][0]] && (!this.map_data[chain[2][1]][chain[2][0]].child.active || !this.map_data[chain[2][1]][chain[2][0]].child.getChildByName("yao_shi")||!this.map_data[chain[2][1]][chain[2][0]].child.getChildByName("yao_shi").active)) {
                 this.map_data[chain[0][1]][chain[0][0]].child.getChildByName("suo").active = false
                 this.map_data[chain[1][1]][chain[1][0]].child.getChildByName("suo").active = false
             }
@@ -4766,9 +4763,8 @@ export class YarnEditing extends Component {
                 let pos = this.getPosIDX(lock, "-")
                 let state = false
                 for (let key of this.locking.data[lock][0]) {
-                    let k_name = key[0] + "-" + key[1]
                     if (this.map_data[key[0]] && this.map_data[key[0]][key[1]]) {
-                        if (!state && this.map_data[key[0]][key[1]].child.active) {
+                        if (!state && this.map_data[key[0]][key[1]].child.active && this.map_data[key[0]][key[1]].child.getChildByName("Xyao_shi")&&this.map_data[key[0]][key[1]].child.getChildByName("Xyao_shi").active) {
                             state = true
                         }
                     }
