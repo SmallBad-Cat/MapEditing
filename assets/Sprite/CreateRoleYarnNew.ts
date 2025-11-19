@@ -590,6 +590,7 @@ export class CreateRoleYarnNew {
             }
         }
         console.error(colorCounts);
+        console.log(dtj_c_c);
         // let getData = this.getRoleDataStrs(0, this.fillColors(data, TitleArr, colorCounts), all_roles, all_lift, color, SizeKey[size.y][size.x], fixed, LiftColor)
         // if (getData) {
         //     if (!getDatas[getData[3]]) {
@@ -619,7 +620,7 @@ export class CreateRoleYarnNew {
                 }
             }
         }
-
+        console.log(lift_shaft);
         for (let i = 0; i < 1000; i++) {
             let getData = this.getRoleDataStrs(0, this.fillColors(data, TitleArr, colorCounts), all_roles, all_lift, color, SizeKey[size.y][size.x], fixed, LiftColor)
             if (getData) {

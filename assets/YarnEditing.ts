@@ -4621,7 +4621,7 @@ export class YarnEditing extends Component {
 
         }
         this.ExportGroup()
-        this.unLockKey()
+        this.unLockKey(data)
         this.UpDTJ()
         this.GoNumRefirsh(data)
         this.ChangeCurtain()
@@ -4751,11 +4751,12 @@ export class YarnEditing extends Component {
             }
         }
     }
-    unLockKey() {
-        this.ChainData
-        this.locking
+    unLockKey(data) {
+        console.log(this.AttrItemData);
         for (let chain of this.ChainData) {
-            if (!this.map_data[chain[2][1]][chain[2][0]].child.active) {
+            let k_name = chain[2][1] + "-" + chain[2][0]
+            // if (data.idx[0] + "-" + data.idx[1] == )
+            if (this.map_data[chain[2][1]]&&this.map_data[chain[2][1]][chain[2][0]]&&!this.map_data[chain[2][1]][chain[2][0]].child.active) {
                 this.map_data[chain[0][1]][chain[0][0]].child.getChildByName("suo").active = false
                 this.map_data[chain[1][1]][chain[1][0]].child.getChildByName("suo").active = false
             }
@@ -4765,11 +4766,14 @@ export class YarnEditing extends Component {
                 let pos = this.getPosIDX(lock, "-")
                 let state = false
                 for (let key of this.locking.data[lock][0]) {
-                    if (!state && this.map_data[key[0]][key[1]].child.active) {
-                        state = true
+                    let k_name = key[0] + "-" + key[1]
+                    if (this.map_data[key[0]] && this.map_data[key[0]][key[1]]) {
+                        if (!state && this.map_data[key[0]][key[1]].child.active) {
+                            state = true
+                        }
                     }
                 }
-                if (!state) {
+                if (!state && this.map_data[pos[0]] && this.map_data[pos[0]][pos[1]]) {
                     this.map_data[pos[0]][pos[1]].child.getChildByName("Xsuo").active = false
                 }
             }
