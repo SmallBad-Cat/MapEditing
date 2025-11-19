@@ -4756,7 +4756,7 @@ export class YarnEditing extends Component {
         for (let chain of this.ChainData) {
             let k_name = chain[2][1] + "-" + chain[2][0]
             // if (data.idx[0] + "-" + data.idx[1] == )
-            if (this.map_data[chain[2][1]]&&this.map_data[chain[2][1]][chain[2][0]]&&!this.map_data[chain[2][1]][chain[2][0]].child.active) {
+            if (this.map_data[chain[2][1]] && this.map_data[chain[2][1]][chain[2][0]] && !this.map_data[chain[2][1]][chain[2][0]].child.active && this.map_data[chain[0][1]][chain[0][0]].child.getChildByName("suo")) {
                 this.map_data[chain[0][1]][chain[0][0]].child.getChildByName("suo").active = false
                 this.map_data[chain[1][1]][chain[1][0]].child.getChildByName("suo").active = false
             }
@@ -4773,7 +4773,7 @@ export class YarnEditing extends Component {
                         }
                     }
                 }
-                if (!state && this.map_data[pos[0]] && this.map_data[pos[0]][pos[1]]) {
+                if (!state && this.map_data[pos[0]] && this.map_data[pos[0]][pos[1]] && this.map_data[pos[0]][pos[1]].child.getChildByName("Xsuo")) {
                     this.map_data[pos[0]][pos[1]].child.getChildByName("Xsuo").active = false
                 }
             }
