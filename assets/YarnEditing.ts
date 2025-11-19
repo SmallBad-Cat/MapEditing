@@ -1147,12 +1147,14 @@ export class YarnEditing extends Component {
                 }
                 count_label.string = count + '';
             }
-            data.child.name = this.Piece[1] + '';
-            data.child.getComponent(Sprite).color = this.Piece[0].getComponent(Sprite).color;
-            if (this.Obstacle['F'].indexOf(this.Piece[1]) >= 0 || this.Obstacle['E'].indexOf(this.Piece[1]) >= 0 || this.Obstacle['DTJ'].indexOf(this.Piece[1]) >= 0 || this.Obstacle['LiftExport'].indexOf(this.Piece[1]) >= 0) {
+            if (this.Obstacle['DTJ'].indexOf(this.Piece[1]) < 0) {
+                data.child.name = this.Piece[1] + '';
+                data.child.getComponent(Sprite).color = this.Piece[0].getComponent(Sprite).color;
+            }
+            if (this.Obstacle['F'].indexOf(this.Piece[1]) >= 0 || this.Obstacle['E'].indexOf(this.Piece[1]) >= 0 || this.Obstacle['LiftExport'].indexOf(this.Piece[1]) >= 0) {
                 // 双头电梯
-                if (this.Obstacle['F'].indexOf(this.Piece[1]) >= 0 || this.Obstacle['DTJ'].indexOf(this.Piece[1]) >= 0 || this.Obstacle['LiftExport'].indexOf(this.Piece[1]) >= 0) {
-                    let pieceColor = this.Obstacle['F'].indexOf(this.Piece[1]) >= 0 ? "#FF8F53" : "6C88F8";
+                if (this.Obstacle['F'].indexOf(this.Piece[1]) >= 0 || this.Obstacle['LiftExport'].indexOf(this.Piece[1]) >= 0) {
+                    let pieceColor = this.Obstacle['F'].indexOf(this.Piece[1]) >= 0 ? "#FF8F53" : "#6C88F8";
                     let LiftExport_state = false
                     if (this.Obstacle['LiftExport'].indexOf(this.Piece[1]) >= 0) {
                         pieceColor = this.Piece[0].getComponent(Sprite).color;
@@ -1288,6 +1290,24 @@ export class YarnEditing extends Component {
                     }
                 })
                 // }
+            } else if (this.Obstacle['DTJ'].indexOf(this.Piece[1]) >= 0) {
+                let w = this.DoubleLiftType[this.Piece[1]][0]
+                let h = this.DoubleLiftType[this.Piece[1]][1]
+                if (data.idx[1] + w > this.map_size.arrange + 1) {
+                    this.TipTween('不可超过横向边界')
+                    data.type = 1
+                    data.child.getComponent(Sprite).color = new Color('DBEEF3')
+                    return
+                }
+                if ((data.idx[0] + h) > (this.map_size.row + 1)) {
+                    this.TipTween('不可超过竖向边界')
+                    data.type = 1
+                    data.child.getComponent(Sprite).color = new Color('DBEEF3')
+                    return
+                }
+                this.setNewDTJ(data)
+
+
             }
 
             // if (data.child.children.length > 1) {
@@ -1711,13 +1731,34 @@ export class YarnEditing extends Component {
         }
         return true
     }
+    setNewDTJ(data) {
+        let pieceColor = "#6C88F8";
+        let w = this.DoubleLiftType[this.Piece[1]][0]
+        let h = this.DoubleLiftType[this.Piece[1]][1]
+        for (let y = data.idx[0]; y < data.idx[0] + h; y++) {
+            for (let x = data.idx[1]; x < data.idx[1] + w; x++) {
+                let newChild = instantiate(this.map_data[y][x].child)
+                newChild.scale = v3(0.7, 0.7, 0.7)
+                newChild.getComponent(Sprite).color = new Color(pieceColor)
+                this.map_data[y][x].child.addChild(newChild)
+            }
+        }
+    }
     delNewDTJ(y, x) {
         this.lift_shaft = {}
         for (let k in this.lift_shaft) {
-
+            let map = this.lift_shaft[k].map
+            if (map[y] && map[y][x]) {
+                for (let m_y in map) {
+                    for (let m_x in map[m_y]) {
+                        this.map_data[m_y][m_x].child.getChildByName("dtj") && this.map_data[m_y][m_x].child.getChildByName("dtj").destroy();
+                    }
+                }
+                delete this.lift_shaft[k]
+            }
         }
-
     }
+
     delDTJ(y, x, t) {
         let key = y + "_" + x;
         let keyLabel = this.dataParent.getChildByName(t + "").getChildByName('count').getComponent(Label)
@@ -2500,11 +2541,11 @@ export class YarnEditing extends Component {
                 }
             }
             this.map_data[idx[1]][idx[0]].child.name = this.map_data[idx[1]][idx[0]].type + '';
-            let types = [31, 1111, 56, 57, 42, 43, 44, 45, 46, 141, 142, 143, 144]
+            let types = [31,  1111, 56, 57, 42, 43, 44, 45, 46, 141, 142, 143, 144]
             if (this.dataParent.getChildByName(idx[2] + '')) {
 
                 if (types.indexOf(idx[2]) >= 0) {
-                    if (this.MapColorState <= 0 && idx[2] == 31) {
+                    if (this.MapColorState <= 0 && (idx[2] == 31 || idx[2] == 1111)) {
                         this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).color;
                     }
                 } else {
@@ -2658,7 +2699,6 @@ export class YarnEditing extends Component {
                     this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).color = new Color(CellToColor[c]);
                 }
             }
-            let pieceColor = this.Obstacle['F'].indexOf(this.Piece[1]) >= 0 ? "#FF8F53" : "6C88F8"
 
         }
         let OkType = {
@@ -2719,10 +2759,10 @@ export class YarnEditing extends Component {
 
 
         this.FixedLift.active = FixedLiftState
-
-        if (DTJ.length > 0 && !Editing) {
-            this.setDTJData(DTJ)
-        }
+        this.setDTJData(DTJ)
+        // if (DTJ.length > 0 && !Editing) {
+        //     this.setDTJData(DTJ)
+        // }
         if (STTKeyArr.length > 0) {
             for (let pos of STTKeyArr) {
                 let getlast_key = this.getLastDoublePos(pos.y, pos.x)
@@ -2791,6 +2831,16 @@ export class YarnEditing extends Component {
         }, 0.05)
     }
     setDTJData(data) {
+
+        for (let k in this.lift_shaft) {
+            let map = this.lift_shaft[k]
+            for (let y in map) {
+                for (let x in map[y]) {
+                    this.map_data[y][x].child.getComponent(Sprite).color = new Color('#6C88F8')
+                }
+            }
+        }
+        return
         for (let idx of data) {
             let Datas = JSON.parse(JSON.stringify(this.map_data[idx[1]][idx[0]].datas))
             console.log(Datas);
@@ -2847,6 +2897,7 @@ export class YarnEditing extends Component {
             data: {},
             key: [],
         };
+        this.lift_shaft = {}
         // if (this.DTJLayer.row > 0) {
         //     this.Map.scale = v3(1, 1, 1)
         //     this.map_size = {
@@ -3357,11 +3408,8 @@ export class YarnEditing extends Component {
         this.ItemSetMap(item, layout, mapSize, this.yarn_mapLayoutData[data[2]].chain, this.yarn_mapLayoutData[data[2]].locking, this.yarn_mapLayoutData[data[2]].Curtain)
     }
     // 
-    ItemSetMap(item, data, mapSize, chain = null, locking = null, CurtainData = null) {
-        this.locking = {
-            data: {},
-            key: [],
-        }
+    ItemSetMap(item, data, mapSize, chain = null, locking = null, CurtainData = null, lift_shaft = null) {
+
         let handle = this.HandleConf(data)
         let new_data = handle.map
         let map_size = handle.size
@@ -3551,18 +3599,27 @@ export class YarnEditing extends Component {
                 }
             }
         }
-        if (DTJ.length > 0) {
-            for (let idx of DTJ) {
-                for (let Y = 0; Y < this.DoubleLiftType[idx[2]][1]; Y++) {
-                    for (let X = 0; X < this.DoubleLiftType[idx[2]][0]; X++) {
-                        let Y_new = idx[1] + Y
-                        let X_new = idx[0] + X
-                        map_data[Y_new][X_new].type = idx[2]
-                        map_data[Y_new][X_new].child.name = '' + idx[2]
-                        map_data[Y_new][X_new].child.getComponent(Sprite).color = new Color('#6C88F8')
+
+        if (lift_shaft && Object.keys(lift_shaft).length > 0) {
+            for (let k in lift_shaft) {
+                let map = lift_shaft[k].map
+                for (let m_y in map) {
+                    for (let m_x in map[m_y]) {
+                        map_data[m_y][m_x].child.getComponent(Sprite).color = new Color('#6C88F8')
                     }
                 }
             }
+            // for (let idx of DTJ) {
+            //     for (let Y = 0; Y < this.DoubleLiftType[idx[2]][1]; Y++) {
+            //         for (let X = 0; X < this.DoubleLiftType[idx[2]][0]; X++) {
+            //             let Y_new = idx[1] + Y
+            //             let X_new = idx[0] + X
+            //             map_data[Y_new][X_new].type = idx[2]
+            //             map_data[Y_new][X_new].child.name = '' + idx[2]
+            //             map_data[Y_new][X_new].child.getComponent(Sprite).color = new Color('#6C88F8')
+            //         }
+            //     }
+            // }
         }
         if (STTKeyArr.length > 0) {
             for (let pos of STTKeyArr) {
