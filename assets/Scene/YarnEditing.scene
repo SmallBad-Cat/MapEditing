@@ -25519,8 +25519,8 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -77.446,
-      "y": -115.249,
+      "x": 133.154,
+      "y": -94.749,
       "z": 0
     },
     "_lrot": {
@@ -25532,8 +25532,8 @@
     },
     "_lscale": {
       "__type__": "cc.Vec3",
-      "x": 0,
-      "y": 0,
+      "x": 1,
+      "y": 1,
       "z": 1
     },
     "_mobility": 0,
@@ -26147,13 +26147,13 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 108,
-      "g": 136,
-      "b": 248,
+      "r": 255,
+      "g": 255,
+      "b": 255,
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "7d8f9b89-4fd1-4c9f-a3ab-38ec7cded7ca@f9941",
+      "__uuid__": "bdf88706-22a9-4306-9b91-b031e88e3bdc@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
@@ -26576,13 +26576,13 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 108,
-      "g": 136,
-      "b": 248,
+      "r": 255,
+      "g": 255,
+      "b": 255,
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "7d8f9b89-4fd1-4c9f-a3ab-38ec7cded7ca@f9941",
+      "__uuid__": "bdf88706-22a9-4306-9b91-b031e88e3bdc@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
@@ -27005,13 +27005,13 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 108,
-      "g": 136,
-      "b": 248,
+      "r": 255,
+      "g": 255,
+      "b": 255,
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "7d8f9b89-4fd1-4c9f-a3ab-38ec7cded7ca@f9941",
+      "__uuid__": "bdf88706-22a9-4306-9b91-b031e88e3bdc@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
@@ -27434,13 +27434,13 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 108,
-      "g": 136,
-      "b": 248,
+      "r": 255,
+      "g": 255,
+      "b": 255,
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "7d8f9b89-4fd1-4c9f-a3ab-38ec7cded7ca@f9941",
+      "__uuid__": "bdf88706-22a9-4306-9b91-b031e88e3bdc@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
@@ -39264,7 +39264,7 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 563.403,
+      "x": 602.525,
       "y": -210.78,
       "z": 0
     },
@@ -39351,7 +39351,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 120,
+      "width": 100,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -39384,8 +39384,8 @@
     "_string": "保存地形",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 30,
-    "_fontSize": 30,
+    "_actualFontSize": 25,
+    "_fontSize": 25,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
     "_overflow": 0,
@@ -39412,7 +39412,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 160,
+      "width": 100,
       "height": 80
     },
     "_anchorPoint": {
@@ -45596,7 +45596,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "电梯井显示",
+    "_string": "电梯井状态",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
@@ -45926,7 +45926,7 @@
       "__id__": 4
     },
     "component": "",
-    "_componentId": "97817DUUc9BDL0SO96YDR8w",
+    "_componentId": "d4f26JoYUJHV59pAHtpYAAQ",
     "handler": "onCutDTJShow",
     "customEventData": ""
   },
@@ -46273,8 +46273,8 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 384.43399999999997,
-      "y": -210.78000000000003,
+      "x": 480.066,
+      "y": -210.78,
       "z": 0
     },
     "_lrot": {
@@ -46360,7 +46360,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 120,
+      "width": 100,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -46393,8 +46393,8 @@
     "_string": "生成颜色",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 30,
-    "_fontSize": 30,
+    "_actualFontSize": 25,
+    "_fontSize": 25,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
     "_overflow": 0,
@@ -46421,7 +46421,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 160,
+      "width": 100,
       "height": 80
     },
     "_anchorPoint": {
@@ -46524,7 +46524,9 @@
     "_disabledSprite": null,
     "_duration": 0.1,
     "_zoomScale": 1.2,
-    "_target": null,
+    "_target": {
+      "__id__": 1297
+    },
     "_id": "00YHrwhLlHzrd+WYM/N/Hm"
   },
   {
@@ -46565,8 +46567,8 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 560.933,
-      "y": -114.16,
+      "x": 357.714,
+      "y": -210.879,
       "z": 0
     },
     "_lrot": {
@@ -46652,8 +46654,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 168,
-      "height": 50.4
+      "width": 56,
+      "height": 90.39999999999999
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -46682,7 +46684,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "生成简单颜色",
+    "_string": "简单\n颜色",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 28,
@@ -46713,7 +46715,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 180,
+      "width": 100,
       "height": 80
     },
     "_anchorPoint": {
@@ -61654,8 +61656,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 28,
-      "height": 36
+      "width": 67,
+      "height": 64
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -61685,7 +61687,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "420cdee8-8c98-4cb6-85f4-f9c3136fff91@f9941",
+      "__uuid__": "f576437c-bde6-4626-91f0-7ca4e9907221@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
@@ -61921,7 +61923,7 @@
     "_priority": 2,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 467.3627353815659,
+    "_orthoHeight": 468.75646123260435,
     "_near": 0,
     "_far": 1000,
     "_color": {

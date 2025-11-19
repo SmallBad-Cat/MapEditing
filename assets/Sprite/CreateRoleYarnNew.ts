@@ -441,8 +441,7 @@ export class CreateRoleYarnNew {
         ]
     ]
     static PeopleColor = { 30: 5, 40: 6, 50: 7, 80: 8, 999: 9 }
-    static getRoleData(data, fixed, setColor, easy?) {
-        console.log(data);
+    static getRoleData(data, fixed, setColor, dtj = null, easy?) {
         // console.error(object);
         // 所有类型数量
         let AllTypeCount = {}
@@ -494,6 +493,28 @@ export class CreateRoleYarnNew {
                 }
             }
         }
+        let lift_shaft_num = 0
+        let DTJData = []
+        if (dtj) {
+            for (let k in dtj) {
+                let map = dtj[k].map
+                let y = 1
+                for (let y_y in map) {
+                    let x = 1
+                    for (let x_x in map[y_y]) {
+                        if (!DTJData[x]) {
+                            DTJData[x] = []
+                        }
+                        DTJData[x][y] = [x_x, y_y, map[y_y][x_x][0]]
+                        all_roles += 1
+                        lift_shaft_num += 1
+                        x++
+                    }
+                    y++
+                }
+            }
+        }
+        console.log(DTJData);
         let color = 10
         if (setColor) {
             color = setColor
@@ -503,9 +524,10 @@ export class CreateRoleYarnNew {
         let getDatas = {}
         let TitleArr = TitleType.slice(0, color)
         let LiftColor = []
-        let UseColor = all_roles - all_lift - LiftExportRoles;
+        let UseColor = all_roles - all_lift - LiftExportRoles - lift_shaft_num;
         let t_k = 0
         let colorCounts = {}
+        let dtj_c_c = {}
         if (easy) {
             colorCounts = this.getEasyColor(color, all_roles)
             let ColorK = Object.keys(colorCounts)
@@ -527,12 +549,39 @@ export class CreateRoleYarnNew {
                     }
                 }
             }
+            if (lift_shaft_num > 0) {
+                let ColorK = Object.keys(colorCounts)
+                let ColorKIIdx = 0;
+                while (lift_shaft_num > 0) {
+                    if (!dtj_c_c[ColorK[ColorKIIdx]]) {
+                        dtj_c_c[ColorK[ColorKIIdx]] = 0
+                    }
+                    dtj_c_c[ColorK[ColorKIIdx]] += 1
+                    colorCounts[ColorK[ColorKIIdx]] -= 1
+                    if (colorCounts[ColorK[ColorKIIdx]] == 0) {
+                        delete colorCounts[ColorK[ColorKIIdx]]
+                        ColorK = Object.keys(colorCounts)
+                    } else {
+                        ColorKIIdx += 1
+                    }
+                    if (ColorKIIdx >= ColorK.length) {
+                        ColorKIIdx = 0
+                    }
+                }
+
+            }
         } else {
             for (let i = 0; i < all_roles; i++) {
                 if (UseColor > 0) {
                     UseColor -= 1
-                } else {
+                } else if (all_lift > LiftColor.length) {
                     LiftColor.push(TitleArr[t_k])
+                } else {
+                    // liftShaft
+                    if (!dtj_c_c[TitleArr[t_k]]) {
+                        dtj_c_c[TitleArr[t_k]] = 0
+                    }
+                    dtj_c_c[TitleArr[t_k]] += 1
                 }
                 t_k++
                 if (t_k == TitleArr.length) {
@@ -548,6 +597,29 @@ export class CreateRoleYarnNew {
         //     }
         //     getDatas[getData[3]].push(getData)
         // }
+        let lift_shaft = null
+        if (DTJData.length > 0) {
+            lift_shaft = {}
+            let liftShaftData = this.fillColors(DTJData, TitleArr, dtj_c_c)
+            for (let k in dtj) {
+                let map = dtj[k].map
+                let y = 1
+                lift_shaft[k] = {
+                    size:dtj[k].size,
+                    map:{}
+                }
+                for (let y_y in map) {
+                    let x = 1
+                    lift_shaft[k].map[y_y] = {}
+                    for (let x_x in map[y_y]) {
+                        lift_shaft[k].map[y_y][x_x] = [liftShaftData[x][y][2], liftShaftData[x][y][3]]
+                        x++
+                    }
+                    y++
+                }
+            }
+        }
+
         for (let i = 0; i < 1000; i++) {
             let getData = this.getRoleDataStrs(0, this.fillColors(data, TitleArr, colorCounts), all_roles, all_lift, color, SizeKey[size.y][size.x], fixed, LiftColor)
             if (getData) {
@@ -558,7 +630,7 @@ export class CreateRoleYarnNew {
             }
         }
         let maxKey = Math.max(...Object.keys(getDatas).map(Number));
-        return getDatas[maxKey][0]
+        return [getDatas[maxKey][0], lift_shaft]
 
     }
     static getRoleDataStrs(createIdx, datas, roles, lift_roles, color, size, fixed, LiftColor): any {

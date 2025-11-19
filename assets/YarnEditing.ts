@@ -1451,7 +1451,9 @@ export class YarnEditing extends Component {
             }
         }
         for (let k in this.lift_shaft) {
-            people_num += Object.keys(this.lift_shaft[k].map).length
+            for (let y in this.lift_shaft[k].map) {
+                people_num += Object.keys(this.lift_shaft[k].map[y]).length
+            }
         }
         // for (let k of PeopleKey) {
         //     if (this.Obstacle.DTJ.indexOf(k) >= 0) {
@@ -1751,7 +1753,7 @@ export class YarnEditing extends Component {
         for (let k in this.lift_shaft) {
             let map = this.lift_shaft[k].map
             if (map[y] && map[y][x]) {
-                map[y][x] = this.Piece[1]
+                map[y][x] = [this.Piece[1], ""]
                 this.map_data[y][x].child.getChildByName("dtj").destroyAllChildren()
                 let t = instantiate(this.map_data[y][x].child.getChildByName("dtj"))
                 t.scale = v3(0.8, 0.8, 0.8)
@@ -1785,7 +1787,7 @@ export class YarnEditing extends Component {
                 if (!this.lift_shaft[key].map[y]) {
                     this.lift_shaft[key].map[y] = {}
                 }
-                this.lift_shaft[key].map[y][x] = 1
+                this.lift_shaft[key].map[y][x] = [1, ""]
             }
         }
     }
@@ -2269,13 +2271,18 @@ export class YarnEditing extends Component {
                 return
             }
             // CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor)
-            let data = CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor, target.name == "seve_data_easy")
+            let dataArr = CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor, this.lift_shaft, target.name == "seve_data_easy")
+            let data = dataArr[0]
+            let lift_shaft = dataArr[1]
             if (this.MapId && data) {
                 this.yarn_mapLayoutData[this.MapId] = {
                     id: this.MapId,
                     size: data[0],
                     layout: data[1],
                     roles: data[2]
+                }
+                if(lift_shaft){
+                    this.lift_shaft = lift_shaft;
                 }
                 if (this.ChainData.length > 0) {
                     let str = ""
@@ -2893,10 +2900,10 @@ export class YarnEditing extends Component {
                     newChild.getComponent(Sprite).spriteFrame = this.dataParent.getChildByName('101').getComponent(Sprite).spriteFrame;
                     newChild.name = "dtj"
                     this.map_data[y][x].child.addChild(newChild)
-                    if (!isNaN(map[y][x])) {
+                    if (!isNaN(map[y][x][0])) {
                         let t = instantiate(newChild)
                         t.scale = v3(0.8, 0.8, 0.8)
-                        let type_parent = this.dataParent.getChildByName(map[y][x] + '').getComponent(Sprite)
+                        let type_parent = this.dataParent.getChildByName(map[y][x][0] + '').getComponent(Sprite)
                         t.getComponent(Sprite).spriteFrame = type_parent.spriteFrame;
                         t.getComponent(Sprite).color = type_parent.color
                         newChild.addChild(t)
@@ -3681,10 +3688,10 @@ export class YarnEditing extends Component {
                         newChild.getComponent(Sprite).spriteFrame = this.dataParent.getChildByName('101').getComponent(Sprite).spriteFrame;
                         newChild.name = "dtj"
                         map_data[m_y][m_x].child.addChild(newChild)
-                        if (!isNaN(map[m_y][m_x])) {
+                        if (!isNaN(map[m_y][m_x][0])) {
                             let t = instantiate(newChild)
                             t.scale = v3(0.8, 0.8, 0.8)
-                            let type_parent = this.dataParent.getChildByName(map[m_y][m_x] + '').getComponent(Sprite)
+                            let type_parent = this.dataParent.getChildByName(map[m_y][m_x][0] + '').getComponent(Sprite)
                             t.getComponent(Sprite).spriteFrame = type_parent.spriteFrame;
                             t.getComponent(Sprite).color = type_parent.color
                             newChild.addChild(t)
@@ -4415,10 +4422,10 @@ export class YarnEditing extends Component {
         if (this.yarn_mapLayoutData[this.MapId].Curtain) {
             this.setCurtainData(this.yarn_mapLayoutData[this.MapId].Curtain)
         }
-        // if (this.yarn_mapLayoutData[this.MapId].lift_shaft) {
-        //     this.lift_shaft = JSON.parse(this.yarn_mapLayoutData[this.MapId].lift_shaft)
-        //     this.setDTJData([])
-        // }
+        if (this.yarn_mapLayoutData[this.MapId].lift_shaft) {
+            this.lift_shaft = JSON.parse(this.yarn_mapLayoutData[this.MapId].lift_shaft)
+            // this.setDTJData([])
+        }
 
 
         const matches = this.yarn_mapLayoutData[this.MapId].layout.match(/[A-Z]/g);
@@ -4550,6 +4557,17 @@ export class YarnEditing extends Component {
             let NoShow = this.AaroundLift(data)
             if (NoShow) {
                 data.child.active = false;
+                let delNames = []
+                for (let item of data.child.children) {
+                    if (item.name != "go") {
+                        delNames.push(item.name)
+                    }
+                }
+                for (let n of delNames) {
+                    if (data.child.getChildByName(n)) {
+                        data.child.getChildByName(n).destroy()
+                    }
+                }
                 data.type = 2;
                 data.child.name = "2";
             } else {
@@ -4677,9 +4695,58 @@ export class YarnEditing extends Component {
         return NoShow
     }
     UpDTJ() {
-        // for (let k in this.lift_shaft) {
-        //     people_num += Object.keys(this.lift_shaft[k].map).length
-        // }
+        for (let k in this.lift_shaft) {
+            let map = this.lift_shaft[k].map
+            let state = false
+            for (let y in map) {
+                for (let x in map[y]) {
+                    if (!state && this.map_data[y][x].child.active) {
+                        state = true
+                    }
+                }
+            }
+            console.log(state);
+            if (!state) {
+                for (let y in map) {
+                    for (let x in map[y]) {
+                        this.map_data[y][x].child.active = true
+                        let type = map[y][x][0]
+                        this.map_data[y][x].Type = type
+                        this.map_data[y][x].child.name = type + ""
+                        let c = TitleType.indexOf(map[y][x][1]) + 1
+                        this.map_data[y][x].child.getComponent(Sprite).color = new Color(CellToColor[c]);
+                        if (type == 31) {
+                            let Ice = instantiate(this.IceNode)
+                            this.AttrItemData[y + "_" + x] = {
+                                idx: [y, x],
+                                count: 3,
+                                state: Number(y) == 1 ? true : false,
+                                key: this.map_data[y][x].type,
+                                item: Ice
+                            }
+                            Ice.getComponent(UITransform).setContentSize(this.map_data[y][x].child.getComponent(UITransform).contentSize)
+                            this.map_data[y][x].child.addChild(Ice);
+                            Ice.active = true;
+                            Ice.getChildByName("count").getComponent(Label).string = "3";
+                        } else if (this.map_data[y][x].type == 1111) {
+                            let c = TitleType.indexOf(this.map_data[y][x].json[3]) + 1
+                            let Lock = instantiate(this.LockNode)
+                            this.AttrItemData[y + "_" + x] = {
+                                idx: [y, x],
+                                count: 1,
+                                state: Number(y) == 1 ? true : false,
+                                key: this.map_data[y][x].type,
+                                item: Lock
+                            }
+
+                            this.map_data[y][x].child.addChild(Lock);
+                            Lock.active = true;
+                        }
+                    }
+                }
+                delete this.lift_shaft[k]
+            }
+        }
     }
     unLockKey() {
         this.ChainData
