@@ -2281,7 +2281,7 @@ export class YarnEditing extends Component {
                     layout: data[1],
                     roles: data[2]
                 }
-                if(lift_shaft){
+                if (lift_shaft) {
                     this.lift_shaft = lift_shaft;
                 }
                 if (this.ChainData.length > 0) {
@@ -4551,23 +4551,26 @@ export class YarnEditing extends Component {
         let types = [1, 31, 42, 43, 44, 45, 46, 111, 51, 52, 53, 54, 55, 56, 57, 1111, 141, 142, 143, 144, 101, 102, 103, 104]
         let change = false
         if (types.indexOf(data.type) >= 0) {
-
+            if (this.AttrItemData[data.idx[0] + "_" + data.idx[1]]) {
+                delete this.AttrItemData[data.idx[0] + "_" + data.idx[1]]
+            }
+            let delNames = []
+            for (let item of data.child.children) {
+                if (item.name != "go") {
+                    delNames.push(item.name)
+                }
+            }
+            for (let n of delNames) {
+                if (data.child.getChildByName(n)) {
+                    data.child.getChildByName(n).destroy()
+                }
+            }
             this.ColorList.push([data.idx[0], data.idx[1], data.json.pop()])
             // 下方有电梯
             let NoShow = this.AaroundLift(data)
             if (NoShow) {
                 data.child.active = false;
-                let delNames = []
-                for (let item of data.child.children) {
-                    if (item.name != "go") {
-                        delNames.push(item.name)
-                    }
-                }
-                for (let n of delNames) {
-                    if (data.child.getChildByName(n)) {
-                        data.child.getChildByName(n).destroy()
-                    }
-                }
+
                 data.type = 2;
                 data.child.name = "2";
             } else {
