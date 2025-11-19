@@ -494,7 +494,7 @@ export class CreateRoleYarnNew {
                 }
             }
         }
-        let color = 8
+        let color = 10
         if (setColor) {
             color = setColor
         }
