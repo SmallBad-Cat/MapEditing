@@ -121,6 +121,8 @@ export class YarnEditing extends Component {
         102: [2, 3],
         103: [3, 3],
         104: [3, 2],
+        106: [1, 3],
+        107: [3, 1],
         99913: [1, 3], 99931: [3, 1], 99923: [2, 3], 99932: [3, 2], 99933: [3, 3]
     }
     private MapId = 1
@@ -1433,7 +1435,7 @@ export class YarnEditing extends Component {
     }
     setPeopleCount() {
         let people_num = 0
-        let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 71, 72, 73, 74, 75, 68, 101, 102, 103, 104, 1111, 111, 141, 142, 143, 144]
+        let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 71, 72, 73, 74, 75, 68, 101, 102, 103, 104,106,107, 1111, 111, 141, 142, 143, 144]
         for (let y = 1; y <= this.map_size.row; y++) {
             for (let x = 1; x <= this.map_size.arrange; x++) {
                 let t = this.map_data[y][x].type
@@ -2116,9 +2118,9 @@ export class YarnEditing extends Component {
         'D': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57],//角色
         'E': [61, 63, 64, 68],//检票口
         'F': [71, 72, 73, 74, 75],//双向电梯
-        'Role': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 68, 71, 72, 73, 74, 75, 101, 102, 103, 104, 141, 142, 143, 144, 1111, 111],
+        'Role': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 68, 71, 72, 73, 74, 75, 101, 102, 103, 104,106,107, 141, 142, 143, 144, 1111, 111],
         'JianPiaoKey': 67,
-        'DTJ': [101, 102, 103, 104],//电梯井
+        'DTJ': [101, 102, 103, 104, 106, 107],//电梯井
         'VIP': [11, 12, 13],
         'LiftExport': [99913, 99931, 99923, 99932, 99933, 131],
         'bolt': [141, 142, 143, 144],
@@ -4057,7 +4059,7 @@ export class YarnEditing extends Component {
             // ["ID", "大小", "地图数据", "角色库", "锁链数据"], ["id", "size", "layout", "roles", "chain"]
         ];
         let lifts = [6, 7, 8, 9, 116, 117, 118, 119]
-        let DTJS = [101, 102, 103, 104, 112, 113, 114, 115]
+        let DTJS = [101, 102, 103, 104, 106,107,112, 113, 114, 115]
         for (let k in this.yarn_mapLayoutData) {
             let d = this.yarn_mapLayoutData[k]
             let new_d = JSON.parse(JSON.stringify(d))
@@ -4473,12 +4475,12 @@ export class YarnEditing extends Component {
                 let start_pos = this.getPosIDX(k, '-')
                 let size = this.getPosIDX(this.lift_shaft[k].size)
                 let DTJk = instantiate(this.node.getChildByName("DTJ_K"))
-                let setSize = new Size(node_size.width * size[0]+15, node_size.height * size[1]+15)
+                let setSize = new Size(node_size.width * size[0] + 15, node_size.height * size[1] + 15)
                 DTJk.getComponent(UITransform).setContentSize(setSize)
                 let worldPos = this.map_data[start_pos[0]][start_pos[1]].child.getWorldPosition()
                 this.node.getChildByName("CurtainPage").addChild(DTJk);
                 DTJk.active = true
-                DTJk.setWorldPosition(v3(worldPos.x + (setSize.width / 2) - node_size.width / 2-5, worldPos.y - (setSize.height / 2) + node_size.height / 2+7, 1))
+                DTJk.setWorldPosition(v3(worldPos.x + (setSize.width / 2) - node_size.width / 2 - 5, worldPos.y - (setSize.height / 2) + node_size.height / 2 + 7, 1))
             }
             // this.setDTJData([])
         }
@@ -4604,7 +4606,7 @@ export class YarnEditing extends Component {
             this.node.getChildByName("setImportColor").active = false
             //  this.node.getChildByName("setImportColor").active = false 
         }
-        let types = [1, 31, 42, 43, 44, 45, 46, 111, 51, 52, 53, 54, 55, 56, 57, 1111, 141, 142, 143, 144, 101, 102, 103, 104]
+        let types = [1, 31, 42, 43, 44, 45, 46, 111, 51, 52, 53, 54, 55, 56, 57, 1111, 141, 142, 143, 144, 101, 102, 103, 104,106,107,]
         let change = false
         if (types.indexOf(data.type) >= 0) {
             if (this.AttrItemData[data.idx[0] + "_" + data.idx[1]]) {
