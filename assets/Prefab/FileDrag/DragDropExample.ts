@@ -151,14 +151,14 @@ export class DragDropExample extends Component {
                         let exLayout = JSON.parse(d.exLayout)
                         if ("lock" in exLayout) {
                             for (let obj of exLayout.lock) {
-                                d["chain"] += obj.startPos + "|" + obj.endPos + "|" + obj.keyPos + "|0,"+obj.color+";"
+                                d["chain"] += obj.startPos + "|" + obj.endPos + "|" + obj.keyPos + "|0," + obj.color + ";"
                             }
                         }
                         let locking_Data = {}
                         if ("locking" in exLayout) {
                             for (let obj of exLayout.locking) {
                                 let k = obj.lock.split(',').join('-')
-                                locking_Data[k] = [obj.key.split('|').map(item => item.split(',').map(Number)),obj.color]
+                                locking_Data[k] = [obj.key.split('|').map(item => item.split(',').map(Number)), obj.color]
                             }
                         }
                         d["locking"] = JSON.stringify(locking_Data)
@@ -167,13 +167,35 @@ export class DragDropExample extends Component {
                             for (let obj of exLayout.curtain) {
                                 let k = obj.startPos.split(',').join('_')
                                 curtain_Data[k] = {
-                                    count:obj.count,
-                                    pos:obj.startPos.split(',').map(Number),
-                                    size:obj.size.split(',').map(Number)
+                                    count: obj.count,
+                                    pos: obj.startPos.split(',').map(Number),
+                                    size: obj.size.split(',').map(Number)
                                 }
                             }
                         }
-                         d["Curtain"] = JSON.stringify(curtain_Data)
+                        d["Curtain"] = JSON.stringify(curtain_Data)
+                        let lift_shaft = {}
+                        if ("lift_shaft" in exLayout) {
+                            for (let obj of exLayout.lift_shaft) {
+                                let k = this.getPosIDX(obj.startPos)
+                                let map_data = {}
+                                let str = obj.map
+                                let arr = str.split(';').map(item => item.split(','))
+                                for (let d of arr) {
+                                    let y = Number(d[1])
+                                    let x = Number(d[0])
+                                    if (!map_data[y]) {
+                                        map_data[y] = {}
+                                    }
+                                    map_data[y][x] = [(d.length == 4) ? Number(d[2]) : 1, (d.length == 4) ? d[3] : d[2]]
+                                }
+                                lift_shaft[k[1] + "-" + k[0]] = {
+                                    size: obj.size,
+                                    map: map_data
+                                }
+                            }
+                            d["lift_shaft"] = JSON.stringify(lift_shaft)
+                        }
                         delete d.exLayout
                     }
                     this.onJsonFile[d.id] = d
@@ -250,5 +272,8 @@ export class DragDropExample extends Component {
         this.updateStatus("数据已更新");
         this.MapDatasChange && this.MapDatasChange()
         this.onBack()
+    }
+    getPosIDX(str, change?) {
+        return str.split(change ? change : ',').map(Number);
     }
 } 

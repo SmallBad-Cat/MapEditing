@@ -715,7 +715,6 @@ export class YarnEditing extends Component {
 
             let worldPos = this.Map.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(event.getUILocation().x, event.getUILocation().y));
             let data = this.TouchData(worldPos);
-
             if (data) {
                 if (this.AttrItemData[data.idx[0] + "_" + data.idx[1]]) {
                     if (!this.AttrItemData[data.idx[0] + "_" + data.idx[1]].state || this.AttrItemData[data.idx[0] + "_" + data.idx[1]].count > 0) {
@@ -809,7 +808,6 @@ export class YarnEditing extends Component {
         }
     }
     ChangeCurtain() {
-        console.log(this.CurtainData);
         for (let k in this.CurtainData) {
             this.CurtainData[k].count -= 1
             this.node.getChildByName("CurtainPage").getChildByName(k).children[0].getComponent(EditBox).string = this.CurtainData[k].count
@@ -2900,13 +2898,17 @@ export class YarnEditing extends Component {
                     newChild.getComponent(Sprite).spriteFrame = this.dataParent.getChildByName('101').getComponent(Sprite).spriteFrame;
                     newChild.name = "dtj"
                     this.map_data[y][x].child.addChild(newChild)
-                    if (!isNaN(map[y][x][0])) {
-                        let t = instantiate(newChild)
-                        t.scale = v3(0.8, 0.8, 0.8)
-                        let type_parent = this.dataParent.getChildByName(map[y][x][0] + '').getComponent(Sprite)
-                        t.getComponent(Sprite).spriteFrame = type_parent.spriteFrame;
+                    let t = instantiate(newChild)
+                    t.scale = v3(0.8, 0.8, 0.8)
+                    let type_parent = this.dataParent.getChildByName(map[y][x][0] + '').getComponent(Sprite)
+                    t.getComponent(Sprite).spriteFrame = type_parent.spriteFrame;
+
+                    newChild.addChild(t)
+                    if (isNaN(map[y][x][1])) {
+                        let c = TitleType.indexOf(map[y][x][1]) + 1
+                        t.getComponent(Sprite).color = new Color(CellToColor[c]);
+                    } else {
                         t.getComponent(Sprite).color = type_parent.color
-                        newChild.addChild(t)
                     }
                 }
             }
@@ -3346,7 +3348,6 @@ export class YarnEditing extends Component {
 
         let mapSize = new Size(200, 200)
         data.layout.indexOf("A")
-        // item.getChildByName("Color").active = data["layout"].match(/[A-Z]/) != null
 
         item.getChildByName("Color").active = data["ColorList"] ? 1 : 0
         this.ItemSetMap(item, data.layout, mapSize, data.chain, data.locking, data.Curtain, data.lift_shaft)
@@ -4090,7 +4091,8 @@ export class YarnEditing extends Component {
             let chain_data = {
                 lock: [],
                 locking: [],
-                curtain: []
+                curtain: [],
+                lift_shaft: []
             }
             if (d.chain) {
                 let d_chain = this.setChainData(d.chain, true)
@@ -4102,6 +4104,9 @@ export class YarnEditing extends Component {
                         color: d[3][1]
                     }
                     chain_data.lock.push(obj_chain)
+                }
+                if (chain_data.lock.length == 0) {
+                    delete chain_data.lock
                 }
 
             } else {
@@ -4121,6 +4126,9 @@ export class YarnEditing extends Component {
                     }
                     chain_data.locking.push(obj)
                 }
+                if (chain_data.locking.length == 0) {
+                    delete chain_data.locking
+                }
 
             } else {
                 delete chain_data.locking
@@ -4135,8 +4143,42 @@ export class YarnEditing extends Component {
                     }
                     chain_data.curtain.push(obj)
                 }
+                if (chain_data.curtain.length == 0) {
+                    delete chain_data.curtain
+                }
             } else {
                 delete chain_data.curtain
+            }
+            if (d.lift_shaft) {
+                let lift_shaft = JSON.parse(d.lift_shaft)
+                for (let k in lift_shaft) {
+                    let pos = this.getPosIDX(k, "-")
+                    let map = ""
+                    for (let y in lift_shaft[k].map) {
+                        for (let x in lift_shaft[k].map[y]) {
+                            map += x + "," + y + ","
+                            if (lift_shaft[k].map[y][x][0] != 1) {
+                                map += lift_shaft[k].map[y][x][0] + ","
+                            }
+                            map += lift_shaft[k].map[y][x][1] + ";"
+                        }
+
+                    }
+                    map = map.slice(0, -1);
+                    let obj = {
+                        startPos: pos[1] + "," + pos[0],
+                        size: lift_shaft[k].size,
+                        map: map
+                    }
+                    chain_data.lift_shaft.push(obj)
+                    const matches = map.match(/[A-Z]/g);
+                    all_people+=(matches.length>0)?matches.length:0
+                }
+                if (chain_data.lift_shaft.length == 0) {
+                    delete chain_data.lift_shaft
+                }
+            } else {
+                delete chain_data.lift_shaft
             }
             chain = JSON.stringify(chain_data)
             let walk_diff = d["WalkValue"] ? d["WalkValue"] : "";
@@ -4708,13 +4750,13 @@ export class YarnEditing extends Component {
                     }
                 }
             }
-            console.log(state);
             if (!state) {
                 for (let y in map) {
                     for (let x in map[y]) {
                         this.map_data[y][x].child.active = true
                         let type = map[y][x][0]
-                        this.map_data[y][x].Type = type
+                        console.log(type);
+                        this.map_data[y][x].type = type
                         this.map_data[y][x].child.name = type + ""
                         let c = TitleType.indexOf(map[y][x][1]) + 1
                         this.map_data[y][x].child.getComponent(Sprite).color = new Color(CellToColor[c]);
@@ -4731,7 +4773,7 @@ export class YarnEditing extends Component {
                             this.map_data[y][x].child.addChild(Ice);
                             Ice.active = true;
                             Ice.getChildByName("count").getComponent(Label).string = "3";
-                        } else if (this.map_data[y][x].type == 1111) {
+                        } else if (type == 1111) {
                             let c = TitleType.indexOf(this.map_data[y][x].json[3]) + 1
                             let Lock = instantiate(this.LockNode)
                             this.AttrItemData[y + "_" + x] = {
@@ -4745,6 +4787,9 @@ export class YarnEditing extends Component {
                             this.map_data[y][x].child.addChild(Lock);
                             Lock.active = true;
                         }
+                        this.map_data[y][x].json.push(map[y][x][1])
+                        this.map_data[y][x].go_num = 0
+                        // this.GoNumRefirsh(this.map_data[y][x])
                     }
                 }
                 delete this.lift_shaft[k]
@@ -4753,7 +4798,7 @@ export class YarnEditing extends Component {
     }
     unLockKey(data) {
         for (let chain of this.ChainData) {
-            if (this.map_data[chain[2][1]] && this.map_data[chain[2][1]][chain[2][0]] && (!this.map_data[chain[2][1]][chain[2][0]].child.active || !this.map_data[chain[2][1]][chain[2][0]].child.getChildByName("yao_shi")||!this.map_data[chain[2][1]][chain[2][0]].child.getChildByName("yao_shi").active)) {
+            if (this.map_data[chain[2][1]] && this.map_data[chain[2][1]][chain[2][0]] && (!this.map_data[chain[2][1]][chain[2][0]].child.active || !this.map_data[chain[2][1]][chain[2][0]].child.getChildByName("yao_shi") || !this.map_data[chain[2][1]][chain[2][0]].child.getChildByName("yao_shi").active)) {
                 this.map_data[chain[0][1]][chain[0][0]].child.getChildByName("suo").active = false
                 this.map_data[chain[1][1]][chain[1][0]].child.getChildByName("suo").active = false
             }
@@ -4764,7 +4809,7 @@ export class YarnEditing extends Component {
                 let state = false
                 for (let key of this.locking.data[lock][0]) {
                     if (this.map_data[key[0]] && this.map_data[key[0]][key[1]]) {
-                        if (!state && this.map_data[key[0]][key[1]].child.active && this.map_data[key[0]][key[1]].child.getChildByName("Xyao_shi")&&this.map_data[key[0]][key[1]].child.getChildByName("Xyao_shi").active) {
+                        if (!state && this.map_data[key[0]][key[1]].child.active && this.map_data[key[0]][key[1]].child.getChildByName("Xyao_shi") && this.map_data[key[0]][key[1]].child.getChildByName("Xyao_shi").active) {
                             state = true
                         }
                     }
