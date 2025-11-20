@@ -2890,6 +2890,7 @@ export class YarnEditing extends Component {
         }, 0.05)
     }
     setDTJData(data) {
+        let node_size = this.map_data[2][2].child.getComponent(UITransform).contentSize
         for (let k in this.lift_shaft) {
             let map = this.lift_shaft[k].map
             for (let y in map) {
@@ -4173,7 +4174,7 @@ export class YarnEditing extends Component {
                     }
                     chain_data.lift_shaft.push(obj)
                     const matches = map.match(/[A-Z]/g);
-                    all_people+=(matches.length>0)?matches.length:0
+                    all_people += (matches.length > 0) ? matches.length : 0
                 }
                 if (chain_data.lift_shaft.length == 0) {
                     delete chain_data.lift_shaft
@@ -4467,6 +4468,18 @@ export class YarnEditing extends Component {
         }
         if (this.yarn_mapLayoutData[this.MapId].lift_shaft) {
             this.lift_shaft = JSON.parse(this.yarn_mapLayoutData[this.MapId].lift_shaft)
+            let node_size = this.map_data[2][2].child.getComponent(UITransform).contentSize
+            for (let k in this.lift_shaft) {
+                let start_pos = this.getPosIDX(k, '-')
+                let size = this.getPosIDX(this.lift_shaft[k].size)
+                let DTJk = instantiate(this.node.getChildByName("DTJ_K"))
+                let setSize = new Size(node_size.width * size[0]+15, node_size.height * size[1]+15)
+                DTJk.getComponent(UITransform).setContentSize(setSize)
+                let worldPos = this.map_data[start_pos[0]][start_pos[1]].child.getWorldPosition()
+                this.node.getChildByName("CurtainPage").addChild(DTJk);
+                DTJk.active = true
+                DTJk.setWorldPosition(v3(worldPos.x + (setSize.width / 2) - node_size.width / 2-5, worldPos.y - (setSize.height / 2) + node_size.height / 2+7, 1))
+            }
             // this.setDTJData([])
         }
 
