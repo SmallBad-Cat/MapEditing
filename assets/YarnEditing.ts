@@ -1435,7 +1435,7 @@ export class YarnEditing extends Component {
     }
     setPeopleCount() {
         let people_num = 0
-        let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 71, 72, 73, 74, 75, 68, 101, 102, 103, 104,106,107, 1111, 111, 141, 142, 143, 144]
+        let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 71, 72, 73, 74, 75, 68, 101, 102, 103, 104, 106, 107, 1111, 111, 141, 142, 143, 144]
         for (let y = 1; y <= this.map_size.row; y++) {
             for (let x = 1; x <= this.map_size.arrange; x++) {
                 let t = this.map_data[y][x].type
@@ -2118,7 +2118,7 @@ export class YarnEditing extends Component {
         'D': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57],//角色
         'E': [61, 63, 64, 68],//检票口
         'F': [71, 72, 73, 74, 75],//双向电梯
-        'Role': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 68, 71, 72, 73, 74, 75, 101, 102, 103, 104,106,107, 141, 142, 143, 144, 1111, 111],
+        'Role': [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 68, 71, 72, 73, 74, 75, 101, 102, 103, 104, 106, 107, 141, 142, 143, 144, 1111, 111],
         'JianPiaoKey': 67,
         'DTJ': [101, 102, 103, 104, 106, 107],//电梯井
         'VIP': [11, 12, 13],
@@ -4059,7 +4059,7 @@ export class YarnEditing extends Component {
             // ["ID", "大小", "地图数据", "角色库", "锁链数据"], ["id", "size", "layout", "roles", "chain"]
         ];
         let lifts = [6, 7, 8, 9, 116, 117, 118, 119]
-        let DTJS = [101, 102, 103, 104, 106,107,112, 113, 114, 115]
+        let DTJS = [101, 102, 103, 104, 106, 107, 112, 113, 114, 115]
         for (let k in this.yarn_mapLayoutData) {
             let d = this.yarn_mapLayoutData[k]
             let new_d = JSON.parse(JSON.stringify(d))
@@ -4176,7 +4176,10 @@ export class YarnEditing extends Component {
                     }
                     chain_data.lift_shaft.push(obj)
                     const matches = map.match(/[A-Z]/g);
-                    all_people += (matches.length > 0) ? matches.length : 0
+                    if (matches) {
+                        all_people += (matches.length > 0) ? matches.length : 0
+                    }
+
                 }
                 if (chain_data.lift_shaft.length == 0) {
                     delete chain_data.lift_shaft
@@ -4606,7 +4609,7 @@ export class YarnEditing extends Component {
             this.node.getChildByName("setImportColor").active = false
             //  this.node.getChildByName("setImportColor").active = false 
         }
-        let types = [1, 31, 42, 43, 44, 45, 46, 111, 51, 52, 53, 54, 55, 56, 57, 1111, 141, 142, 143, 144, 101, 102, 103, 104,106,107,]
+        let types = [1, 31, 42, 43, 44, 45, 46, 111, 51, 52, 53, 54, 55, 56, 57, 1111, 141, 142, 143, 144, 101, 102, 103, 104, 106, 107,]
         let change = false
         if (types.indexOf(data.type) >= 0) {
             if (this.AttrItemData[data.idx[0] + "_" + data.idx[1]]) {
