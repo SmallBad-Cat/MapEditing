@@ -494,18 +494,19 @@ export class CreateRoleYarnNew {
             }
         }
         let lift_shaft_num = 0
-        let DTJData = []
+        let DTJData = {}
         if (dtj) {
             for (let k in dtj) {
                 let map = dtj[k].map
                 let y = 1
+                DTJData[k] = []
                 for (let y_y in map) {
                     let x = 1
                     for (let x_x in map[y_y]) {
-                        if (!DTJData[x]) {
-                            DTJData[x] = []
+                        if (!DTJData[k][x]) {
+                            DTJData[k][x] = []
                         }
-                        DTJData[x][y] = [x_x, y_y, map[y_y][x_x][0]]
+                        DTJData[k][x][y] = [x_x, y_y, map[y_y][x_x][0]]
                         all_roles += 1
                         lift_shaft_num += 1
                         x++
@@ -598,21 +599,23 @@ export class CreateRoleYarnNew {
         //     getDatas[getData[3]].push(getData)
         // }
         let lift_shaft = null
-        if (DTJData.length > 0) {
+        if (Object.keys(DTJData).length > 0) {
             lift_shaft = {}
-            let liftShaftData = this.fillColors(DTJData, TitleArr, dtj_c_c)
+            console.log(DTJData);
             for (let k in dtj) {
+                let liftShaftData = this.fillColors(DTJData[k], TitleArr, dtj_c_c)
                 let map = dtj[k].map
                 let y = 1
                 lift_shaft[k] = {
                     size:dtj[k].size,
                     map:{}
                 }
-                for (let y_y in map) {
+                console.log(liftShaftData);
+                for (let x_x in map) {
                     let x = 1
-                    lift_shaft[k].map[y_y] = {}
-                    for (let x_x in map[y_y]) {
-                        lift_shaft[k].map[y_y][x_x] = [liftShaftData[x][y][2], liftShaftData[x][y][3]]
+                    lift_shaft[k].map[x_x] = {}
+                    for (let y_y in map[x_x]) {
+                        lift_shaft[k].map[x_x][y_y] = [liftShaftData[x][y][2], liftShaftData[x][y][3]]
                         x++
                     }
                     y++

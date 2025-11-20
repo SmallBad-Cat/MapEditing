@@ -2272,6 +2272,7 @@ export class YarnEditing extends Component {
             let dataArr = CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor, this.lift_shaft, target.name == "seve_data_easy")
             let data = dataArr[0]
             let lift_shaft = dataArr[1]
+            console.log(lift_shaft);
             if (this.MapId && data) {
                 this.yarn_mapLayoutData[this.MapId] = {
                     id: this.MapId,
