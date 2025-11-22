@@ -295,14 +295,18 @@ export class YarnEditing extends Component {
         this.GameList.numItems = this.LevelConf.length
     }
     initMapLayoutData() {
+        this.LayoutList.numItems = 0
         this.LayoutList.numItems = Object.keys(this.yarn_mapLayoutData).length
-        for (let k in this.yarn_mapLayoutData) {
-            let data = this.yarn_mapLayoutData[k]
-            if (!this.allMapDataType[data.size]) {
-                this.allMapDataType[data.size] = {}
-            }
-            this.allMapDataType[data.size][data.id] = data;
-        }
+        // this.allMapDataType = {
+        //     'all': {}
+        // }
+        // for (let k in this.yarn_mapLayoutData) {
+        //     let data = this.yarn_mapLayoutData[k]
+        //     if (!this.allMapDataType[data.size]) {
+        //         this.allMapDataType[data.size] = {}
+        //     }
+        //     this.allMapDataType[data.size][data.id] = data;
+        // }
     }
     getLevel(str) {
         str = str.replaceAll(';', '],[')
@@ -569,7 +573,6 @@ export class YarnEditing extends Component {
                             for (let X = 0; X < this.DoubleLiftType[idx[2]][0]; X++) {
                                 let Y_new = idx[1] + Y
                                 let X_new = idx[0] + X
-                                console.log(this.map_data[Y_new][X_new]);
                                 let t1 = this.map_data[Y_new][X_new].datas[0]
                                 let t2 = this.map_data[Y_new][X_new].datas[1]
                                 let newChild1 = instantiate(this.Map.children[0].getChildByName("1"))
@@ -718,18 +721,19 @@ export class YarnEditing extends Component {
             let worldPos = this.Map.getComponent(UITransform).convertToNodeSpaceAR(new Vec3(event.getUILocation().x, event.getUILocation().y));
             let data = this.TouchData(worldPos);
             if (data) {
-                if (this.AttrItemData[data.idx[0] + "_" + data.idx[1]]) {
-                    if (!this.AttrItemData[data.idx[0] + "_" + data.idx[1]].state || this.AttrItemData[data.idx[0] + "_" + data.idx[1]].count > 0) {
+                let data_name = data.idx[0] + "_" + data.idx[1]
+                if (this.AttrItemData[data_name]) {
+                    if (!this.AttrItemData[data_name].state || this.AttrItemData[data_name].count > 0) {
                         return
                     }
                 }
                 if (data.go_num == 0 && data.json[2]) {
-                    this.ChooseColorData(data)
-                    if (this.AttrItemData[data.idx[0] + "_" + data.idx[1]] && this.AttrItemData[data.idx[0] + "_" + data.idx[1]].key > 50 && this.AttrItemData[data.idx[0] + "_" + data.idx[1]].key < 56) {
-                        for (let ks of this.AttrItemData[data.idx[0] + "_" + data.idx[1]].idxs) {
+                    if (this.AttrItemData[data_name] && this.AttrItemData[data_name].key > 50 && this.AttrItemData[data_name].key < 56) {
+                        for (let ks of this.AttrItemData[data_name].idxs) {
                             this.ChooseColorData(this.map_data[ks[0]][ks[1]])
                         }
                     }
+                    this.ChooseColorData(data)
                     this.AttrChange(data)
                 }
             }
@@ -2252,7 +2256,7 @@ export class YarnEditing extends Component {
                 this.yarn_mapLayoutData[this.MapId]["lift_shaft"] = JSON.stringify(liftShaftData);
             }
             this.initMapLayoutData()
-            GameUtil.ChangeStorage(true, "yarn_mapLayoutData", this.yarn_mapLayoutData)
+            // GameUtil.ChangeStorage(true, "yarn_mapLayoutData", this.yarn_mapLayoutData)
             // this.setMapColor()
         }
         this.onLocking()
@@ -2274,7 +2278,6 @@ export class YarnEditing extends Component {
             let dataArr = CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor, this.lift_shaft, target.name == "seve_data_easy")
             let data = dataArr[0]
             let lift_shaft = dataArr[1]
-            console.log(lift_shaft);
             if (this.MapId && data) {
                 this.yarn_mapLayoutData[this.MapId] = {
                     id: this.MapId,
@@ -2398,9 +2401,9 @@ export class YarnEditing extends Component {
             }
         }
         console.log('----------数据导出----------');
-        console.log(data);
+        // console.log(data);
         // console.log(JPKStr);
-        console.log(DataArr);
+        // console.log(DataArr);
         if (create) {
             return DataArr
         }
@@ -2488,6 +2491,9 @@ export class YarnEditing extends Component {
     }
     // 数据Json导入
     dataJsonImport(data: string, Editing?) {
+        const temp = new Array(100000).fill({});
+        temp.length = 0;
+        console.log('通过内存分配触发垃圾回收');
         this.allLabel[4].string = ""
         if (data.length < 6) {
             this.ImportEditBox.string = '';
@@ -2516,8 +2522,8 @@ export class YarnEditing extends Component {
             this.Map.getComponent(UITransform).width = newWidth * this.map_size.arrange + (3 * (this.map_size.arrange - 1)) + 12
         }
         let newNodeSize = (this.mapSize) ? new Size(newWidth, newHeight) : null;
-        console.log("data:", data);
-        console.log(new_data);
+        // console.log("data:", data);
+        // console.log(new_data);
         this.CloseAll(data)
         let STTKey = {}
         let STTKeyArr = []
@@ -2813,6 +2819,7 @@ export class YarnEditing extends Component {
                     let c = TitleType.indexOf(this.map_data[y][x].json[3]) + 1
                     this.map_data[y][x].child.getComponent(Sprite).color = new Color(CellToColor[c]);
                     //  this.map_data[idx[1]][idx[0]].child.getComponent(Sprite).spriteFrame = this.dataParent.getChildByName(idx[2] + '').getComponent(Sprite).spriteFrame;
+                    console.log("牵手：", y + "_" + x, hand_keys);
                 }
             }
         }
@@ -4579,7 +4586,6 @@ export class YarnEditing extends Component {
         this.locking.data = JSON.parse(JSON.stringify(locking))
         if (this.ChainData.length > 0) {
             let str = ""
-            console.log(this.ChainData);
             for (let data of this.ChainData) {
                 if (data.length >= 3) {
 
@@ -4636,7 +4642,6 @@ export class YarnEditing extends Component {
                 data.child.name = "2";
             } else {
                 data.child.getComponent(Sprite).spriteFrame = this.dataParent.getChildByName('1').getComponent(Sprite).spriteFrame;
-                console.log(data.child);
                 for (let child of data.child.children) {
                     child.active = false
                 }
@@ -4774,7 +4779,6 @@ export class YarnEditing extends Component {
                     for (let x in map[y]) {
                         this.map_data[y][x].child.active = true
                         let type = map[y][x][0]
-                        console.log(type);
                         this.map_data[y][x].type = type
                         this.map_data[y][x].child.name = type + ""
                         let c = TitleType.indexOf(map[y][x][1]) + 1

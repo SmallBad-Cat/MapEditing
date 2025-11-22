@@ -41,7 +41,7 @@ export class CreateRoleYarnNew {
     static ElementType = {
         role: [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 111, 1111, 141, 142, 143, 144],
         lift: [11, 12, 13, 6, 7, 8, 9, 25, 24, 26, 27],
-        DTJ: [101, 102, 103, 104,106,107,106,107],
+        DTJ: [101, 102, 103, 104, 106, 107, 106, 107],
         VIP: [11, 12, 13],
         LiftExport: [99913, 99931, 99923, 99932, 99933, 131]
     }
@@ -482,7 +482,6 @@ export class CreateRoleYarnNew {
                     let len = d.length - 4
                     all_roles += len * d[3]
                     LiftExportRoles += len * d[3]
-                    console.log(LiftExportRoles, "-----------------------------");
                 } else {
                     no_role += 1;
                 }
@@ -515,7 +514,6 @@ export class CreateRoleYarnNew {
                 }
             }
         }
-        console.log(DTJData);
         let color = 10
         if (setColor) {
             color = setColor
@@ -568,7 +566,7 @@ export class CreateRoleYarnNew {
                     if (ColorKIIdx >= ColorK.length) {
                         ColorKIIdx = 0
                     }
-                    lift_shaft_num-=1
+                    lift_shaft_num -= 1
                 }
 
             }
@@ -601,16 +599,14 @@ export class CreateRoleYarnNew {
         let lift_shaft = null
         if (Object.keys(DTJData).length > 0) {
             lift_shaft = {}
-            console.log(DTJData);
             for (let k in dtj) {
                 let liftShaftData = this.fillColors(DTJData[k], TitleArr, dtj_c_c)
                 let map = dtj[k].map
                 let y = 1
                 lift_shaft[k] = {
-                    size:dtj[k].size,
-                    map:{}
+                    size: dtj[k].size,
+                    map: {}
                 }
-                console.log(liftShaftData);
                 for (let x_x in map) {
                     let x = 1
                     lift_shaft[k].map[x_x] = {}
@@ -622,7 +618,6 @@ export class CreateRoleYarnNew {
                 }
             }
         }
-        console.log(lift_shaft);
         for (let i = 0; i < 1000; i++) {
             let getData = this.getRoleDataStrs(0, this.fillColors(data, TitleArr, colorCounts), all_roles, all_lift, color, SizeKey[size.y][size.x], fixed, LiftColor)
             if (getData) {
@@ -633,7 +628,9 @@ export class CreateRoleYarnNew {
             }
         }
         let maxKey = Math.max(...Object.keys(getDatas).map(Number));
-        return [getDatas[maxKey][0], lift_shaft]
+        let Data = JSON.parse(JSON.stringify(getDatas[maxKey][0]))
+        getDatas = {}
+        return [Data, lift_shaft]
 
     }
     static getRoleDataStrs(createIdx, datas, roles, lift_roles, color, size, fixed, LiftColor): any {
@@ -1233,7 +1230,7 @@ export class CreateRoleYarnNew {
     }
 
     // 新增：固定颜色数量的填色算法
-    static fillColorsWithFixedCounts(grid: any[][], emptyCells: { x: number, y: number, cell: any }[], colorCounts: { [color: string]: number }): any[][] {
+    static fillColorsWithFixedCounts(grid: any[][], emptyCells: { x: number, y: number, cell: any }[], colorCounts: { [color: string]: number },count = 0): any[][] {
         const colors = Object.keys(colorCounts);
 
         let hasAdjacentSameColor = true;
