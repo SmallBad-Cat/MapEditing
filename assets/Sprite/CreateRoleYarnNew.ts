@@ -630,6 +630,10 @@ export class CreateRoleYarnNew {
         let maxKey = Math.max(...Object.keys(getDatas).map(Number));
         let Data = JSON.parse(JSON.stringify(getDatas[maxKey][0]))
         getDatas = {}
+        DTJData = {}
+        map_data = {}
+        data = null
+        TitleArr = null
         return [Data, lift_shaft]
 
     }

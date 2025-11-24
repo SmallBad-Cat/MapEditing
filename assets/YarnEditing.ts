@@ -1,4 +1,4 @@
-import { _decorator, Button, color, Color, Component, dynamicAtlasManager, EditBox, error, EventMouse, EventTouch, Input, input, instantiate, JsonAsset, Label, Layout, loader, Node, Prefab, resources, ScrollView, size, Size, Sprite, TextAsset, tween, UIOpacity, UITransform, v3, Vec3, VerticalTextAlignment } from 'cc';
+import { _decorator, assetManager, Button, color, Color, Component, dynamicAtlasManager, EditBox, error, EventMouse, EventTouch, Input, input, instantiate, JsonAsset, Label, Layout, loader, Node, Prefab, resources, ScrollView, size, Size, Sprite, TextAsset, tween, UIOpacity, UITransform, v3, Vec3, VerticalTextAlignment } from 'cc';
 import { MapLayoutIdConf } from './resources/Conf/MapLayoutIdConf';
 import { RoleConf } from './resources/Conf/RoleConf';
 import { CollectConf } from './resources/Conf/CollectConf';
@@ -294,9 +294,21 @@ export class YarnEditing extends Component {
         }
         this.GameList.numItems = this.LevelConf.length
     }
-    initMapLayoutData() {
-        this.LayoutList.numItems = 0
+    initMapLayoutData(map_id = null) {
+        if (map_id) {
+            this.onList(this.LayoutList.content.getChildByName(map_id += ""), Object.keys(this.yarn_mapLayoutData).indexOf(map_id))
+            return
+        }
         this.LayoutList.numItems = Object.keys(this.yarn_mapLayoutData).length
+        return
+        if (this.LayoutList.numItems == 0 || !this.LayoutList.numItems || this.LayoutList.numItems == undefined) {
+            this.LayoutList.numItems = Object.keys(this.yarn_mapLayoutData).length
+        } else {
+            this.LayoutList.ChangeNumItems(Object.keys(this.yarn_mapLayoutData).length)
+        }
+
+        // this.LayoutList.scrollTo(999)
+        // })
         // this.allMapDataType = {
         //     'all': {}
         // }
@@ -2214,6 +2226,10 @@ export class YarnEditing extends Component {
         let data = this.getNowData()
         if (this.MapId && data) {
             let SizeKey = { 7: { 7: 5, 9: 2 }, 9: { 8: 6 }, 8: { 7: 7 }, 10: { 9: 1 }, 11: { 10: 2 } }
+            let MapId = null
+            if (this.yarn_mapLayoutData[this.MapId]) {
+                MapId = this.MapId
+            }
             this.yarn_mapLayoutData[this.MapId] = {
                 id: this.MapId,
                 size: SizeKey[this.map_size.arrange][this.map_size.row],
@@ -2255,8 +2271,8 @@ export class YarnEditing extends Component {
                 const liftShaftData = JSON.parse(JSON.stringify(this.lift_shaft))
                 this.yarn_mapLayoutData[this.MapId]["lift_shaft"] = JSON.stringify(liftShaftData);
             }
-            this.initMapLayoutData()
-            // GameUtil.ChangeStorage(true, "yarn_mapLayoutData", this.yarn_mapLayoutData)
+            this.initMapLayoutData(MapId)
+            GameUtil.ChangeStorage(true, "yarn_mapLayoutData", this.yarn_mapLayoutData)
             // this.setMapColor()
         }
         this.onLocking()
@@ -2279,6 +2295,10 @@ export class YarnEditing extends Component {
             let data = dataArr[0]
             let lift_shaft = dataArr[1]
             if (this.MapId && data) {
+                let MapId = null
+                if (this.yarn_mapLayoutData[this.MapId]) {
+                    MapId = this.MapId
+                }
                 this.yarn_mapLayoutData[this.MapId] = {
                     id: this.MapId,
                     size: data[0],
@@ -2314,7 +2334,7 @@ export class YarnEditing extends Component {
                     const liftShaftData = JSON.parse(JSON.stringify(this.lift_shaft))
                     this.yarn_mapLayoutData[this.MapId]["lift_shaft"] = JSON.stringify(liftShaftData);
                 }
-                this.initMapLayoutData()
+                this.initMapLayoutData(MapId)
                 if (!this.yarn_mapLayoutData[this.MapId]["ColorList"]) {
                     this.yarn_mapLayoutData[this.MapId]["ColorList"] = ""
                 }
@@ -2405,9 +2425,10 @@ export class YarnEditing extends Component {
         // console.log(JPKStr);
         // console.log(DataArr);
         if (create) {
+            data = ""
             return DataArr
         }
-
+        DataArr = null
         return data
     }
     initDataGoNum() {
@@ -2491,14 +2512,12 @@ export class YarnEditing extends Component {
     }
     // 数据Json导入
     dataJsonImport(data: string, Editing?) {
-        const temp = new Array(100000).fill({});
-        temp.length = 0;
-        console.log('通过内存分配触发垃圾回收');
         this.allLabel[4].string = ""
         if (data.length < 6) {
             this.ImportEditBox.string = '';
             return;
         }
+
         this.node.getChildByName("CurtainPage").destroyAllChildren();
         this.AttrItemData = {}
         let handle = this.HandleConf(data, false)
@@ -2994,7 +3013,6 @@ export class YarnEditing extends Component {
         // this.DTJLayer = new DTJLayerData
 
         console.log('清空数据');
-
         for (let item of this.dataParent.children) {
             if (item.name != 'Mask') {
                 if (item.getChildByName('count')) {
@@ -3156,6 +3174,7 @@ export class YarnEditing extends Component {
         this.MapColorState = data["ColorList"] ? 1 : 0
 
         this.ChooseKuang.active = this.MapColorState > 0 ? false : true
+        this.MapId = target.name
         this.node.getChildByName("CurtainPage").destroyAllChildren();
         this.dataJsonImport(data.layout)
         if (data.chain) {
@@ -3171,7 +3190,7 @@ export class YarnEditing extends Component {
             this.lift_shaft = JSON.parse(data.lift_shaft)
             this.setDTJData([])
         }
-        this.MapId = target.name
+
     }
     setChainData(str, look?) {
         str = str.slice(0, -1);
@@ -3359,7 +3378,6 @@ export class YarnEditing extends Component {
 
         let mapSize = new Size(200, 200)
         data.layout.indexOf("A")
-
         item.getChildByName("Color").active = data["ColorList"] ? 1 : 0
         this.ItemSetMap(item, data.layout, mapSize, data.chain, data.locking, data.Curtain, data.lift_shaft)
         item.name = k
@@ -3523,6 +3541,7 @@ export class YarnEditing extends Component {
         let STTKey = {}
         let STTKeyArr = []
         let first = true
+        let ListPool = this.node.getChildByName("ListPool")
         for (let child of Map.children) {
             // if(!first){
             //     child.destroy()
@@ -3532,9 +3551,13 @@ export class YarnEditing extends Component {
             // }
             child.getComponent(Sprite).enabled = true
             child.children[0].getComponent(Sprite).enabled = true
-            child.children[0].destroyAllChildren()
+            while (child.children[0].children.length > 0) {
+                const child_node = child.children[0].children[0];
+                child_node.parent = ListPool
+            }
+            // child.children[0].destroyAllChildren()
             child.children[0].getComponent(Sprite).color = new Color('#FFFFFF')
-            child.children[0].name = '1'
+            child.children[0].name = 'del_child'
             child.active = false
             // 
         }
@@ -3542,6 +3565,7 @@ export class YarnEditing extends Component {
         if (newNodeSize) {
             node.getComponent(UITransform).setContentSize(newNodeSize);
         }
+
         let map_data = []
         let nodeIdx = 0
         let NoPushDTJ = []
@@ -3562,7 +3586,7 @@ export class YarnEditing extends Component {
                 }
                 node.getComponent(UITransform).setContentSize(newNodeSize);
                 node.active = true;
-                let newChild = node.getChildByName('1')
+                let newChild = node.getChildByName('del_child')
                 newChild.getComponent(UITransform).setContentSize(newNodeSize);
                 newChild.setPosition(v3(0, 0));
                 let data = {
@@ -3619,11 +3643,12 @@ export class YarnEditing extends Component {
                 if (idx[2] == this.Obstacle.JianPiaoKey) {
                     let newChild = null
                     let k = map_data[idx[1] - 1][idx[0]].type
+
                     if (this.Obstacle.E.indexOf(k) >= 0) {
-                        newChild = instantiate(this.dataParent.getChildByName(k + ''))
+                        newChild = ListPool.getChildByName(String(k)) ? ListPool.getChildByName(String(k)) : instantiate(this.dataParent.getChildByName(k + ''))
                     } else if (this.Obstacle.E.indexOf(map_data[idx[1]][idx[0] - 1].type) >= 0) {
                         k = 61
-                        newChild = instantiate(this.dataParent.getChildByName('61'))
+                        newChild = ListPool.getChildByName(String(k)) ? ListPool.getChildByName(String(k)) : instantiate(this.dataParent.getChildByName('61'))
                     }
                     if (newChild) {
                         newChild.getChildByName('name').active = false;
@@ -3631,6 +3656,7 @@ export class YarnEditing extends Component {
                         newChild.getComponent(Button).enabled = false;
                         map_data[idx[1]][idx[0]].child.addChild(newChild);
                         newChild.setPosition(v3(0, 0));
+                        newChild.name = String(k)
                         if (this.obstacleOrther[k]) {
                             let infeed = (this.obstacleOrther[k][0] == 0) ? true : false
                             if (infeed) {
@@ -3645,13 +3671,13 @@ export class YarnEditing extends Component {
                     }
                 }
             } else if (this.TypeorAddChild(idx[2])) {
-                let newChild = instantiate(this.dataParent.getChildByName(idx[2] + ''))
+                let newChild = ListPool.getChildByName(String(idx[2])) ? ListPool.getChildByName(String(idx[2])) : instantiate(this.dataParent.getChildByName(idx[2] + ''))
                 newChild.active = true
                 newChild.getChildByName('name').active = false;
                 newChild.getChildByName('count').active = false;
                 newChild.getComponent(UITransform).setContentSize(newNodeSize);
                 newChild.getComponent(Button).enabled = false;
-
+                newChild.name = String(idx[2])
                 map_data[idx[1]][idx[0]].child.addChild(newChild);
                 newChild.setPosition(v3(0, 0));
                 map_data[idx[1]][idx[0]].child.getComponent(UITransform).setContentSize(newNodeSize);
@@ -3695,13 +3721,13 @@ export class YarnEditing extends Component {
                 let map = lift_shaft[k].map
                 for (let m_y in map) {
                     for (let m_x in map[m_y]) {
-                        let newChild = instantiate(map_data[m_y][m_x].child)
+                        let newChild = ListPool.getChildByName("dtj_list") ? ListPool.getChildByName("dtj_list") : instantiate(map_data[m_y][m_x].child)
                         newChild.scale = v3(0.7, 0.7, 0.7)
                         newChild.getComponent(Sprite).spriteFrame = this.dataParent.getChildByName('101').getComponent(Sprite).spriteFrame;
-                        newChild.name = "dtj"
+                        newChild.name = "dtj_list"
                         map_data[m_y][m_x].child.addChild(newChild)
                         if (!isNaN(map[m_y][m_x][0])) {
-                            let t = instantiate(newChild)
+                            let t = ListPool.getChildByName("dtj_list") ? ListPool.getChildByName("dtj_list") : instantiate(newChild)
                             t.scale = v3(0.8, 0.8, 0.8)
                             let type_parent = this.dataParent.getChildByName(map[m_y][m_x][0] + '').getComponent(Sprite)
                             t.getComponent(Sprite).spriteFrame = type_parent.spriteFrame;
@@ -3711,17 +3737,6 @@ export class YarnEditing extends Component {
                     }
                 }
             }
-            // for (let idx of DTJ) {
-            //     for (let Y = 0; Y < this.DoubleLiftType[idx[2]][1]; Y++) {
-            //         for (let X = 0; X < this.DoubleLiftType[idx[2]][0]; X++) {
-            //             let Y_new = idx[1] + Y
-            //             let X_new = idx[0] + X
-            //             map_data[Y_new][X_new].type = idx[2]
-            //             map_data[Y_new][X_new].child.name = '' + idx[2]
-            //             map_data[Y_new][X_new].child.getComponent(Sprite).color = new Color('#6C88F8')
-            //         }
-            //     }
-            // }
         }
         if (STTKeyArr.length > 0) {
             for (let pos of STTKeyArr) {
@@ -3760,9 +3775,9 @@ export class YarnEditing extends Component {
                         let data = map_data[pos[1]][pos[0]]
 
                         if (Number(i) != 2) {
-                            node = instantiate(this.node.getChildByPath("chain/suo"))
+                            node = ListPool.getChildByName("suo") ? ListPool.getChildByName("suo") : instantiate(this.node.getChildByPath("chain/suo"))
                         } else {
-                            node = instantiate(this.node.getChildByPath("chain/yao_shi"))
+                            node = ListPool.getChildByName("yao_shi") ? ListPool.getChildByName("yao_shi") : instantiate(this.node.getChildByPath("chain/yao_shi"))
                         }
                         node.scale = v3(0.5, 0.5, 1)
                         node.getChildByName('text').getComponent(Label).string = key + "";
@@ -3778,13 +3793,13 @@ export class YarnEditing extends Component {
             for (let k in locking_data) {
                 let KeyPos = this.getPosIDX(k, "-");
                 let Suo_data = map_data[KeyPos[0]][KeyPos[1]]
-                let suo_node = instantiate(this.node.getChildByPath("chain/Xsuo"))
+                let suo_node = ListPool.getChildByName("Xsuo") ? ListPool.getChildByName("Xsuo") : instantiate(this.node.getChildByPath("chain/Xsuo"))
                 suo_node.scale = v3(0.5, 0.5, 1)
                 Suo_data.child.addChild(suo_node)
                 suo_node.getChildByName('text').getComponent(Label).string = idx + "-" + locking_data[k][1];
                 for (let pos of locking_data[k][0]) {
                     let data = map_data[pos[0]][pos[1]]
-                    let key_node = instantiate(this.node.getChildByPath("chain/Xyao_shi"))
+                    let key_node = ListPool.getChildByName("Xsuo") ? ListPool.getChildByName("Xyao_shi") : instantiate(this.node.getChildByPath("chain/Xyao_shi"))
                     key_node.scale = v3(0.5, 0.5, 1)
                     data.child.addChild(key_node)
                     key_node.getChildByName('text').getComponent(Label).string = idx + "-" + locking_data[k][1];
@@ -3796,14 +3811,20 @@ export class YarnEditing extends Component {
             let node_size = newNodeSize
             CurtainData = JSON.parse(CurtainData)
             for (let k in CurtainData) {
-                let Curtain = instantiate(this.dataParent.getChildByName('99822'))
+                let Curtain = null
+                if (ListPool.getChildByName("99822")) {
+                    Curtain = ListPool.getChildByName("99822")
+                } else {
+                    Curtain = instantiate(this.dataParent.getChildByName('99822'))
+                    Curtain.getChildByName("name").destroy()
+                    Curtain.getChildByName("count").getComponent(Label).string = CurtainData[k].count + "";
+                     Curtain.getComponent(Button).destroy()
+                }
+                Curtain.name = "99822"
                 let setSize = new Size(node_size.width * CurtainData[k].size[0], node_size.height * CurtainData[k].size[1])
                 Curtain.getComponent(UITransform).setContentSize(setSize)
                 let worldPos = map_data[CurtainData[k].pos[0]][CurtainData[k].pos[1]].child.getWorldPosition()
-                Curtain.getChildByName("name").destroy()
-                Curtain.getChildByName("count").getComponent(Label).string = CurtainData[k].count + "";
                 map_data[CurtainData[k].pos[0] + CurtainData[k].size[1] - 1][CurtainData[k].pos[1] + CurtainData[k].size[0] - 1].child.addChild(Curtain);
-                Curtain.getComponent(Button).destroy()
                 Curtain.getComponent(UIOpacity).opacity = 255
                 Curtain.active = true
                 Curtain.setPosition(v3(-setSize.width / 2 + node_size.width / 2, setSize.height / 2 - node_size.height / 2, 0))
@@ -3814,16 +3835,28 @@ export class YarnEditing extends Component {
             for (let key in LiftExportData) {
                 for (let arr of LiftExportData[key]) {
                     let data = map_data[arr[0]][arr[1]]
-                    let node = instantiate(this.dataParent.getChildByName('131'))
-                    node.destroyAllChildren();
-                    node.getComponent(Button) && node.getComponent(Button).destroy();
-                    node.getComponent(UITransform).setContentSize(new Size(5, 5))
-                    data.child.addChild(node)
-                    node.setPosition(v3(0, 0))
-                    node.active = true
+                    let node = null
+                    if (ListPool.getChildByName("131")) {
+                        node = ListPool.getChildByName("131")
+                    } else {
+                        node = instantiate(this.dataParent.getChildByName('131'))
+                        node.destroyAllChildren();
+                    }
+                    if (node) {
+                        node.name = "131"
+                        node.getComponent(Button) && node.getComponent(Button).destroy();
+                        node.getComponent(UITransform).setContentSize(new Size(5, 5))
+                        data.child.addChild(node)
+                        node.setPosition(v3(0, 0))
+                        node.active = true
+                    }
                 }
             }
         }
+        map_data = []
+        NoPushDTJ = []
+        DTJ = []
+        LiftExportData = {}
     }
 
     RoleDataImport(data) {
@@ -4913,7 +4946,7 @@ export class YarnEditing extends Component {
         }
         this.yarn_mapLayoutData[this.MapId]["WalkValue"] = this.MapValueData.WalkDiffValue
         this.yarn_mapLayoutData[this.MapId]["WalkValueChange"] = this.MapValueData.WalkDiffChange.toString();
-        this.LayoutList.numItems = Object.keys(this.yarn_mapLayoutData).length
+        // this.LayoutList.numItems = Object.keys(this.yarn_mapLayoutData).length
         // this.exportData()
     }
     exportData() {

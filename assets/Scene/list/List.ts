@@ -250,6 +250,10 @@ export default class List extends Component {
         serializable: false
     })
     private _numItems: number = 0;
+    ChangeNumItems(val: number){
+        let t = this;
+        t._actualNumItems = t._numItems = val;
+    }
     set numItems(val: number) {
         let t = this;
         if (!t.checkInited(false))
