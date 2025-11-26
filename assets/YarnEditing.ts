@@ -3374,12 +3374,17 @@ export class YarnEditing extends Component {
         item.getChildByName('text').getComponent(Label).string = 'ID:' + data.id;
 
         let color_count = matches ? [...new Set(matches)].length : 0
-        item.getChildByName('ball_c').getComponent(Label).string = all_people + '球 ' + color_count + "色";
+        
+        
 
         let mapSize = new Size(200, 200)
         data.layout.indexOf("A")
         item.getChildByName("Color").active = data["ColorList"] ? 1 : 0
-        this.ItemSetMap(item, data.layout, mapSize, data.chain, data.locking, data.Curtain, data.lift_shaft)
+        let AllRole = this.ItemSetMap(item, data.layout, mapSize, data.chain, data.locking, data.Curtain, data.lift_shaft)
+        // if(color_count == 0){
+            all_people = AllRole
+        // }
+        item.getChildByName('ball_c').getComponent(Label).string = all_people + '球 ' + color_count + "色";
         item.name = k
         if (this.ChooseItemKey) {
             if (k == this.ChooseItemKey) {
@@ -3542,6 +3547,8 @@ export class YarnEditing extends Component {
         let STTKeyArr = []
         let first = true
         let ListPool = this.node.getChildByName("ListPool")
+        let PeopleKey = [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 71, 72, 73, 74, 75, 68, 101, 102, 103, 104, 106, 107, 1111, 111, 141, 142, 143, 144]
+        let AllRole = 0
         for (let child of Map.children) {
             // if(!first){
             //     child.destroy()
@@ -3618,6 +3625,11 @@ export class YarnEditing extends Component {
             }
             let LiftExportCount = 0
             let key = idx[1] + '-' + idx[0]
+            if(PeopleKey.indexOf(idx[2])>=0){
+                AllRole+=1
+            }else if (idx[2]>=6&&idx[2]<=9){
+               AllRole+=idx.length-3;
+            }
             if (idx[2] == 131) {
                 for (let I = 4; I < idx.length; I++) {
                     let d = idx[I];
@@ -3721,6 +3733,7 @@ export class YarnEditing extends Component {
                 let map = lift_shaft[k].map
                 for (let m_y in map) {
                     for (let m_x in map[m_y]) {
+                        AllRole+=1
                         let newChild = ListPool.getChildByName("dtj_list") ? ListPool.getChildByName("dtj_list") : instantiate(map_data[m_y][m_x].child)
                         newChild.scale = v3(0.7, 0.7, 0.7)
                         newChild.getComponent(Sprite).spriteFrame = this.dataParent.getChildByName('101').getComponent(Sprite).spriteFrame;
@@ -3857,6 +3870,7 @@ export class YarnEditing extends Component {
         NoPushDTJ = []
         DTJ = []
         LiftExportData = {}
+        return AllRole
     }
 
     RoleDataImport(data) {
