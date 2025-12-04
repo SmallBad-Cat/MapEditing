@@ -441,7 +441,7 @@ export class CreateRoleYarnNew {
         ]
     ]
     static PeopleColor = { 30: 5, 40: 6, 50: 7, 80: 8, 999: 9 }
-    static getRoleData(data, fixed, setColor, dtj = null, easy?) {
+    static getRoleData(data, fixed, setColor, dtj = null, AllColorCounts = {}, easy?) {
         // console.error(object);
         // 所有类型数量
         let AllTypeCount = {}
@@ -527,8 +527,12 @@ export class CreateRoleYarnNew {
         let t_k = 0
         let colorCounts = {}
         let dtj_c_c = {}
+        if (Object.keys(AllColorCounts).length > 0) {
+            easy = true
+        }
+        console.log(all_roles, "---------------");
         if (easy) {
-            colorCounts = this.getEasyColor(color, all_roles)
+            colorCounts = Object.keys(AllColorCounts).length > 0 ? AllColorCounts : this.getEasyColor(color, all_roles)
             let ColorK = Object.keys(colorCounts)
             let ColorKIIdx = 0;
             for (let i = 0; i < all_roles; i++) {
@@ -589,6 +593,7 @@ export class CreateRoleYarnNew {
                 }
             }
         }
+        
         // let getData = this.getRoleDataStrs(0, this.fillColors(data, TitleArr, colorCounts), all_roles, all_lift, color, SizeKey[size.y][size.x], fixed, LiftColor)
         // if (getData) {
         //     if (!getDatas[getData[3]]) {
@@ -1234,7 +1239,7 @@ export class CreateRoleYarnNew {
     }
 
     // 新增：固定颜色数量的填色算法
-    static fillColorsWithFixedCounts(grid: any[][], emptyCells: { x: number, y: number, cell: any }[], colorCounts: { [color: string]: number },count = 0): any[][] {
+    static fillColorsWithFixedCounts(grid: any[][], emptyCells: { x: number, y: number, cell: any }[], colorCounts: { [color: string]: number }, count = 0): any[][] {
         const colors = Object.keys(colorCounts);
 
         let hasAdjacentSameColor = true;
@@ -1367,40 +1372,32 @@ export class CreateRoleYarnNew {
     }
     // 使用示例
     static getEasyColor(color, count) {
-        let colorCounts = {}
-        let ValueNo = {}
-        let NeedAdd = 0
-        for (let i in this.ColorRatio['color' + color]) {
-            let v = this.ColorRatio['color' + color][i]
-            colorCounts[TitleType[i]] = count * v;
-            if (!Number.isInteger(colorCounts[TitleType[i]])) {
-                ValueNo[TitleType[i]] = 1
-                NeedAdd += (count * v) % 1
-            }
+        let ratios = this.ColorRatio['color' + color];
+        let total = 0;
+        let colorCounts = {};
+        let fractions = [];
+
+        // 1. 计算基础值和分数部分
+        for (let i = 0; i < ratios.length; i++) {
+            let value = count * ratios[i];
+            let floor = Math.floor(value);
+            let fraction = value - floor;
+
+            colorCounts[TitleType[i]] = floor;
+            total += floor;
+            fractions.push({ key: TitleType[i], value: fraction });
         }
-        while (Object.keys(ValueNo).length > 0) {
-            for (let k in ValueNo) {
-                const maxKey1 = Object.keys(colorCounts).reduce((a, b) => colorCounts[a] > colorCounts[b] ? a : b);
-                if (NeedAdd > 0) {
-                    colorCounts[k] = Math.ceil(colorCounts[k]);
-                    NeedAdd -= 1
-                } else if (maxKey1 != k) {
-                    colorCounts[maxKey1] -= 1;
-                    colorCounts[k] = Math.ceil(colorCounts[k]);
-                } else {
-                    // 方法1：先过滤非整数，再找最小值
-                    const nonIntegerKeys = Object.keys(colorCounts).filter(key => !Number.isInteger(colorCounts[key]));
-                    let minNonIntegerKey = Object.keys(colorCounts).reduce((a, b) => colorCounts[a] < colorCounts[b] ? a : b);
-                    if (nonIntegerKeys.length > 0) {
-                        // 有非整数，找最小的非整数
-                        minNonIntegerKey = nonIntegerKeys.reduce((a, b) => colorCounts[a] < colorCounts[b] ? a : b);
-                    }
-                    colorCounts[minNonIntegerKey] += 1;
-                    colorCounts[k] = parseInt(colorCounts[k])
-                }
-                delete ValueNo[k]
-            }
+
+        // 2. 按分数部分降序排序
+        fractions.sort((a, b) => b.value - a.value);
+
+        // 3. 分配剩余的（count - total）个名额
+        let remaining = count - total;
+        for (let i = 0; i < remaining; i++) {
+            let key = fractions[i].key;
+            colorCounts[key] += 1;
         }
+
         return colorCounts;
     }
 

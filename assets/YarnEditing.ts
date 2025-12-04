@@ -1,13 +1,8 @@
-import { _decorator, assetManager, Button, color, Color, Component, dynamicAtlasManager, EditBox, error, EventMouse, EventTouch, Input, input, instantiate, JsonAsset, Label, Layout, loader, Node, Prefab, resources, ScrollView, size, Size, Sprite, TextAsset, tween, UIOpacity, UITransform, v3, Vec3, VerticalTextAlignment } from 'cc';
-import { MapLayoutIdConf } from './resources/Conf/MapLayoutIdConf';
-import { RoleConf } from './resources/Conf/RoleConf';
-import { CollectConf } from './resources/Conf/CollectConf';
+import { _decorator, assetManager, Button, color, Color, Component, dynamicAtlasManager, EditBox, error, EventMouse, EventTouch, Input, input, instantiate, JsonAsset, Label, Layout, loader, Node, Prefab, resources, ScrollView, size, Size, Sprite, SpriteFrame, TextAsset, tween, UIOpacity, UITransform, v3, Vec3, VerticalTextAlignment } from 'cc';
 import List from './Scene/list/List';
-import { MapLayoutConf } from './resources/Conf/MapLayoutConf';
 import { CreateRole } from './Sprite/CreateRole';
 import { GameUtil } from './Sprite/GameUtil';
 import { DragDropExample } from './Prefab/FileDrag/DragDropExample';
-import { CreateRoleYarn } from './Sprite/CreateRoleYarn';
 import { CreateRoleYarnNew } from './Sprite/CreateRoleYarnNew';
 import { GetWalkDiff } from './Sprite/GetWalkDiff';
 const { ccclass, property } = _decorator;
@@ -22,16 +17,16 @@ export class DTJLayerData {
 const TitleType = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "S", "Y", "Z",]
 export const CellToColor = {
     0: color(0x8c, 0x8c, 0x8c),
-    1: color('#0198F3'),//蓝   A
-    2: color('#FFF500'),//蜡黄 B
-    3: color('#47FF00'),//鲜绿 C
-    4: color('#ff95d5'),//粉色 D
-    5: color('#ff0700'),//红   E
-    6: color('#cf88ff'),//紫   F
-    7: color('#46DEE5'),//蓝绿 G
-    8: color('#ff8726'),//亮黄 H 
-    9: color('#19CFA2'),//绿色 I
-    10: color('#CAD0D7'),//银白J
+    1: color('#077AFF'),//蓝   A
+    2: color('#FFD800'),//蜡黄 B
+    3: color('#45B554'),//鲜绿 C
+    4: color('#FF45F0'),//粉色 D
+    5: color('#FF3434'),//红   E
+    6: color('#FFBD9E'),//紫   F
+    7: color('#07CBFF'),//蓝绿 G
+    8: color('#FF8F21'),//亮黄 H 
+    9: color('#EFE6E2'),//绿色 I
+    10: color('#C14AFF'),//银白J
 }
 
 @ccclass('YarnEditing')
@@ -126,6 +121,7 @@ export class YarnEditing extends Component {
         99913: [1, 3], 99931: [3, 1], 99923: [2, 3], 99932: [3, 2], 99933: [3, 3]
     }
     private MapId = 1
+    private MapPixel = ""
     private JianPiaoKou = {}
     private MapLayoutConf = {}
     private ChainData = []
@@ -166,6 +162,9 @@ export class YarnEditing extends Component {
     // 电梯井
     private lift_shaft = {}
     private LiftShaftState = 0
+    private allPixelData = null;
+    private AllPeopleNum = 0
+    private AllColorCounts = {}
     // 幕布数据
     private CurtainData = {
 
@@ -182,6 +181,7 @@ export class YarnEditing extends Component {
             this.getNextMapId()
             this.allLabel[3].string = "地图ID：" + this.MapId;
         }
+        this._loadJson("image/allPixelData", "allPixelData", false);
         // let change = [76,79,80,82,83]
         // for(let k in this.yarn_mapLayoutData){
         //     if(change.indexOf(Number(k))>=0){
@@ -235,21 +235,67 @@ export class YarnEditing extends Component {
     private loadMaxJsonNum = 0
     private loadJsonNum = 0
     private DTJShowLayer = 1
-    private _loadJson(str: string, loadName: string) {
+    private _loadJson(str: string, loadName: string, init = true) {
         this.loadMaxJsonNum++;
         resources.load(str, (err, jsonAsset: JsonAsset) => {
             if (err) { error(err); return; }
             this[loadName] = jsonAsset.json;
-            this.loadJsonNum++;
-            if (this.loadJsonNum == this.loadMaxJsonNum) {
+            if (init) {
+                this.loadJsonNum++;
+                // if (this.loadJsonNum == this.loadMaxJsonNum) {
                 // this.initData();
                 // console.log(this.provinceLevelJsonData);
                 this.initGameData()
                 this.getNextMapId()
                 this.allLabel[3].string = "地图ID：" + this.MapId;
 
+                // }
+            } else {
+                this.initPixelData();
             }
         });
+    }
+    initPixelData() {
+        let PixelData = {}
+        let idx = 1
+        for (let k in this.allPixelData) {
+            PixelData[k] = {
+                max_color: 1,
+                need_item: 0,
+            }
+            for (let str of this.allPixelData[k]) {
+                const numbers = str.match(/\d+/g).map(Number);
+                if (!PixelData[k][numbers[2]]) {
+                    PixelData[k][numbers[2]] = 0
+                }
+                PixelData[k][numbers[2]] += 1;
+                if (numbers[2] > PixelData[k].max_color) {
+                    PixelData[k].max_color = numbers[2]
+                }
+            }
+            for (let k_k in PixelData[k]) {
+                if (k_k != "max_color" && k_k != "need_item") {
+                    PixelData[k].need_item += Math.ceil(PixelData[k][k_k] / 3);
+                }
+            }
+            let item = this.dataParent.getChildByPath("PixelData/view/Content").children[idx];
+            if (!item) {
+                item = instantiate(this.dataParent.getChildByPath("PixelData/view/Content").children[0])
+                this.dataParent.getChildByPath("PixelData/view/Content").addChild(item)
+            }
+            item.name = k + ""
+            item.getChildByName("name").getComponent(Label).string = ` 颜色:${PixelData[k].max_color} 块:${PixelData[k].need_item}`
+            resources.load("image/" + k + "/spriteFrame", (err, res: SpriteFrame) => {
+                if (err) { error(err); return; }
+                item.getComponent(Sprite).spriteFrame = res;
+            });
+            idx += 1
+
+
+        }
+        console.log(this.dataParent.getChildByPath("PixelData/view/Content").children)
+        console.log(PixelData);
+        this.allPixelData = PixelData;
     }
     getNextMapId() {
         let idx = 1
@@ -295,8 +341,8 @@ export class YarnEditing extends Component {
         this.GameList.numItems = this.LevelConf.length
     }
     initMapLayoutData(map_id = null) {
-        if (map_id) {
-            this.onList(this.LayoutList.content.getChildByName(map_id += ""), Object.keys(this.yarn_mapLayoutData).indexOf(map_id))
+        if (map_id && this.LayoutList.numItems && this.LayoutList.content.getChildByName(map_id + "")) {
+            this.onList(this.LayoutList.content.getChildByName(map_id + ""), Object.keys(this.yarn_mapLayoutData).indexOf(map_id))
             return
         }
         this.LayoutList.numItems = Object.keys(this.yarn_mapLayoutData).length
@@ -1478,6 +1524,7 @@ export class YarnEditing extends Component {
         //         people_num += Number(this.dataParent.getChildByName(String(k)).getChildByName('count').getComponent(Label).string)
         //     }
         // }
+        this.AllPeopleNum = people_num;
         this.PeopleStr.string = `当前人数为：${people_num}`
         return people_num
     }
@@ -2160,6 +2207,12 @@ export class YarnEditing extends Component {
 
         } else if (type == 'all') {
             this.ShowAll()
+        } else if (type == 'Pixel') {
+            for (let item of this.dataParent.children) {
+                item.active = false
+            }
+            this.dataParent.getChildByName("PixelData").active = true
+            this.dataParent.getChildByName('all').active = true
         }
         this.dataParent.getChildByName('Mask').active = true
         this.ChooseKuang.active = false;
@@ -2184,6 +2237,7 @@ export class YarnEditing extends Component {
 
             }
         }
+        this.dataParent.getChildByName("PixelData").active = false
         this.dataParent.getChildByName('all').active = false
     }
     private TieLianSuoState = 0;
@@ -2227,14 +2281,17 @@ export class YarnEditing extends Component {
         if (this.MapId && data) {
             let SizeKey = { 7: { 7: 5, 9: 2 }, 9: { 8: 6 }, 8: { 7: 7 }, 10: { 9: 1 }, 11: { 10: 2 } }
             let MapId = null
+            let poxel = ""
             if (this.yarn_mapLayoutData[this.MapId]) {
                 MapId = this.MapId
+                poxel = this.yarn_mapLayoutData[this.MapId]["poxel"] || ""
             }
             this.yarn_mapLayoutData[this.MapId] = {
                 id: this.MapId,
                 size: SizeKey[this.map_size.arrange][this.map_size.row],
                 layout: data,
-                roles: ""
+                roles: "",
+                poxel: poxel
             }
             if (this.ChainData.length > 0) {
                 let str = ""
@@ -2277,6 +2334,37 @@ export class YarnEditing extends Component {
         }
         this.onLocking()
     }
+    setPixel(e: Event) {
+        let target: any = e.target;
+        let k = target.name;
+        if (k == "del") {
+            this.yarn_mapLayoutData[this.MapId]["poxel"] = "";
+        } else {
+            if (this.AllPeopleNum < this.allPixelData[k].need_item) {
+                return this.TipTween("当前人员不足，无法设置该像素图")
+            }
+            if (!this.yarn_mapLayoutData[this.MapId]) {
+                let data = this.getNowData()
+                if (data) {
+                    let SizeKey = { 7: { 7: 5, 9: 2 }, 9: { 8: 6 }, 8: { 7: 7 }, 10: { 9: 1 }, 11: { 10: 2 } }
+                    this.yarn_mapLayoutData[this.MapId] = {
+                        id: this.MapId,
+                        size: SizeKey[this.map_size.arrange][this.map_size.row],
+                        layout: data,
+                        roles: "",
+                        poxel: k
+                    }
+                }
+            } else {
+                this.yarn_mapLayoutData[this.MapId]["poxel"] = k;
+            }
+            this.node.getChildByName("poxel").getComponent(Sprite).spriteFrame = target.getComponent(Sprite).spriteFrame;
+            this.node.getChildByPath("poxel/name").getComponent(Label).string = ` 颜色:${this.allPixelData[k].max_color} 块:${this.allPixelData[k].need_item}`
+        }
+        this.node.getChildByName("poxel").active = k != "del";
+        GameUtil.ChangeStorage(true, "yarn_mapLayoutData", this.yarn_mapLayoutData)
+        this.TipTween("像素图设置成功")
+    }
     // 数据处理
     data_handle(event: Event) {
         let target: any = event.target;
@@ -2291,19 +2379,23 @@ export class YarnEditing extends Component {
                 return
             }
             // CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor)
-            let dataArr = CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor, this.lift_shaft, target.name == "seve_data_easy")
+            let dataArr = CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor, this.lift_shaft, this.AllColorCounts, target.name == "seve_data_easy")
             let data = dataArr[0]
             let lift_shaft = dataArr[1]
             if (this.MapId && data) {
+
                 let MapId = null
+                let poxel = ""
                 if (this.yarn_mapLayoutData[this.MapId]) {
                     MapId = this.MapId
+                    poxel = this.yarn_mapLayoutData[this.MapId]["poxel"] || ""
                 }
                 this.yarn_mapLayoutData[this.MapId] = {
                     id: this.MapId,
                     size: data[0],
                     layout: data[1],
-                    roles: data[2]
+                    roles: data[2],
+                    poxel: poxel
                 }
                 if (lift_shaft) {
                     this.lift_shaft = lift_shaft;
@@ -2334,6 +2426,7 @@ export class YarnEditing extends Component {
                     const liftShaftData = JSON.parse(JSON.stringify(this.lift_shaft))
                     this.yarn_mapLayoutData[this.MapId]["lift_shaft"] = JSON.stringify(liftShaftData);
                 }
+                console.log(MapId, "--------");
                 this.initMapLayoutData(MapId)
                 if (!this.yarn_mapLayoutData[this.MapId]["ColorList"]) {
                     this.yarn_mapLayoutData[this.MapId]["ColorList"] = ""
@@ -2517,7 +2610,8 @@ export class YarnEditing extends Component {
             this.ImportEditBox.string = '';
             return;
         }
-
+        this.AllColorCounts = {}
+        this.node.getChildByName("MapColorList").active = false;
         this.node.getChildByName("CurtainPage").destroyAllChildren();
         this.AttrItemData = {}
         let handle = this.HandleConf(data, false)
@@ -3190,7 +3284,11 @@ export class YarnEditing extends Component {
             this.lift_shaft = JSON.parse(data.lift_shaft)
             this.setDTJData([])
         }
-
+        if (data.poxel && data.poxel != "") {
+            this.node.getChildByName("poxel").getComponent(Sprite).spriteFrame = this.dataParent.getChildByPath("PixelData/view/Content/" + data.poxel).getComponent(Sprite).spriteFrame;
+        } else {
+            this.node.getChildByName("poxel").active = false
+        }
     }
     setChainData(str, look?) {
         str = str.slice(0, -1);
@@ -4332,6 +4430,19 @@ export class YarnEditing extends Component {
         }
 
     }
+    setColorCount(e: EditBox) {
+        let count = Number(e.string);
+        let Name = e.node.name;
+        let Count = 0
+        for (let child of this.node.getChildByName("MapColorList").children) {
+            let num = Number(child.getChildByName("EditBoxText").getComponent(EditBox).string)
+            Count += num
+            this.AllColorCounts[child.name] = num
+        }
+        if (Count != this.AllPeopleNum) {
+            this.TipTween("颜色总数和块数不一致")
+        }
+    }
     onItemBtn(event, str) {
         let target: any = event.target;
         let key = target.parent.parent.name
@@ -4509,6 +4620,7 @@ export class YarnEditing extends Component {
 
     }
     setMapColor() {
+
         this.ColorList = []
         this.MapColor.getChildByName("Save").active = false
 
@@ -4577,6 +4689,23 @@ export class YarnEditing extends Component {
             if (!this.MapValueData.BallColorValue[c]) {
                 this.MapValueData.BallColorValue[c] = 0
             }
+        }
+        let MapColorListNode = this.node.getChildByName("MapColorList")
+        MapColorListNode.active = true;
+        for (let child of MapColorListNode.children) {
+            child.active = false
+        }
+        for (let k in AllBall) {
+            let node = MapColorListNode.getChildByName(k)
+            if (!node) {
+                node = instantiate(MapColorListNode.children[0])
+                MapColorListNode.addChild(node)
+            }
+            node.active = true
+            node.getChildByName("EditBoxText").getComponent(EditBox).string = AllBall[k]
+            node.name = k;
+            let c = TitleType.indexOf(k) + 1
+            node.getComponent(Sprite).color = new Color(CellToColor[c]);
         }
         console.log(all_people, AllBall);
         for (let c in this.MapValueData.BallColorValue) {
@@ -4659,6 +4788,7 @@ export class YarnEditing extends Component {
     private ColorList = []
     ChooseColorData(data) {
         this.ChangePos.active = false
+        this.node.getChildByName("MapColorList").active && (this.node.getChildByName("MapColorList").active = false);
         this.TouchNode && (this.TouchNode.active = false);
         if (this.node.getChildByName("seve_data").active) {
             this.node.getChildByName("seve_data").active = false
@@ -4989,6 +5119,7 @@ export class YarnEditing extends Component {
     getPosIDX(str, change?) {
         return str.split(change ? change : ',').map(Number);
     }
+
 
 }
 
