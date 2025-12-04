@@ -2611,6 +2611,8 @@ export class YarnEditing extends Component {
             return;
         }
         this.AllColorCounts = {}
+        this.node.getChildByName("ColorAllCount").active = false;
+        this.node.getChildByName("ColorNeedCount").active = false;
         this.node.getChildByName("MapColorList").active = false;
         this.node.getChildByName("CurtainPage").destroyAllChildren();
         this.AttrItemData = {}
@@ -4439,6 +4441,7 @@ export class YarnEditing extends Component {
             Count += num
             this.AllColorCounts[child.name] = num
         }
+        this.node.getChildByName("ColorNeedCount").getComponent(Label).string = "差值\n"+(this.AllPeopleNum-Count)
         if (Count != this.AllPeopleNum) {
             this.TipTween("颜色总数和块数不一致")
         }
@@ -4692,6 +4695,10 @@ export class YarnEditing extends Component {
         }
         let MapColorListNode = this.node.getChildByName("MapColorList")
         MapColorListNode.active = true;
+        this.node.getChildByName("ColorAllCount").active = true;
+        this.node.getChildByName("ColorNeedCount").active = true;
+        this.node.getChildByName("ColorAllCount").getComponent(Label).string = "总数\n"+all_people
+        this.node.getChildByName("ColorNeedCount").getComponent(Label).string = "差值\n0"
         for (let child of MapColorListNode.children) {
             child.active = false
         }
@@ -4788,7 +4795,12 @@ export class YarnEditing extends Component {
     private ColorList = []
     ChooseColorData(data) {
         this.ChangePos.active = false
-        this.node.getChildByName("MapColorList").active && (this.node.getChildByName("MapColorList").active = false);
+        if(this.node.getChildByName("MapColorList").active){
+            this.node.getChildByName("MapColorList").active = false
+            this.node.getChildByName("ColorAllCount").active = false;
+            this.node.getChildByName("ColorNeedCount").active = false;
+        }
+        
         this.TouchNode && (this.TouchNode.active = false);
         if (this.node.getChildByName("seve_data").active) {
             this.node.getChildByName("seve_data").active = false
