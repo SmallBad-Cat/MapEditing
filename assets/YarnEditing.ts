@@ -4441,7 +4441,7 @@ export class YarnEditing extends Component {
             Count += num
             this.AllColorCounts[child.name] = num
         }
-        this.node.getChildByName("ColorNeedCount").getComponent(Label).string = "差值\n"+(this.AllPeopleNum-Count)
+        this.node.getChildByName("ColorNeedCount").getComponent(Label).string = "当前值\n"+Count
         if (Count != this.AllPeopleNum) {
             this.TipTween("颜色总数和块数不一致")
         }
@@ -4697,7 +4697,7 @@ export class YarnEditing extends Component {
         MapColorListNode.active = true;
         this.node.getChildByName("ColorAllCount").active = true;
         this.node.getChildByName("ColorNeedCount").active = true;
-        this.node.getChildByName("ColorAllCount").getComponent(Label).string = "总数\n"+all_people
+        this.node.getChildByName("ColorAllCount").getComponent(Label).string = "总数\n"+this.AllPeopleNum
         this.node.getChildByName("ColorNeedCount").getComponent(Label).string = "差值\n0"
         for (let child of MapColorListNode.children) {
             child.active = false
