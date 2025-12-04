@@ -4437,9 +4437,11 @@ export class YarnEditing extends Component {
         let Name = e.node.name;
         let Count = 0
         for (let child of this.node.getChildByName("MapColorList").children) {
-            let num = Number(child.getChildByName("EditBoxText").getComponent(EditBox).string)
-            Count += num
-            this.AllColorCounts[child.name] = num
+            if(child.active){
+                let num = Number(child.getChildByName("EditBoxText").getComponent(EditBox).string)
+                Count += num
+                this.AllColorCounts[child.name] = num
+            }
         }
         this.node.getChildByName("ColorNeedCount").getComponent(Label).string = "当前值\n"+Count
         if (Count != this.AllPeopleNum) {
@@ -4697,8 +4699,9 @@ export class YarnEditing extends Component {
         MapColorListNode.active = true;
         this.node.getChildByName("ColorAllCount").active = true;
         this.node.getChildByName("ColorNeedCount").active = true;
+        this.AllPeopleNum = all_people;
         this.node.getChildByName("ColorAllCount").getComponent(Label).string = "总数\n"+this.AllPeopleNum
-        this.node.getChildByName("ColorNeedCount").getComponent(Label).string = "差值\n0"
+        this.node.getChildByName("ColorNeedCount").getComponent(Label).string = "当前值\n"+this.AllPeopleNum
         for (let child of MapColorListNode.children) {
             child.active = false
         }
