@@ -8700,7 +8700,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "7d8f9b89-4fd1-4c9f-a3ab-38ec7cded7ca@f9941",
+      "__uuid__": "ff3582c0-06cb-4729-8863-dd3dd6775f6b@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
@@ -8764,7 +8764,7 @@
       "a": 255
     },
     "_normalSprite": {
-      "__uuid__": "7d8f9b89-4fd1-4c9f-a3ab-38ec7cded7ca@f9941",
+      "__uuid__": "ff3582c0-06cb-4729-8863-dd3dd6775f6b@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_hoverSprite": null,

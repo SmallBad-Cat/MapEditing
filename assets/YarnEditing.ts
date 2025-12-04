@@ -757,7 +757,7 @@ export class YarnEditing extends Component {
                     this.TouchNode = instantiate(data.child)
                     this.node.addChild(this.TouchNode)
                 }
-                let c = TitleType.indexOf(data.json[2]) + 1
+                let c = TitleType.indexOf(data.json[2] == 10?data.json[3]:data.json[2]) + 1
                 this.TouchNode.getComponent(Sprite).color = new Color(CellToColor[c]);
                 this.TouchNode.active = true
                 data.child.active = false
@@ -909,16 +909,30 @@ export class YarnEditing extends Component {
                 let StartData = this.map_data[this.ChangePosData.start.y][this.ChangePosData.start.x]
                 StartData.child.active = true
                 if (data && this.Obstacle.Role.indexOf(data.type) >= 0) {
-                    let StartColor = StartData.json[2]
-                    let EndColor = data.json[2]
-                    StartData.json[2] = EndColor
-                    data.json[2] = StartColor
+                    let StartColor = StartData.json[2] == 10?StartData.json[3]:StartData.json[2]
+                    let EndColor = data.json[2] == 10?data.json[3]:data.json[2]
+                    if( StartData.json[2] == 10){
+                        StartData.json[3] = EndColor
+                    }else{
+                         StartData.json[2] = EndColor
+                    }
+                    if(data.json[2] == 10){
+                        data.json[3] = StartColor
+                    }else{
+                        data.json[2] = StartColor
+                    }
                     StartData.child.getComponent(Sprite).color = new Color(CellToColor[TitleType.indexOf(EndColor) + 1]);
                     data.child.getComponent(Sprite).color = new Color(CellToColor[TitleType.indexOf(StartColor) + 1]);
+                    let DataSprite = data.child.getComponent(Sprite).spriteFrame
+                    data.child.getComponent(Sprite).spriteFrame = StartData.child.getComponent(Sprite).spriteFrame;
+                    StartData.child.getComponent(Sprite).spriteFrame = DataSprite
                 }
             }
             this.ChangePosData.start = null
             this.TouchNode.active = false
+            if(this.TouchNode.name == 10){
+                this.TouchNode = null
+            }
             if (this.TouchNode && this.TouchNode.active) {
                 this.TouchNode.setWorldPosition(new Vec3(event.getUILocation().x, event.getUILocation().y))
             }
@@ -965,7 +979,7 @@ export class YarnEditing extends Component {
         }
     }
     // Type == 11 || Type == 12 ||
-    TypeArr = [42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 3, 6, 7, 8, 9, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 61, 63, 64, 131]
+    TypeArr = [10,42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 3, 6, 7, 8, 9, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 61, 63, 64, 131]
     TypeorAddChild(Type) {
         if (this.TypeArr.indexOf(Type) >= 0 && Type != 2) {
             return true
@@ -2723,7 +2737,7 @@ export class YarnEditing extends Component {
                 }
             }
             this.map_data[idx[1]][idx[0]].child.name = this.map_data[idx[1]][idx[0]].type + '';
-            let types = [31, 1111, 56, 57, 42, 43, 44, 45, 46, 141, 142, 143, 144]
+            let types = [10,31, 1111, 56, 57, 42, 43, 44, 45, 46, 141, 142, 143, 144]
             if (this.dataParent.getChildByName(idx[2] + '')) {
 
                 if (types.indexOf(idx[2]) >= 0) {
