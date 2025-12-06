@@ -451,6 +451,7 @@ export class CreateRoleYarnNew {
         let size = { x: 1, y: 1 };//地图大小
         let map_data = {}//地图数据
         let LiftExportRoles = 0;
+       
         for (let x in data) {
             if (Number(x) > size.x) {
                 size.x = Number(x)

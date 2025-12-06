@@ -2393,7 +2393,7 @@ export class YarnEditing extends Component {
                 return
             }
             // CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor)
-            let dataArr = CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor, this.lift_shaft, this.AllColorCounts, target.name == "seve_data_easy")
+            let dataArr = CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor, this.lift_shaft,JSON.parse(JSON.stringify( this.AllColorCounts)), target.name == "seve_data_easy")
             let data = dataArr[0]
             let lift_shaft = dataArr[1]
             if (this.MapId && data) {
