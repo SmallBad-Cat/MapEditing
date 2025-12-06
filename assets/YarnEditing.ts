@@ -2570,6 +2570,7 @@ export class YarnEditing extends Component {
         if (!isNaN(color) && color >= 3) {
             this.setColor = color
             this.TipTween("设置颜色数量为：" + color)
+            this.AllColorCounts = {}
         } else {
             EditBox.placeholder = "设置生成颜色"
         }
@@ -2624,7 +2625,7 @@ export class YarnEditing extends Component {
             this.ImportEditBox.string = '';
             return;
         }
-        this.AllColorCounts = {}
+        
         this.node.getChildByName("ColorAllCount").active = false;
         this.node.getChildByName("ColorNeedCount").active = false;
         this.node.getChildByName("MapColorList").active = false;
