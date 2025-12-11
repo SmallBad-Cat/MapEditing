@@ -1205,7 +1205,8 @@ export class CreateRoleYarnNew {
         //     }
         // }
         let dan = 4
-        let ColorLen = Object.keys(colorCountsCopy).length - dan
+        // let ColorLen = Object.keys(colorCountsCopy).length - dan
+        let ColorLen = 4
         let value_keys = Object.keys(Values)
         let splitValues = this.splitValues(value_keys.length, dan)
         let NowColors = {
