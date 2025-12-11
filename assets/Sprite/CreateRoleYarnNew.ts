@@ -1,4 +1,4 @@
-import { UITransform, Vec2, cclegacy, log, native, resources, sp, sys, tween, v2 } from "cc";
+import { Color, UITransform, Vec2, cclegacy, log, native, resources, sp, sys, tween, v2 } from "cc";
 const TitleType = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "S", "Y", "Z",]
 const SustainCount = 2
 const MaxCount = 5
@@ -39,7 +39,7 @@ export class CreateRoleYarnNew {
         104: [3, 2],
     }
     static ElementType = {
-        role: [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 111, 1111, 141, 142, 143, 144],
+        role: [1, 10, 31, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 68, 71, 72, 73, 74, 75, 141, 142, 143, 144, 1111, 111],
         lift: [11, 12, 13, 6, 7, 8, 9, 25, 24, 26, 27],
         DTJ: [101, 102, 103, 104, 106, 107, 106, 107],
         VIP: [11, 12, 13],
@@ -441,8 +441,11 @@ export class CreateRoleYarnNew {
         ]
     ]
     static PeopleColor = { 30: 5, 40: 6, 50: 7, 80: 8, 999: 9 }
-    static getRoleData(data, fixed, setColor, dtj = null, AllColorCounts = {}, easy?) {
+    static getRoleData(data_value, fixed, setColor, dtj = null, AllColorCounts = {}, easy?) {
         // console.error(object);
+        let data = data_value[0]
+        let Values = data_value[1]
+
         // 所有类型数量
         let AllTypeCount = {}
         let all_roles = 0;//所有人数
@@ -451,7 +454,7 @@ export class CreateRoleYarnNew {
         let size = { x: 1, y: 1 };//地图大小
         let map_data = {}//地图数据
         let LiftExportRoles = 0;
-       
+
         for (let x in data) {
             if (Number(x) > size.x) {
                 size.x = Number(x)
@@ -531,7 +534,6 @@ export class CreateRoleYarnNew {
         if (Object.keys(AllColorCounts).length > 0) {
             easy = true
         }
-        console.log(all_roles, "---------------");
         if (easy) {
             colorCounts = Object.keys(AllColorCounts).length > 0 ? AllColorCounts : this.getEasyColor(color, all_roles)
             let ColorK = Object.keys(colorCounts)
@@ -539,7 +541,7 @@ export class CreateRoleYarnNew {
             for (let i = 0; i < all_roles; i++) {
                 if (UseColor > 0) {
                     UseColor -= 1
-                } else {
+                }  else if (all_lift > LiftColor.length) {
                     LiftColor.push(ColorK[ColorKIIdx])
                     colorCounts[ColorK[ColorKIIdx]] -= 1
                     if (colorCounts[ColorK[ColorKIIdx]] == 0) {
@@ -579,6 +581,10 @@ export class CreateRoleYarnNew {
             for (let i = 0; i < all_roles; i++) {
                 if (UseColor > 0) {
                     UseColor -= 1
+                    if (!colorCounts[TitleArr[t_k]]) {
+                        colorCounts[TitleArr[t_k]] = 0
+                    }
+                    colorCounts[TitleArr[t_k]] += 1
                 } else if (all_lift > LiftColor.length) {
                     LiftColor.push(TitleArr[t_k])
                 } else {
@@ -594,7 +600,7 @@ export class CreateRoleYarnNew {
                 }
             }
         }
-        
+        let fillColors
         // let getData = this.getRoleDataStrs(0, this.fillColors(data, TitleArr, colorCounts), all_roles, all_lift, color, SizeKey[size.y][size.x], fixed, LiftColor)
         // if (getData) {
         //     if (!getDatas[getData[3]]) {
@@ -617,15 +623,20 @@ export class CreateRoleYarnNew {
                     let x = 1
                     lift_shaft[k].map[x_x] = {}
                     for (let y_y in map[x_x]) {
-                        lift_shaft[k].map[x_x][y_y] = [liftShaftData[x][y][2], liftShaftData[x][y][3]]
+                        let c = liftShaftData[x][y][3]
+                        lift_shaft[k].map[x_x][y_y] = [liftShaftData[x][y][2], c]
+                        dtj_c_c[c]-=1
+                        if(dtj_c_c[c] == 0){
+                           delete dtj_c_c[c]
+                        }
                         x++
                     }
                     y++
                 }
             }
         }
-        for (let i = 0; i < 1000; i++) {
-            let getData = this.getRoleDataStrs(0, this.fillColors(data, TitleArr, colorCounts), all_roles, all_lift, color, SizeKey[size.y][size.x], fixed, LiftColor)
+        for (let i = 0; i < 1; i++) {
+            let getData = this.getRoleDataStrs(0, this.splitValuesFillColors(data, Values, colorCounts), all_roles, all_lift, color, SizeKey[size.y][size.x], fixed, LiftColor)
             if (getData) {
                 if (!getDatas[getData[3]]) {
                     getDatas[getData[3]] = []
@@ -635,6 +646,7 @@ export class CreateRoleYarnNew {
         }
         let maxKey = Math.max(...Object.keys(getDatas).map(Number));
         let Data = JSON.parse(JSON.stringify(getDatas[maxKey][0]))
+
         getDatas = {}
         DTJData = {}
         map_data = {}
@@ -1182,6 +1194,239 @@ export class CreateRoleYarnNew {
         return arr;
     }
     // 通用随机填色函数 - 支持两种模式
+    static splitValuesFillColors(grid: any[][], Values, colorCounts: { [color: string]: number }, idx: number = 0): any[][] {
+        let ValuesCopy = JSON.parse(JSON.stringify(Values));
+        let colorCountsCopy = JSON.parse(JSON.stringify(colorCounts));
+        let gridCopy = JSON.parse(JSON.stringify(grid));
+        let grid_value = {}
+        // for(let v in ValuesCopy){
+        //     for(let k of ValuesCopy[v]){
+        //          grid_value[k] = v
+        //     }
+        // }
+        let dan = 4
+        let ColorLen = Object.keys(colorCountsCopy).length - dan
+        let value_keys = Object.keys(Values)
+        let splitValues = this.splitValues(value_keys.length, dan)
+        let NowColors = {
+            colors: {},
+            count: 0
+        }
+        let setColors = {}
+        for (let value_s of splitValues) {
+            let NeedLen = 0
+            // 每个阶段-----
+            // 获取当前阶段需要颜色总数
+            for (let v of value_s) {
+                // 阶段中压制值
+                NeedLen += Values[v].length;
+
+            }
+            let addNowColors = (c_k) => {
+                NowColors.count += colorCountsCopy[c_k]
+                NowColors.colors[c_k] = colorCountsCopy[c_k]
+                delete colorCountsCopy[c_k]
+            }
+            // 获取当前段位需要的颜色数量
+            let ColorKey = []
+            if (Object.keys(NowColors.colors).length < ColorLen && Object.keys(colorCountsCopy).length>0) {
+                ColorKey = this.findTopFourKeys(colorCountsCopy, ColorLen - Object.keys(NowColors.colors).length)
+            }
+            for (let c_k of ColorKey) {
+                addNowColors(c_k)
+            }
+            // 需要总数比颜色库中数量多就多取1个颜色
+            while (NeedLen > NowColors.count && Object.keys(colorCountsCopy).length>0) {
+                console.log("数量少于段位对应颜色数，多取一种颜色");
+                let c_k = this.findTopFourKeys(colorCountsCopy, 1)[0]
+                addNowColors(c_k)
+            }
+            console.log(NeedLen, "这轮的颜色们", JSON.parse(JSON.stringify(NowColors)));
+            // 填充颜色
+            for (let v of value_s) {
+                for (let pos of Values[v]) {
+                    let NoKeys = this.getAroundColor(gridCopy, pos)
+
+                    let Colors = {}
+                    for (let k in NowColors.colors) {
+                        if (NoKeys.indexOf(k) < 0) {
+                            if (!Colors[NowColors.colors[k]]) {
+                                Colors[NowColors.colors[k]] = []
+                            }
+                            Colors[NowColors.colors[k]].push(k)
+                        }
+                    }
+                    while (Object.keys(Colors).length == 0 && Object.keys(colorCountsCopy).length>0) {
+                        let c_k = this.findTopFourKeys(colorCountsCopy, 1)[0]
+                        addNowColors(c_k)
+                        if (NoKeys.indexOf(c_k) < 0) {
+                            if (!Colors[NowColors.colors[c_k]]) {
+                                Colors[NowColors.colors[c_k]] = []
+                            }
+                            Colors[NowColors.colors[c_k]].push(c_k)
+                        }
+                    }
+
+                    if (Object.keys(Colors).length == 0) {
+                        if (idx == 200) {
+                            for (let y in gridCopy) {
+                                if (Number(y) == 0) {
+                                    delete gridCopy[y]
+                                }
+                                for (let x in gridCopy[y]) {
+                                    if (Number(x) == 0) {
+                                        delete gridCopy[y][x]
+                                    }
+                                }
+                            }
+                            return gridCopy
+                        }
+
+                        return this.splitValuesFillColors(grid, Values, colorCounts, idx + 1)
+                    }
+                    let c = this.getColor(Colors)
+                   if(! setColors[c]){
+                     setColors[c] = 0
+                   }
+                    setColors[c]+=1
+                    gridCopy[pos.y][pos.x][3] = c
+                    NowColors.colors[c] -= 1
+                    if (NowColors.colors[c] == 0) {
+                        delete NowColors.colors[c]
+                    }
+                    NowColors.count -= 1
+
+                }
+            }
+
+            ColorLen += 1
+        }
+        for (let y in gridCopy) {
+            if (Number(y) == 0) {
+                delete gridCopy[y]
+            }
+            for (let x in gridCopy[y]) {
+                if (Number(x) == 0) {
+                    delete gridCopy[y][x]
+                }
+            }
+        }
+        return gridCopy
+        console.log(gridCopy);
+        const emptyCells: { x: number, y: number, cell: any }[] = [];
+        for (let y = 1; y < grid.length; y++) {
+            const row = grid[y];
+            for (let x = 1; x < row.length; x++) {
+                const cell = row[x];
+                if (!cell) continue;
+                if (this.ElementType.role.indexOf(cell[2]) >= 0) {
+                    emptyCells.push({ x: cell[0], y: cell[1], cell });
+                    let name = x + "-" + y
+                    // console.log(grid_value[name]);
+                }
+            }
+        }
+
+
+        // 模式1：固定颜色数量
+        if (colorCounts && Object.keys(colorCounts).length) {
+            return this.fillColorsWithFixedCounts(grid, emptyCells, colorCounts);
+        }
+        // 模式2：均匀分布（原算法）
+        const colorPositions: { [key: string]: { x: number, y: number }[] } = {};
+        // colors.forEach(c => colorPositions[c] = []);
+
+        // while (emptyCells.length > 0) {
+        //     for (let color of colors) {
+        //         if (emptyCells.length === 0) break;
+
+        //         let maxDist = -1;
+        //         let candidateCells: number[] = [];
+
+        //         for (let i = 0; i < emptyCells.length; i++) {
+        //             const { x, y } = emptyCells[i];
+        //             let minDist = Infinity;
+
+        //             for (let pos of colorPositions[color]) {
+        //                 const dist = Math.abs(pos.x - x) + Math.abs(pos.y - y);
+        //                 if (dist < minDist) minDist = dist;
+        //             }
+
+        //             if (minDist > maxDist) {
+        //                 maxDist = minDist;
+        //                 candidateCells = [i];
+        //             } else if (minDist === maxDist) {
+        //                 candidateCells.push(i);
+        //             }
+        //         }
+
+        //         const chosenIndex = candidateCells[Math.floor(Math.random() * candidateCells.length)];
+        //         const chosen = emptyCells.splice(chosenIndex, 1)[0];
+
+        //         chosen.cell[3] = color;
+        //         colorPositions[color].push({ x: chosen.x, y: chosen.y });
+        //     }
+        // }
+
+        return grid;
+    }
+    static getColor(Colors) {
+        if (Math.floor(Math.random() * 100) > 60) {
+            const maxKey = Object.keys(Colors).reduce((a, b) => Math.max(+a, +b) === +a ? a : b);
+            return Colors[maxKey][Math.floor(Math.random() * Colors[maxKey].length)]
+        }
+        let keys = Object.keys(Colors)
+        let key = keys[Math.floor(Math.random() * keys.length)]
+        return Colors[key][Math.floor(Math.random() * Colors[key].length)]
+
+    }
+    static getAroundColor(grid, pos) {
+        let ColorKeys = []
+        if (grid[pos.y - 1]) {
+            let up = grid[pos.y - 1][pos.x]
+            let t = up[3]
+            if (t && isNaN(t) && ColorKeys.indexOf(t) < 0) {
+                ColorKeys.push(t)
+            }
+        }
+        if (grid[pos.y + 1]) {
+            let down = grid[pos.y + 1][pos.x]
+            let t = down[3]
+            if (t && isNaN(t) && ColorKeys.indexOf(t) < 0) {
+                ColorKeys.push(t)
+            }
+        }
+        if (pos.x - 1 in grid[pos.y]) {
+            let left = grid[pos.y][pos.x - 1]
+            let t = left[3]
+            if (t && isNaN(t) && ColorKeys.indexOf(t) < 0) {
+                ColorKeys.push(t)
+            }
+        }
+        if (pos.x + 1 in grid[pos.y]) {
+            let right = grid[pos.y][pos.x + 1]
+            let t = right[3]
+            if (t && isNaN(t) && ColorKeys.indexOf(t) < 0) {
+                ColorKeys.push(t)
+            }
+        }
+
+        return ColorKeys
+    }
+    static findTopFourKeys(obj, len) {
+        if (len > Object.keys(obj).length) {
+            len = Object.keys(obj).length
+        }
+        return Object.keys(obj)
+            .map(key => [key, obj[key]])
+            .sort((a, b) => {
+                if (b[1] !== a[1]) return b[1] - a[1];
+                return a[0].localeCompare(b[0]);
+            })
+            .slice(0, len)
+            .map(item => item[0]);
+    }
+    // 通用随机填色函数 - 支持两种模式
     static fillColors(grid: any[][], colors: string[], colorCounts?: { [color: string]: number }): any[][] {
         const emptyCells: { x: number, y: number, cell: any }[] = [];
         for (let y = 1; y < grid.length; y++) {
@@ -1400,6 +1645,36 @@ export class CreateRoleYarnNew {
         }
 
         return colorCounts;
+    }
+    static splitValues(len, parts) {
+        const start = 0;
+        const end = len - 1;
+
+        const result = [];
+        const totalNumbers = end - start + 1; // 12个数字
+        const baseCount = Math.floor(totalNumbers / parts); // 12 ÷ 5 = 2
+        const remainder = totalNumbers % parts; // 12 % 5 = 2
+
+        let current = start;
+
+        // 分配策略：把多的数字放在前面
+        for (let i = 0; i < parts; i++) {
+            // 前面rem份各加1，实现多的放前面
+            const count = baseCount + (i < remainder ? 1 : 0);
+
+            const segmentEnd = current + count - 1;
+
+            // 创建数组
+            const group = [];
+            for (let num = current; num <= segmentEnd; num++) {
+                group.push(num);
+            }
+
+            result.push(group);
+            current = segmentEnd + 1;
+        }
+
+        return result;
     }
 
     // 打印可视化

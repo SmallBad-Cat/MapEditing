@@ -1,4 +1,4 @@
-import { _decorator, assetManager, Button, color, Color, Component, dynamicAtlasManager, EditBox, error, EventMouse, EventTouch, Input, input, instantiate, JsonAsset, Label, Layout, loader, Node, Prefab, resources, ScrollView, size, Size, Sprite, SpriteFrame, TextAsset, tween, UIOpacity, UITransform, v3, Vec3, VerticalTextAlignment } from 'cc';
+import { _decorator, assetManager, Button, color, Color, Component, dynamicAtlasManager, EditBox, error, EventMouse, EventTouch, Input, input, instantiate, JsonAsset, Label, Layout, loader, Node, Prefab, resources, ScrollView, size, Size, Sprite, SpriteFrame, TextAsset, tween, UIOpacity, UITransform, v2, v3, Vec3, VerticalTextAlignment } from 'cc';
 import List from './Scene/list/List';
 import { CreateRole } from './Sprite/CreateRole';
 import { GameUtil } from './Sprite/GameUtil';
@@ -170,7 +170,7 @@ export class YarnEditing extends Component {
 
     }
     public loadJson() {
-        CreateRoleYarnNew.init_start()
+        // CreateRoleYarnNew.init_start()
         // this._loadJson("yarn_data/LevelConfig", "levelJsonData");
         this.yarn_mapLayoutData = GameUtil.ChangeStorage(false, "yarn_mapLayoutData")
         if (!this.yarn_mapLayoutData) {
@@ -1538,6 +1538,7 @@ export class YarnEditing extends Component {
         //         people_num += Number(this.dataParent.getChildByName(String(k)).getChildByName('count').getComponent(Label).string)
         //     }
         // }
+        console.log("总数变化："+people_num);
         this.AllPeopleNum = people_num;
         this.PeopleStr.string = `当前人数为：${people_num}`
         return people_num
@@ -2491,6 +2492,7 @@ export class YarnEditing extends Component {
         let data = ''
         let DataArrLook = []
         let DataArr = []
+        let Values = {}
         for (let y = 1; y <= this.map_size.row; y++) {
             DataArrLook[y] = []
             DataArr[y] = []
@@ -2519,6 +2521,15 @@ export class YarnEditing extends Component {
                     }
                 }
                 data += ';'
+                if(this.Obstacle.Role.indexOf(this.map_data[y][x].type)>=0){
+                    let go_num = this.map_data[y][x].go_num
+                    if(!Values[go_num]){
+                        Values[go_num] = []
+                    }
+                    Values[go_num].push(v2(x,y))
+
+                }
+                
                 DataArrLook[y][x] = x + `,${y},${(t) ? t : 5}`
                 DataArr[y][x] = [x, y, t]
                 DataArr[y][x] = DataArr[y][x].concat(this.map_data[y][x].datas)
@@ -2533,7 +2544,7 @@ export class YarnEditing extends Component {
         // console.log(DataArr);
         if (create) {
             data = ""
-            return DataArr
+            return [DataArr,Values]
         }
         DataArr = null
         return data
@@ -4652,6 +4663,8 @@ export class YarnEditing extends Component {
         this.MapColorState = this.setPeopleCount()
         this.ContentNode[0].active = false
         this.dataJsonImport(this.yarn_mapLayoutData[this.MapId].layout)
+        let matches = this.yarn_mapLayoutData[this.MapId].layout.match(/[A-Z]/g);
+       
         if (this.yarn_mapLayoutData[this.MapId].chain) {
             this.setChainData(this.yarn_mapLayoutData[this.MapId].chain)
         }
@@ -4674,12 +4687,16 @@ export class YarnEditing extends Component {
                 this.node.getChildByName("CurtainPage").addChild(DTJk);
                 DTJk.active = true
                 DTJk.setWorldPosition(v3(worldPos.x + (setSize.width / 2) - node_size.width / 2 - 5, worldPos.y - (setSize.height / 2) + node_size.height / 2 + 7, 1))
+                
+                for(let x in this.lift_shaft[k].map){
+                    for(let y in this.lift_shaft[k].map[x]){
+                        matches.push(this.lift_shaft[k].map[x][y][1]);
+                    }
+                }
+                
             }
             // this.setDTJData([])
         }
-
-
-        const matches = this.yarn_mapLayoutData[this.MapId].layout.match(/[A-Z]/g);
         let all_people = matches ? matches.length : 0
         let color_count = matches ? [...new Set(matches)].length : 0
         this.ChangePos.active = true
