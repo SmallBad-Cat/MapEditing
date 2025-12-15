@@ -196,6 +196,7 @@ export class DragDropExample extends Component {
                             }
                             d["lift_shaft"] = JSON.stringify(lift_shaft)
                         }
+                        delete d.poxel
                         delete d.exLayout
                     }
                     this.onJsonFile[d.id] = d

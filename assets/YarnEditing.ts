@@ -1,4 +1,4 @@
-import { _decorator, assetManager, Button, color, Color, Component, dynamicAtlasManager, EditBox, error, EventMouse, EventTouch, Input, input, instantiate, JsonAsset, Label, Layout, loader, Node, Prefab, resources, ScrollView, size, Size, Sprite, SpriteFrame, TextAsset, tween, UIOpacity, UITransform, v2, v3, Vec3, VerticalTextAlignment } from 'cc';
+import { _decorator, assetManager, Button, color, Color, Component, dynamicAtlasManager, EditBox, error, EventMouse, EventTouch, Input, input, instantiate, JsonAsset, Label, Layout, loader, Node, Prefab, resources, RichText, ScrollView, size, Size, Sprite, SpriteFrame, TextAsset, tween, UIOpacity, UITransform, v2, v3, Vec3, VerticalTextAlignment } from 'cc';
 import List from './Scene/list/List';
 import { CreateRole } from './Sprite/CreateRole';
 import { GameUtil } from './Sprite/GameUtil';
@@ -27,6 +27,32 @@ export const CellToColor = {
     8: color('#FF8F21'),//亮黄 H 
     9: color('#EFE6E2'),//绿色 I
     10: color('#C14AFF'),//银白J
+}
+export const ColorValue = {
+    0: color(0x8c, 0x8c, 0x8c),
+    1: "#077AFF",
+    2: "#FFD800",
+    3: "#45B554",
+    4: "#FF45F0",
+    5: "#FF3434",
+    6: "#FFBD9E",
+    7: "#07CBFF",
+    8: "#FF8F21",
+    9: "#EFE6E2",
+    10: "#C14AFF",
+}
+export const ColorName = {
+    0: color(0x8c, 0x8c, 0x8c),
+    1: "蓝:",//蓝   A
+    2: "鲜黄",//蜡黄 B
+    3: "绿色",//鲜绿 C
+    4: "粉色",//粉色 D
+    5: "红色",//红   E
+    6: "肤色",//紫   F
+    7: "浅蓝",//蓝绿 G
+    8: "橙色",//亮黄 H 
+    9: "米白",//绿色 I
+    10: "紫色",//银白J
 }
 
 @ccclass('YarnEditing')
@@ -169,6 +195,7 @@ export class YarnEditing extends Component {
     private CurtainData = {
 
     }
+    private PixelListItems = []
     public loadJson() {
         // CreateRoleYarnNew.init_start()
         // this._loadJson("yarn_data/LevelConfig", "levelJsonData");
@@ -205,10 +232,9 @@ export class YarnEditing extends Component {
         let change = false
         for (let k in this.yarn_mapLayoutData) {
             let data = this.yarn_mapLayoutData[k]
-
-            const matches_ColorList = data["ColorList"].match(/[A-Z]/g);
             const matches_layout = data["layout"].match(/[A-Z]/g);
             if (!data["WalkValue"]) {
+                const matches_ColorList = data["ColorList"] ? data["ColorList"].match(/[A-Z]/g) : [];
                 change = true
                 let getWalk = false
                 if (matches_ColorList && matches_layout && matches_layout.length == matches_ColorList.length) {
@@ -262,22 +288,107 @@ export class YarnEditing extends Component {
             PixelData[k] = {
                 max_color: 1,
                 need_item: 0,
+                data: {
+                    top_yarn: null,
+                    items: null
+                }
             }
+            let TopYarn = {}
             for (let str of this.allPixelData[k]) {
                 const numbers = str.match(/\d+/g).map(Number);
                 if (!PixelData[k][numbers[2]]) {
                     PixelData[k][numbers[2]] = 0
                 }
                 PixelData[k][numbers[2]] += 1;
-                if (numbers[2] > PixelData[k].max_color) {
-                    PixelData[k].max_color = numbers[2]
+                if (!TopYarn[numbers[0]]) {
+                    TopYarn[numbers[0]] = []
                 }
+                TopYarn[numbers[0]].push(numbers[2])
+                // TopYarn[numbers[0]][numbers[1]] = numbers[2]
+                // if (numbers[2] > PixelData[k].max_color) {
+                //     PixelData[k].max_color = numbers[2]
+                // }
             }
+            let max_color = 0
             for (let k_k in PixelData[k]) {
-                if (k_k != "max_color" && k_k != "need_item") {
-                    PixelData[k].need_item += Math.ceil(PixelData[k][k_k] / 3);
+                if (k_k != "max_color" && k_k != "need_item" && k_k != "data") {
+                    let count = PixelData[k][k_k]
+
+                    let value = Math.ceil(PixelData[k][k_k] / 3);
+                    PixelData[k].need_item += value;
+                    PixelData[k][k_k] = value * 3;
+                    if (count < PixelData[k][k_k]) {
+                        const minKey = Object.keys(TopYarn).reduce((a, b) =>
+                            TopYarn[a].length <= TopYarn[b].length ? a : b
+                        );
+                        for (let i = 0; i < PixelData[k][k_k] - count; i++) {
+                            TopYarn[minKey].push(Number(k_k))
+                        }
+                    }
+                    max_color += 1
                 }
             }
+            PixelData[k].data.top_yarn = JSON.parse(JSON.stringify(TopYarn))
+            let ClickKeys = []
+            let ColorList = []
+            let ColorState = {}
+            let changeColorList = (key) => {
+                ColorState[key] -= 1
+                if (ColorState[key] == 0) {
+                    ColorList.push(key)
+                    delete ColorState[key]
+                }
+            }
+            while (Object.keys(TopYarn).length > 0) {
+                let change = false
+                for (let top_k in TopYarn) {
+                    let top_key = Number(TopYarn[top_k][0])
+                    if (ClickKeys.indexOf(top_k) < 0 && !ColorState[top_key]) {
+                        if (ColorState[top_key] && ColorState[top_key] == 0) {
+                            ColorList.push(top_key)
+                        }
+                        ColorState[top_key] = 2
+                        TopYarn[top_k].shift()
+                        ClickKeys.push(top_k)
+                        change = true
+                    } else if (ColorState[top_key] && ColorState[top_key] > 0) {
+                        changeColorList(top_key)
+                        TopYarn[top_k].shift()
+                        ClickKeys.push(top_k)
+                        change = true
+                    }
+                    for (let c_k in ColorState) {
+                        let c_k_int = Number(c_k)
+                        if (ColorState[c_k] > 0 && c_k_int == Number(TopYarn[top_k][0])) {
+                            ColorState[c_k] -= 1
+                            TopYarn[top_k].shift()
+                            ClickKeys.push(top_k)
+                            change = true
+                        }
+                        if (ColorState[c_k] == 0) {
+                            ColorList.push(c_k_int)
+                            delete ColorState[c_k]
+                        }
+                    }
+                    if (TopYarn[top_k].length == 0) {
+                        delete TopYarn[top_k]
+                    }
+                }
+                if (!change) {
+                    let nowKey = Object.keys(TopYarn)
+                    let noKey = true
+                    for (let n_k of nowKey) {
+                        if (ClickKeys.indexOf(n_k) < 0) {
+                            noKey = false
+                        }
+                    }
+                    if (noKey) {
+                        ClickKeys = []
+                    }
+                }
+            }
+            PixelData[k].data.items = ColorList
+            PixelData[k].max_color = max_color
             let item = this.dataParent.getChildByPath("PixelData/view/Content").children[idx];
             if (!item) {
                 item = instantiate(this.dataParent.getChildByPath("PixelData/view/Content").children[0])
@@ -297,11 +408,31 @@ export class YarnEditing extends Component {
         console.log(PixelData);
         this.allPixelData = PixelData;
     }
+    setPixelColor() {
+        this.node.getChildByPath("poxel/color").getComponent(Sprite).color = new Color(CellToColor[this.PixelListItems[0]]);
+        if (this.PixelListItems.length >= 2) {
+            this.node.getChildByPath("poxel/color1").getComponent(Sprite).color = new Color(CellToColor[this.PixelListItems[1]]);
+        }
+        if (this.PixelListItems.length >= 3) {
+            this.node.getChildByPath("poxel/color2").getComponent(Sprite).color = new Color(CellToColor[this.PixelListItems[2]]);
+        }
+        if (this.PixelListItems.length >= 4) {
+            this.node.getChildByPath("poxel/color3").getComponent(Sprite).color = new Color(CellToColor[this.PixelListItems[3]]);
+        } if (this.PixelListItems.length >= 5) {
+            this.node.getChildByPath("poxel/color4").getComponent(Sprite).color = new Color(CellToColor[this.PixelListItems[4]]);
+        }
+        this.node.getChildByPath("poxel/color1").active = this.PixelListItems.length >= 2
+        this.node.getChildByPath("poxel/color2").active = this.PixelListItems.length >= 3
+        this.node.getChildByPath("poxel/color3").active = this.PixelListItems.length >= 4
+        this.node.getChildByPath("poxel/color4").active = this.PixelListItems.length >= 5
+    }
     getNextMapId() {
         let idx = 1
         for (let k in this.yarn_mapLayoutData) {
             if (idx == Number(k)) {
                 idx++
+            } else if (Number(k) == 0) {
+
             } else {
                 break
             }
@@ -757,7 +888,7 @@ export class YarnEditing extends Component {
                     this.TouchNode = instantiate(data.child)
                     this.node.addChild(this.TouchNode)
                 }
-                let c = TitleType.indexOf(data.json[2] == 10?data.json[3]:data.json[2]) + 1
+                let c = TitleType.indexOf(data.json[2] == 10 ? data.json[3] : data.json[2]) + 1
                 this.TouchNode.getComponent(Sprite).color = new Color(CellToColor[c]);
                 this.TouchNode.active = true
                 data.child.active = false
@@ -909,16 +1040,16 @@ export class YarnEditing extends Component {
                 let StartData = this.map_data[this.ChangePosData.start.y][this.ChangePosData.start.x]
                 StartData.child.active = true
                 if (data && this.Obstacle.Role.indexOf(data.type) >= 0) {
-                    let StartColor = StartData.json[2] == 10?StartData.json[3]:StartData.json[2]
-                    let EndColor = data.json[2] == 10?data.json[3]:data.json[2]
-                    if( StartData.json[2] == 10){
+                    let StartColor = StartData.json[2] == 10 ? StartData.json[3] : StartData.json[2]
+                    let EndColor = data.json[2] == 10 ? data.json[3] : data.json[2]
+                    if (StartData.json[2] == 10) {
                         StartData.json[3] = EndColor
-                    }else{
-                         StartData.json[2] = EndColor
+                    } else {
+                        StartData.json[2] = EndColor
                     }
-                    if(data.json[2] == 10){
+                    if (data.json[2] == 10) {
                         data.json[3] = StartColor
-                    }else{
+                    } else {
                         data.json[2] = StartColor
                     }
                     StartData.child.getComponent(Sprite).color = new Color(CellToColor[TitleType.indexOf(EndColor) + 1]);
@@ -930,7 +1061,7 @@ export class YarnEditing extends Component {
             }
             this.ChangePosData.start = null
             this.TouchNode.active = false
-            if(this.TouchNode.name == 10){
+            if (this.TouchNode.name == 10) {
                 this.TouchNode = null
             }
             if (this.TouchNode && this.TouchNode.active) {
@@ -979,7 +1110,7 @@ export class YarnEditing extends Component {
         }
     }
     // Type == 11 || Type == 12 ||
-    TypeArr = [10,42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 3, 6, 7, 8, 9, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 61, 63, 64, 131]
+    TypeArr = [10, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 57, 3, 6, 7, 8, 9, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 61, 63, 64, 131]
     TypeorAddChild(Type) {
         if (this.TypeArr.indexOf(Type) >= 0 && Type != 2) {
             return true
@@ -1538,7 +1669,7 @@ export class YarnEditing extends Component {
         //         people_num += Number(this.dataParent.getChildByName(String(k)).getChildByName('count').getComponent(Label).string)
         //     }
         // }
-        console.log("总数变化："+people_num);
+        console.log("总数变化：" + people_num);
         this.AllPeopleNum = people_num;
         this.PeopleStr.string = `当前人数为：${people_num}`
         return people_num
@@ -2356,7 +2487,7 @@ export class YarnEditing extends Component {
             this.yarn_mapLayoutData[this.MapId]["poxel"] = "";
         } else {
             if (this.AllPeopleNum < this.allPixelData[k].need_item) {
-                return this.TipTween("当前人员不足，无法设置该像素图")
+                return this.TipTween("当前块数不足，无法设置该像素图")
             }
             if (!this.yarn_mapLayoutData[this.MapId]) {
                 let data = this.getNowData()
@@ -2374,11 +2505,38 @@ export class YarnEditing extends Component {
                 this.yarn_mapLayoutData[this.MapId]["poxel"] = k;
             }
             this.node.getChildByName("poxel").getComponent(Sprite).spriteFrame = target.getComponent(Sprite).spriteFrame;
-            this.node.getChildByPath("poxel/name").getComponent(Label).string = ` 颜色:${this.allPixelData[k].max_color} 块:${this.allPixelData[k].need_item}`
+            let color_str = ""
+            for (let poxel_k in this.allPixelData[k]) {
+                if (poxel_k != "max_color" && poxel_k != "need_item" && poxel_k != "data") {
+                    color_str += `-<color=${ColorValue[poxel_k]}>${(this.allPixelData[k][poxel_k] / 3)}</color>`
+                }
+            }
+            this.node.getChildByPath("poxel/name").getComponent(RichText).string = `<b> 颜色:${this.allPixelData[k].max_color} 块:${this.allPixelData[k].need_item} ${color_str}</b>`
         }
+
         this.node.getChildByName("poxel").active = k != "del";
         GameUtil.ChangeStorage(true, "yarn_mapLayoutData", this.yarn_mapLayoutData)
         this.TipTween("像素图设置成功")
+    }
+    setAllColorCounts(change) {
+        let poxel = ""
+        if (this.yarn_mapLayoutData[this.MapId] && this.yarn_mapLayoutData[this.MapId].poxel) {
+            poxel = this.yarn_mapLayoutData[this.MapId].poxel
+            let AllPeopleNum = this.AllPeopleNum
+            let change = false
+            for (let k in this.allPixelData[poxel]) {
+                if (k != "max_color" && k != "need_item" && k != "data") {
+                    if (this.AllColorCounts[k] < (this.allPixelData[k][poxel] / 3)) {
+                        change = true
+                    }
+                    if (change) {
+                        change
+                    }
+                }
+            }
+            console.log(this.AllPeopleNum, "-----------");
+
+        }
     }
     // 数据处理
     data_handle(event: Event) {
@@ -2394,7 +2552,7 @@ export class YarnEditing extends Component {
                 return
             }
             // CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor)
-            let dataArr = CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor, this.lift_shaft,JSON.parse(JSON.stringify( this.AllColorCounts)), target.name == "seve_data_easy")
+            let dataArr = CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor, this.lift_shaft, JSON.parse(JSON.stringify(this.AllColorCounts)), target.name == "seve_data_easy")
             let data = dataArr[0]
             let lift_shaft = dataArr[1]
             if (this.MapId && data) {
@@ -2521,15 +2679,15 @@ export class YarnEditing extends Component {
                     }
                 }
                 data += ';'
-                if(this.Obstacle.Role.indexOf(this.map_data[y][x].type)>=0){
+                if (this.Obstacle.Role.indexOf(this.map_data[y][x].type) >= 0) {
                     let go_num = this.map_data[y][x].go_num
-                    if(!Values[go_num]){
+                    if (!Values[go_num]) {
                         Values[go_num] = []
                     }
-                    Values[go_num].push(v2(x,y))
+                    Values[go_num].push(v2(x, y))
 
                 }
-                
+
                 DataArrLook[y][x] = x + `,${y},${(t) ? t : 5}`
                 DataArr[y][x] = [x, y, t]
                 DataArr[y][x] = DataArr[y][x].concat(this.map_data[y][x].datas)
@@ -2544,7 +2702,7 @@ export class YarnEditing extends Component {
         // console.log(DataArr);
         if (create) {
             data = ""
-            return [DataArr,Values]
+            return [DataArr, Values]
         }
         DataArr = null
         return data
@@ -2579,6 +2737,12 @@ export class YarnEditing extends Component {
     setImportColor(EditBox: EditBox) {
         let color = Number(EditBox.string)
         if (!isNaN(color) && color >= 3) {
+            // let poxel = this.yarn_mapLayoutData[this.MapId].poxel
+            // if (poxel && color < this.allPixelData[poxel].max_color) {
+            //     this.TipTween("颜色种类不得少于" + this.allPixelData[poxel].max_color)
+            //     EditBox.placeholder = "设置生成颜色"
+            //     return
+            // }
             this.setColor = color
             this.TipTween("设置颜色数量为：" + color)
             this.AllColorCounts = {}
@@ -2631,12 +2795,14 @@ export class YarnEditing extends Component {
     }
     // 数据Json导入
     dataJsonImport(data: string, Editing?) {
+        this.getItemMap(data)
         this.allLabel[4].string = ""
         if (data.length < 6) {
             this.ImportEditBox.string = '';
             return;
         }
-        
+        this.PixelListItems = []
+
         this.node.getChildByName("ColorAllCount").active = false;
         this.node.getChildByName("ColorNeedCount").active = false;
         this.node.getChildByName("MapColorList").active = false;
@@ -2749,7 +2915,7 @@ export class YarnEditing extends Component {
                 }
             }
             this.map_data[idx[1]][idx[0]].child.name = this.map_data[idx[1]][idx[0]].type + '';
-            let types = [10,31, 1111, 56, 57, 42, 43, 44, 45, 46, 141, 142, 143, 144]
+            let types = [10, 31, 1111, 56, 57, 42, 43, 44, 45, 46, 141, 142, 143, 144]
             if (this.dataParent.getChildByName(idx[2] + '')) {
 
                 if (types.indexOf(idx[2]) >= 0) {
@@ -3312,8 +3478,22 @@ export class YarnEditing extends Component {
             this.lift_shaft = JSON.parse(data.lift_shaft)
             this.setDTJData([])
         }
+        console.log('点击查看的地图', data.poxel && data.poxel != "", data);
         if (data.poxel && data.poxel != "") {
+            console.log(this.dataParent.getChildByPath("PixelData/view/Content"));
             this.node.getChildByName("poxel").getComponent(Sprite).spriteFrame = this.dataParent.getChildByPath("PixelData/view/Content/" + data.poxel).getComponent(Sprite).spriteFrame;
+            this.node.getChildByName("poxel").active = true
+            let color_str = ""
+            for (let k in this.allPixelData[data.poxel]) {
+                if (k != "max_color" && k != "need_item" && k != "data") {
+                    //    color_str+= "["+ColorName[k]+(this.allPixelData[data.poxel][k]/3)+']'
+                    color_str += `-<color=${ColorValue[k]}>${(this.allPixelData[data.poxel][k] / 3)}</color>`
+                }
+            }
+            this.PixelListItems = JSON.parse(JSON.stringify(this.allPixelData[data.poxel].data.items))
+            this.node.getChildByPath("poxel/name").getComponent(RichText).string = `<b> 颜色:${this.allPixelData[data.poxel].max_color} 块:${this.allPixelData[data.poxel].need_item} ${color_str}</b>`
+
+            this.setPixelColor()
         } else {
             this.node.getChildByName("poxel").active = false
         }
@@ -4239,7 +4419,7 @@ export class YarnEditing extends Component {
     SaveMapData() {
 
         const data = [
-            ["ID", "大小", "填充顺序", "总人数", "问号人", "电梯", "走线难度", "走线队列", "地图数据", "机制配置", "毛线配置ID"], ["id", "size", "ColorList", "all_people", "qusition", "lift", "walk_diff", "walk_list", "layout", "exLayout", "TopId"]
+            ["ID", "大小", "填充顺序", "总人数", "问号人", "电梯", "走线难度", "走线队列", "地图数据", "机制配置", "毛线配置ID", "像素图数据"], ["id", "size", "ColorList", "all_people", "qusition", "lift", "walk_diff", "walk_list", "layout", "exLayout", "TopId", "poxel"]
             // ["ID", "大小", "地图数据", "角色库", "锁链数据"], ["id", "size", "layout", "roles", "chain"]
         ];
         let lifts = [6, 7, 8, 9, 116, 117, 118, 119]
@@ -4371,11 +4551,17 @@ export class YarnEditing extends Component {
             } else {
                 delete chain_data.lift_shaft
             }
+            let poxel = null
+            if (d.poxel) {
+                poxel = JSON.stringify(this.allPixelData[d.poxel].data.top_yarn);
+            } else {
+                poxel = ""
+            }
             chain = JSON.stringify(chain_data)
             let walk_diff = d["WalkValue"] ? d["WalkValue"] : "";
             let walk_list = d["WalkValueChange"] ? d["WalkValueChange"] : "";
             let TopId = d["TopId"] ? d["TopId"] : "";
-            data.push([d.id, d.size, ColorList, all_people, qusition == 0 ? "" : qusition, lift == 0 ? "" : lift, walk_diff, walk_list, d.layout, chain, TopId])
+            data.push([d.id, d.size, ColorList, all_people, qusition == 0 ? "" : qusition, lift == 0 ? "" : lift, walk_diff, walk_list, d.layout, chain, TopId, poxel])
         }
         GameUtil.getCsv(data, "YarnMapData")
 
@@ -4390,6 +4576,7 @@ export class YarnEditing extends Component {
         this.Map.scale = v3(1, 1, 1);
         this.DTJLayer = new DTJLayerData
         this.setDTJChooseState(false)
+        this.node.getChildByName("poxel").active = false
         this.CloseAll()
         this.EditOrder.active = false;
         this.scheduleOnce(() => {
@@ -4463,13 +4650,20 @@ export class YarnEditing extends Component {
         let Name = e.node.name;
         let Count = 0
         for (let child of this.node.getChildByName("MapColorList").children) {
-            if(child.active){
+            if (child.active) {
                 let num = Number(child.getChildByName("EditBoxText").getComponent(EditBox).string)
                 Count += num
                 this.AllColorCounts[child.name] = num
             }
         }
-        this.node.getChildByName("ColorNeedCount").getComponent(Label).string = "当前值\n"+Count
+        let poxel = this.yarn_mapLayoutData[this.MapId].poxel
+        console.log(this.allPixelData[poxel]);
+        // if(poxel&&color<this.allPixelData[poxel].max_color){
+        //     this.TipTween("颜色种类不得少于" + this.allPixelData[poxel].max_color)
+        //     EditBox.placeholder = "设置生成颜色"
+        //     return
+        // }
+        this.node.getChildByName("ColorNeedCount").getComponent(Label).string = "当前值\n" + Count
         if (Count != this.AllPeopleNum) {
             this.TipTween("颜色总数和块数不一致")
         }
@@ -4503,6 +4697,9 @@ export class YarnEditing extends Component {
         } else {
             if (this.yarn_mapLayoutData[count]) {
                 this.TipTween("ID冲突，请删除原ID")
+            } else if (count <= 0) {
+                e.string = "";
+                this.TipTween('ID最小只能为1');
             } else {
                 let key = e.node.parent.parent.name
                 this.yarn_mapLayoutData[count] = JSON.parse(JSON.stringify(this.yarn_mapLayoutData[key]))
@@ -4664,7 +4861,7 @@ export class YarnEditing extends Component {
         this.ContentNode[0].active = false
         this.dataJsonImport(this.yarn_mapLayoutData[this.MapId].layout)
         let matches = this.yarn_mapLayoutData[this.MapId].layout.match(/[A-Z]/g);
-       
+
         if (this.yarn_mapLayoutData[this.MapId].chain) {
             this.setChainData(this.yarn_mapLayoutData[this.MapId].chain)
         }
@@ -4673,6 +4870,10 @@ export class YarnEditing extends Component {
         }
         if (this.yarn_mapLayoutData[this.MapId].Curtain) {
             this.setCurtainData(this.yarn_mapLayoutData[this.MapId].Curtain)
+        }
+        if (this.yarn_mapLayoutData[this.MapId].poxel) {
+            this.PixelListItems = JSON.parse(JSON.stringify(this.allPixelData[this.yarn_mapLayoutData[this.MapId].poxel].data.items))
+            this.setPixelColor()
         }
         if (this.yarn_mapLayoutData[this.MapId].lift_shaft) {
             this.lift_shaft = JSON.parse(this.yarn_mapLayoutData[this.MapId].lift_shaft)
@@ -4687,13 +4888,13 @@ export class YarnEditing extends Component {
                 this.node.getChildByName("CurtainPage").addChild(DTJk);
                 DTJk.active = true
                 DTJk.setWorldPosition(v3(worldPos.x + (setSize.width / 2) - node_size.width / 2 - 5, worldPos.y - (setSize.height / 2) + node_size.height / 2 + 7, 1))
-                
-                for(let x in this.lift_shaft[k].map){
-                    for(let y in this.lift_shaft[k].map[x]){
+
+                for (let x in this.lift_shaft[k].map) {
+                    for (let y in this.lift_shaft[k].map[x]) {
                         matches.push(this.lift_shaft[k].map[x][y][1]);
                     }
                 }
-                
+
             }
             // this.setDTJData([])
         }
@@ -4732,8 +4933,8 @@ export class YarnEditing extends Component {
         this.node.getChildByName("ColorAllCount").active = true;
         this.node.getChildByName("ColorNeedCount").active = true;
         this.AllPeopleNum = all_people;
-        this.node.getChildByName("ColorAllCount").getComponent(Label).string = "总数\n"+this.AllPeopleNum
-        this.node.getChildByName("ColorNeedCount").getComponent(Label).string = "当前值\n"+this.AllPeopleNum
+        this.node.getChildByName("ColorAllCount").getComponent(Label).string = "总数\n" + this.AllPeopleNum
+        this.node.getChildByName("ColorNeedCount").getComponent(Label).string = "当前值\n" + this.AllPeopleNum
         for (let child of MapColorListNode.children) {
             child.active = false
         }
@@ -4830,12 +5031,12 @@ export class YarnEditing extends Component {
     private ColorList = []
     ChooseColorData(data) {
         this.ChangePos.active = false
-        if(this.node.getChildByName("MapColorList").active){
+        if (this.node.getChildByName("MapColorList").active) {
             this.node.getChildByName("MapColorList").active = false
             this.node.getChildByName("ColorAllCount").active = false;
             this.node.getChildByName("ColorNeedCount").active = false;
         }
-        
+
         this.TouchNode && (this.TouchNode.active = false);
         if (this.node.getChildByName("seve_data").active) {
             this.node.getChildByName("seve_data").active = false
@@ -4860,7 +5061,13 @@ export class YarnEditing extends Component {
                     data.child.getChildByName(n).destroy()
                 }
             }
-            this.ColorList.push([data.idx[0], data.idx[1], data.json.pop()])
+            let Color = data.json.pop()
+            if (this.PixelListItems.length > 0) {
+                Color = TitleType[this.PixelListItems.shift() - 1]
+                console.log(this.PixelListItems[0]);
+                this.setPixelColor()
+            }
+            this.ColorList.push([data.idx[0], data.idx[1], Color])
             // 下方有电梯
             let NoShow = this.AaroundLift(data)
             if (NoShow) {
@@ -4882,6 +5089,7 @@ export class YarnEditing extends Component {
         if (change) {
             let c = this.ColorList[this.ColorList.length - 1][2]
             // 当前颜色实际间隔
+            console.log(c);
             let color_sjjg = this.MapValueData.BallColorChange[c].value
             this.MapValueData.BallColorChange[c].change.push(this.MapValueData.BallColorChange[c].value)
             this.MapValueData.BallColorChange[c].value = 0
@@ -5111,7 +5319,134 @@ export class YarnEditing extends Component {
             }
         }
     }
+    getItemMap(data) {
+        let handle = this.HandleConf(data, false)
+        let new_data = handle.map
+        let row = 0;
+        let arrange = 0;
+        let map_data = {}
+        for (let idx of new_data) {
+            row = (idx[1] > row) ? idx[1] : row;
+            arrange = (idx[0] > arrange) ? idx[0] : arrange;
+            idx[2] = CreateRole.RestoreFixedData[idx[2]] ? CreateRole.RestoreFixedData[idx[2]] : idx[2]
+            if (!map_data[idx[1]]) {
+                map_data[idx[1]] = {}
+            }
+            if (!map_data[idx[1]][idx[0]]) {
+                map_data[idx[1]][idx[0]] = {}
+            }
+            map_data[idx[1]][idx[0]].type = isNaN(Number(idx[2])) ? 1 : idx[2];
+            map_data[idx[1]][idx[0]].json = idx
+        }
+        let names = []
+        let HaveLift = (lift_data, color, k_idx) => {
+            lift_data.json[k_idx + 1] = color
+        }
+
+        let lift_shaft = this.yarn_mapLayoutData[this.MapId]["lift_shaft"]
+        let lift_shaft_data = {}
+        if (lift_shaft) {
+            lift_shaft_data = JSON.parse(lift_shaft)
+        }
+        for (let arr of this.ColorList) {
+            let name = arr[0] + "-" + arr[1]
+            if (names.indexOf(name) >= 0) {
+                let idx_k = 1
+                while (names.indexOf(name) >= 0) {
+                    name = arr[0] + "-" + arr[1] + "-" + idx_k;
+                    idx_k++
+                }
+                let Have_Lift = false
+                if (map_data[arr[0] + 1]) {
+                    let Down = map_data[arr[0] + 1][arr[1]]
+                    if (Down.type == 8 || Down.type == 118) {
+                        HaveLift(Down, arr[2], idx_k)
+                        Have_Lift = true
+                    }
+                }
+                if (!Have_Lift && map_data[arr[0] - 1]) {
+                    let Up = map_data[arr[0] - 1][arr[1]]
+                    if (Up.type == 9 || Up.type == 119) {
+                        HaveLift(Up, arr[2], idx_k)
+                        Have_Lift = true
+                    }
+                }
+                if (!Have_Lift && map_data[arr[0]][arr[1] - 1]) {
+                    let Left = map_data[arr[0]][arr[1] - 1]
+                    if ((Left.type == 7 || Left.type == 12 || Left.type == 117)) {
+                        HaveLift(Left, arr[2], idx_k)
+                        Have_Lift = true
+                    }
+                }
+                if (!Have_Lift && map_data[arr[0]][arr[1] + 1]) {
+                    let Right = map_data[arr[0]][arr[1] + 1]
+                    if (Right.type == 6 || Right.type == 11 || Right.type == 116) {
+                        HaveLift(Right, arr[2], idx_k)
+                        Have_Lift = true
+                    }
+                }
+                if (!Have_Lift) {
+                    for (let shaft_k in lift_shaft_data) {
+                        let map = lift_shaft_data[shaft_k].map
+                        if (map[arr[0]] && map[arr[0]][arr[1]]) {
+                            map[arr[0]][arr[1]][1] = arr[2]
+                        }
+
+                    }
+                }
+
+
+            } else {
+                let data = map_data[arr[0]][arr[1]]
+                if (data.type == 1) {
+                    data.json[2] = arr[2]
+                } else {
+                    data.json[3] = arr[2]
+                }
+            }
+            names.push(name)
+        }
+        if (lift_shaft) {
+            this.yarn_mapLayoutData[this.MapId]["lift_shaft"] = JSON.stringify(lift_shaft_data)
+        }
+        return map_data
+    }
+
+    ChangePoxelLayout() {
+        let layout = ""
+        let map_data = this.getItemMap(this.yarn_mapLayoutData[this.MapId].layout)
+        for (let i in map_data) {
+            let row = Number(i)
+            for (let x in map_data[row]) {
+                let arrange = Number(x)
+                if (row <= this.map_size.row && arrange <= this.map_size.arrange) {
+                    let data = map_data[row][arrange].json
+                    let i = 0
+                    for (let k of data) {
+                        if (i >= 2 && CreateRole.FixedData[k]) {
+                            k = CreateRole.FixedData[k]
+                        }
+                        layout += k + ",";
+
+                        i++
+                    }
+                    layout = layout.slice(0, layout.length - 1)
+                    layout += ";"
+                }
+
+            }
+        }
+        layout = layout.slice(0, layout.length - 1)
+        this.yarn_mapLayoutData[this.MapId].layout = layout
+    }
     SaveData() {
+
+        if (this.yarn_mapLayoutData[this.MapId].poxel) {
+            this.ChangePoxelLayout()
+        }
+        if (this.yarn_mapLayoutData[this.MapId].chain) {
+            this.setChainData(this.yarn_mapLayoutData[this.MapId].chain)
+        }
         this.StateText.string = ""
         let ColorList = ""
         if (!this.yarn_mapLayoutData[this.MapId]["ColorList"]) {
