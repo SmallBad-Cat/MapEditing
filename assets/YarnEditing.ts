@@ -3680,9 +3680,10 @@ export class YarnEditing extends Component {
         item.getChildByName('text').getComponent(Label).string = 'ID:' + data.id;
 
         let color_count = matches ? [...new Set(matches)].length : 0
-
-
-
+        item.getChildByName("poxel").active = data.poxel;
+        if (data.poxel) {
+            item.getChildByName("poxel").getComponent(Sprite).spriteFrame = this.dataParent.getChildByPath("PixelData/view/Content/" + data.poxel).getComponent(Sprite).spriteFrame;
+        }
         let mapSize = new Size(200, 200)
         data.layout.indexOf("A")
         item.getChildByName("Color").active = data["ColorList"] ? 1 : 0
