@@ -2503,7 +2503,22 @@ export class YarnEditing extends Component {
                 }
             } else {
                 this.yarn_mapLayoutData[this.MapId]["poxel"] = k;
+                if (this.yarn_mapLayoutData[this.MapId].ColorList) {
+                    const array = this.yarn_mapLayoutData[this.MapId].ColorList.split(",").map(item => item.split("-"));
+                    let newColorList = []
+                    for(let i in  array){
+                        let arr = array[i]
+                        let color = arr[2]
+                        if(this.allPixelData[k].data.items[i]){
+                            color = TitleType[this.allPixelData[k].data.items[i] - 1]
+                        }
+                        newColorList.push([Number(arr[0]),Number(arr[1]),color])
+                    }
+                    this.yarn_mapLayoutData[this.MapId].ColorList =  newColorList.map(item => item.join("-")).join(",")
+                    this.ChangePoxelLayout(newColorList)
+                }
             }
+            
             this.node.getChildByName("poxel").getComponent(Sprite).spriteFrame = target.getComponent(Sprite).spriteFrame;
             let color_str = ""
             for (let poxel_k in this.allPixelData[k]) {
@@ -2795,7 +2810,6 @@ export class YarnEditing extends Component {
     }
     // 数据Json导入
     dataJsonImport(data: string, Editing?) {
-        this.getItemMap(data)
         this.allLabel[4].string = ""
         if (data.length < 6) {
             this.ImportEditBox.string = '';
@@ -4633,7 +4647,9 @@ export class YarnEditing extends Component {
                         console.error(newTopYarn);
                         console.log(top_yarn);
                         console.log(ColorListK);
-                        return this.getPoxelOutData(ColorList, top_yarn_data, need_item) 
+                        console.log(ColorList);
+                        return "像素画和点击顺序存在问题，请检查"
+                        // return this.getPoxelOutData(ColorList, top_yarn_data, need_item) 
                     }
 
                 }
@@ -5142,7 +5158,6 @@ export class YarnEditing extends Component {
             let Color = data.json.pop()
             if (this.PixelListItems.length > 0) {
                 Color = TitleType[this.PixelListItems.shift() - 1]
-                console.log(this.PixelListItems[0]);
                 this.setPixelColor()
             }
             this.ColorList.push([data.idx[0], data.idx[1], Color])
@@ -5397,7 +5412,7 @@ export class YarnEditing extends Component {
             }
         }
     }
-    getItemMap(data) {
+    getItemMap(data,ColorList) {
         let handle = this.HandleConf(data, false)
         let new_data = handle.map
         let row = 0;
@@ -5426,7 +5441,7 @@ export class YarnEditing extends Component {
         if (lift_shaft) {
             lift_shaft_data = JSON.parse(lift_shaft)
         }
-        for (let arr of this.ColorList) {
+        for (let arr of ColorList) {
             let name = arr[0] + "-" + arr[1]
             if (names.indexOf(name) >= 0) {
                 let idx_k = 1
@@ -5490,9 +5505,9 @@ export class YarnEditing extends Component {
         return map_data
     }
 
-    ChangePoxelLayout() {
+    ChangePoxelLayout(ColorList) {
         let layout = ""
-        let map_data = this.getItemMap(this.yarn_mapLayoutData[this.MapId].layout)
+        let map_data = this.getItemMap(this.yarn_mapLayoutData[this.MapId].layout,ColorList)
         for (let i in map_data) {
             let row = Number(i)
             for (let x in map_data[row]) {
@@ -5520,7 +5535,7 @@ export class YarnEditing extends Component {
     SaveData() {
 
         if (this.yarn_mapLayoutData[this.MapId].poxel) {
-            this.ChangePoxelLayout()
+            this.ChangePoxelLayout(this.ColorList)
         }
         if (this.yarn_mapLayoutData[this.MapId].chain) {
             this.setChainData(this.yarn_mapLayoutData[this.MapId].chain)
