@@ -1,4 +1,4 @@
-import { _decorator, assetManager, Button, color, Color, Component, dynamicAtlasManager, EditBox, error, EventMouse, EventTouch, Input, input, instantiate, JsonAsset, Label, Layout, loader, Node, Prefab, resources, RichText, ScrollView, size, Size, Sprite, SpriteFrame, TextAsset, tween, UIOpacity, UITransform, v2, v3, Vec3, VerticalTextAlignment } from 'cc';
+import { _decorator, assetManager, Button, color, Color, ColorKey, Component, dynamicAtlasManager, EditBox, error, EventMouse, EventTouch, Input, input, instantiate, JsonAsset, Label, Layout, loader, Node, Prefab, resources, RichText, ScrollView, size, Size, Sprite, SpriteFrame, TextAsset, tween, UIOpacity, UITransform, v2, v3, Vec3, VerticalTextAlignment } from 'cc';
 import List from './Scene/list/List';
 import { CreateRole } from './Sprite/CreateRole';
 import { GameUtil } from './Sprite/GameUtil';
@@ -4554,7 +4554,8 @@ export class YarnEditing extends Component {
             }
             let poxel = null
             if (d.poxel) {
-                poxel = JSON.stringify(this.allPixelData[d.poxel].data.top_yarn);
+                console.log(d.id, "-----------------", d.poxel);
+                poxel = this.getPoxelOutData(ColorList, JSON.parse(JSON.stringify(this.allPixelData[d.poxel].data.top_yarn)), this.allPixelData[d.poxel].need_item)
             } else {
                 poxel = ""
             }
@@ -4564,8 +4565,84 @@ export class YarnEditing extends Component {
             let TopId = d["TopId"] ? d["TopId"] : "";
             data.push([d.id, d.size, ColorList, all_people, qusition == 0 ? "" : qusition, lift == 0 ? "" : lift, walk_diff, walk_list, d.layout, chain, TopId, poxel])
         }
-        GameUtil.getCsv(data, "YarnMapData")
+        // GameUtil.getCsv(data, "YarnMapData")
 
+    }
+    getPoxelOutData(ColorList, top_yarn_data, need_item) {
+        if (ColorList) {
+            let top_yarn = JSON.parse(JSON.stringify(top_yarn_data))
+            let matches = ColorList.match(/[A-Z]/g);
+            let ColorListK = []
+            for (let c of matches) {
+                if (ColorListK.length < need_item) {
+                    ColorListK.push(TitleType.indexOf(c) + 1)
+                }
+            }
+            let key_state = [ColorListK.shift(), 3, 1]
+            let top_yarnKeys = []
+            let TempKeys = {}
+            let newTopYarn = {}
+            // &&Object.keys(newTopYarn).length<10
+            while (Object.keys(top_yarn).length > 0) {
+                let change = false
+                for (let k in top_yarn) {
+                    if (key_state[1] > 0 && top_yarn[k][0] == key_state[0]) {
+                        top_yarnKeys.push(k)
+                        key_state[1] -= 1
+                        if (!newTopYarn[k]) {
+                            newTopYarn[k] = []
+                        }
+                        newTopYarn[k].push(top_yarn[k].shift() + "-" + key_state[2])
+                        if (key_state[1] == 0 && ColorListK.length > 0) {
+                            key_state = [ColorListK.shift(), 3, key_state[2] + 1]
+                        }
+                        change = true
+                    } else {
+                        for (let t_k in TempKeys) {
+                            if (TempKeys[t_k].length > 0 && Number(t_k) == Number(top_yarn[k][0])) {
+                                let d = TempKeys[t_k][0]
+                                d[0] -= 1
+                                if (!newTopYarn[k]) {
+                                    newTopYarn[k] = []
+                                }
+                                newTopYarn[k].push(top_yarn[k].shift() + "-" + d[1])
+                                if (d[0] == 0) {
+                                    TempKeys[t_k].shift()
+                                }
+                                change = true
+                            }
+                        }
+                    }
+                    if (top_yarn[k].length == 0) {
+                        delete top_yarn[k]
+                    }
+                }
+                if (!change) {
+                    if (!TempKeys[key_state[0]]) {
+                        TempKeys[key_state[0]] = []
+                    }
+                    if (key_state[1] > 0) {
+                        TempKeys[key_state[0]].push([key_state[1], key_state[2]])
+                        if (ColorListK.length > 0) {
+                            key_state = [ColorListK.shift(), 3, key_state[2] + 1]
+                        } else {
+                            key_state = [0, 0, 999]
+                        }
+                    } else {
+                        console.error(TempKeys);
+                        console.error(newTopYarn);
+                        console.log(top_yarn);
+                        console.log(ColorListK);
+                        return this.getPoxelOutData(ColorList, top_yarn_data, need_item) 
+                    }
+
+                }
+
+            }
+            return JSON.stringify(newTopYarn)
+        }
+        return JSON.stringify(top_yarn_data
+)
     }
     AddMapData() {
         this.onLocking()
