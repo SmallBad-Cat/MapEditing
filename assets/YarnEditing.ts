@@ -4579,7 +4579,7 @@ export class YarnEditing extends Component {
             let TopId = d["TopId"] ? d["TopId"] : "";
             data.push([d.id, d.size, ColorList, all_people, qusition == 0 ? "" : qusition, lift == 0 ? "" : lift, walk_diff, walk_list, d.layout, chain, TopId, poxel])
         }
-        // GameUtil.getCsv(data, "YarnMapData")
+        GameUtil.getCsv(data, "YarnMapData")
 
     }
     getPoxelOutData(ColorList, top_yarn_data, need_item) {
