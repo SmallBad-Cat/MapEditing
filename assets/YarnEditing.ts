@@ -196,6 +196,7 @@ export class YarnEditing extends Component {
 
     }
     private PixelListItems = []
+    private PixelMapAdd = []
     public loadJson() {
         // CreateRoleYarnNew.init_start()
         // this._loadJson("yarn_data/LevelConfig", "levelJsonData");
@@ -422,6 +423,7 @@ export class YarnEditing extends Component {
         } if (this.PixelListItems.length >= 5) {
             this.node.getChildByPath("poxel/color4").getComponent(Sprite).color = new Color(CellToColor[this.PixelListItems[4]]);
         }
+        this.node.getChildByPath("poxel/color").active = this.PixelListItems.length >= 1
         this.node.getChildByPath("poxel/color1").active = this.PixelListItems.length >= 2
         this.node.getChildByPath("poxel/color2").active = this.PixelListItems.length >= 3
         this.node.getChildByPath("poxel/color3").active = this.PixelListItems.length >= 4
@@ -2507,19 +2509,19 @@ export class YarnEditing extends Component {
                 if (this.yarn_mapLayoutData[this.MapId].ColorList) {
                     const array = this.yarn_mapLayoutData[this.MapId].ColorList.split(",").map(item => item.split("-"));
                     let newColorList = []
-                    for(let i in  array){
+                    for (let i in array) {
                         let arr = array[i]
                         let color = arr[2]
-                        if(this.allPixelData[k].data.items[i]){
+                        if (this.allPixelData[k].data.items[i]) {
                             color = TitleType[this.allPixelData[k].data.items[i] - 1]
                         }
-                        newColorList.push([Number(arr[0]),Number(arr[1]),color])
+                        newColorList.push([Number(arr[0]), Number(arr[1]), color])
                     }
-                    this.yarn_mapLayoutData[this.MapId].ColorList =  newColorList.map(item => item.join("-")).join(",")
+                    this.yarn_mapLayoutData[this.MapId].ColorList = newColorList.map(item => item.join("-")).join(",")
                     this.ChangePoxelLayout(newColorList)
                 }
             }
-            
+
             this.node.getChildByPath("poxel/Image").getComponent(Sprite).spriteFrame = target.getComponent(Sprite).spriteFrame;
             let color_str = ""
             for (let poxel_k in this.allPixelData[k]) {
@@ -3293,7 +3295,12 @@ export class YarnEditing extends Component {
     CloseAll(MapChange?) {
         this.node.getChildByName("CurtainPage").destroyAllChildren();
         this.LiftShaftState = 0
+        this.PixelMapAdd = []
         this.node.getChildByPath("DTJShow/text").getComponent(Label).string = "1层"
+        this.node.getChildByName("PixelMap").active = false;
+        for (let child of this.node.getChildByName("PixelMap").children) {
+            child.active = false
+        }
         this.CurtainData = {}
         this.LiftExportData = {
             key: null,
@@ -4659,7 +4666,7 @@ export class YarnEditing extends Component {
             return JSON.stringify(newTopYarn)
         }
         return JSON.stringify(top_yarn_data
-)
+        )
     }
     AddMapData() {
         this.onLocking()
@@ -5160,7 +5167,32 @@ export class YarnEditing extends Component {
             if (this.PixelListItems.length > 0) {
                 Color = TitleType[this.PixelListItems.shift() - 1]
                 this.setPixelColor()
+
+
             }
+            let PixelMap = this.node.getChildByName("PixelMap")
+            if (!PixelMap.active) {
+                PixelMap.active = true
+            }
+            let name = data.idx[0] + '-' + data.idx[1]
+            let idx = 0
+            while (this.PixelMapAdd.indexOf(name) >= 0) {
+                idx += 1
+                name = data.idx[0] + '-' + data.idx[1] + "-" + idx
+            }
+            this.PixelMapAdd.push(name)
+            let Pixel_node = PixelMap.getChildByName(name)
+            if (!Pixel_node) {
+                Pixel_node = instantiate(PixelMap.children[0])
+                PixelMap.addChild(Pixel_node);
+            }
+            Pixel_node.active = true
+            Pixel_node.name = name
+            Pixel_node.setWorldPosition(data.child.getWorldPosition())
+            let c = TitleType.indexOf(Color) + 1
+            Pixel_node.getComponent(Sprite).color = CellToColor[c];
+            let scale = 1 - (idx * 0.2)
+            Pixel_node.scale = v3(scale, scale, scale)
             this.ColorList.push([data.idx[0], data.idx[1], Color])
             // 下方有电梯
             let NoShow = this.AaroundLift(data)
@@ -5413,7 +5445,7 @@ export class YarnEditing extends Component {
             }
         }
     }
-    getItemMap(data,ColorList) {
+    getItemMap(data, ColorList) {
         let handle = this.HandleConf(data, false)
         let new_data = handle.map
         let row = 0;
@@ -5508,7 +5540,7 @@ export class YarnEditing extends Component {
 
     ChangePoxelLayout(ColorList) {
         let layout = ""
-        let map_data = this.getItemMap(this.yarn_mapLayoutData[this.MapId].layout,ColorList)
+        let map_data = this.getItemMap(this.yarn_mapLayoutData[this.MapId].layout, ColorList)
         for (let i in map_data) {
             let row = Number(i)
             for (let x in map_data[row]) {
