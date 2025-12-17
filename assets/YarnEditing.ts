@@ -399,6 +399,7 @@ export class YarnEditing extends Component {
             resources.load("image/" + k + "/spriteFrame", (err, res: SpriteFrame) => {
                 if (err) { error(err); return; }
                 item.getComponent(Sprite).spriteFrame = res;
+                item.getChildByName("Image").getComponent(Sprite).spriteFrame = res;
             });
             idx += 1
 
@@ -2519,7 +2520,7 @@ export class YarnEditing extends Component {
                 }
             }
             
-            this.node.getChildByName("poxel").getComponent(Sprite).spriteFrame = target.getComponent(Sprite).spriteFrame;
+            this.node.getChildByPath("poxel/Image").getComponent(Sprite).spriteFrame = target.getComponent(Sprite).spriteFrame;
             let color_str = ""
             for (let poxel_k in this.allPixelData[k]) {
                 if (poxel_k != "max_color" && poxel_k != "need_item" && poxel_k != "data") {
@@ -3495,7 +3496,7 @@ export class YarnEditing extends Component {
         console.log('点击查看的地图', data.poxel && data.poxel != "", data);
         if (data.poxel && data.poxel != "") {
             console.log(this.dataParent.getChildByPath("PixelData/view/Content"));
-            this.node.getChildByName("poxel").getComponent(Sprite).spriteFrame = this.dataParent.getChildByPath("PixelData/view/Content/" + data.poxel).getComponent(Sprite).spriteFrame;
+            this.node.getChildByPath("poxel/Image").getComponent(Sprite).spriteFrame = this.dataParent.getChildByPath("PixelData/view/Content/" + data.poxel).getComponent(Sprite).spriteFrame;
             this.node.getChildByName("poxel").active = true
             let color_str = ""
             for (let k in this.allPixelData[data.poxel]) {
