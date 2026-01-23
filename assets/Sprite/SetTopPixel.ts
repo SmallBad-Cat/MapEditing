@@ -326,7 +326,7 @@ export class SetTopPixel extends Component {
                     TopYarn[x] = []
                 }
                 let node = this.Content.children[idx]
-                if (node.active) {
+                if (node&&node.active) {
                     TopYarn[x].push(Number(node.name))
                     if (!PixelData[node.name]) {
                         PixelData[node.name] = 0

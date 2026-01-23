@@ -4727,9 +4727,8 @@ export class YarnEditing extends Component {
             }
             let poxel = null
             if (d.poxel) {
-                console.log(d.id, "-----------------", d.poxel);
                 if (d.poxel.indexOf("_set") >= 0) {
-                    let key = d.poxel.indexOf("_set")
+                    let key = d.poxel.slice(0, -4)
                     poxel = this.getPoxelOutData(ColorList, JSON.parse(JSON.stringify(this.DataStorage[key].data.top_yarn)), this.DataStorage[key].need_item)
                 } else {
                     poxel = this.getPoxelOutData(ColorList, JSON.parse(JSON.stringify(this.allPixelData[d.poxel].data.top_yarn)), this.allPixelData[d.poxel].need_item)
@@ -4757,7 +4756,9 @@ export class YarnEditing extends Component {
                     ColorListK.push(TitleType.indexOf(c) + 1)
                 }
             }
-            console.log(ColorListK);
+            // console.log("所有颜色", ColorListK);
+            // console.log("顶部数据", top_yarn_data);
+            // console.log("顶部数据排序", need_item);
             let key_state = [ColorListK.shift(), 3, 1]
             let top_yarnKeys = []
             let TempKeys = {}
@@ -4809,6 +4810,7 @@ export class YarnEditing extends Component {
                             key_state = [0, 0, 999]
                         }
                     } else {
+                        console.log(key_state);
                         console.error(TempKeys);
                         console.error(newTopYarn);
                         console.log(top_yarn);
