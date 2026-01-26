@@ -45,6 +45,7 @@ export class CreateRoleYarnNew {
         VIP: [11, 12, 13],
         LiftExport: [99913, 99931, 99923, 99932, 99933, 131]
     }
+    static nowTitleType = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "S", "Y", "Z"]
     static MapType = {
         '5_8': [8, 1],
         '7_9': [8, 1],
@@ -441,7 +442,8 @@ export class CreateRoleYarnNew {
         ]
     ]
     static PeopleColor = { 30: 5, 40: 6, 50: 7, 80: 8, 999: 9 }
-    static getRoleData(data_value, fixed, setColor, dtj = null, AllColorCounts = {}, easy?) {
+    static getRoleData(data_value, fixed, setColor, TitleTypeArr, dtj = null, AllColorCounts = {}, easy?) {
+        this.nowTitleType = TitleTypeArr
         // console.error(object);
         let data = data_value[0]
         let Values = data_value[1]
@@ -525,7 +527,7 @@ export class CreateRoleYarnNew {
         let SizeKey = { 7: { 7: 5, 9: 2 }, 9: { 8: 6 }, 8: { 7: 7 }, 10: { 9: 1 }, 11: { 10: 2 } }
 
         let getDatas = {}
-        let TitleArr = TitleType.slice(0, color)
+        let TitleArr = this.nowTitleType.slice(0, color)
         let LiftColor = []
         let UseColor = all_roles - all_lift - LiftExportRoles - lift_shaft_num;
         let t_k = 0
@@ -541,7 +543,7 @@ export class CreateRoleYarnNew {
             for (let i = 0; i < all_roles; i++) {
                 if (UseColor > 0) {
                     UseColor -= 1
-                }  else if (all_lift > LiftColor.length) {
+                } else if (all_lift > LiftColor.length) {
                     LiftColor.push(ColorK[ColorKIIdx])
                     colorCounts[ColorK[ColorKIIdx]] -= 1
                     if (colorCounts[ColorK[ColorKIIdx]] == 0) {
@@ -625,9 +627,9 @@ export class CreateRoleYarnNew {
                     for (let y_y in map[x_x]) {
                         let c = liftShaftData[x][y][3]
                         lift_shaft[k].map[x_x][y_y] = [liftShaftData[x][y][2], c]
-                        dtj_c_c[c]-=1
-                        if(dtj_c_c[c] == 0){
-                           delete dtj_c_c[c]
+                        dtj_c_c[c] -= 1
+                        if (dtj_c_c[c] == 0) {
+                            delete dtj_c_c[c]
                         }
                         x++
                     }
@@ -757,12 +759,12 @@ export class CreateRoleYarnNew {
         const ruleFun = (arr: number[]) => {
             if (arr[3]) {
                 let K = String(arr.pop())
-                let idx = TitleType.indexOf(K)
+                let idx = this.nowTitleType.indexOf(K)
                 count[idx]--;
                 if (count[idx] === 0) {
                     delete count[idx];
                 }
-                return TitleType[idx];
+                return this.nowTitleType[idx];
             }
             const afresh = [0, 0];
             let type = 0;
@@ -822,16 +824,16 @@ export class CreateRoleYarnNew {
                     if (!MapHS["H"][arr[0]]) {
                         MapHS["H"][arr[0]] = {};
                     }
-                    if (!MapHS["H"][arr[0]][TitleType[idx]]) {
-                        MapHS["H"][arr[0]][TitleType[idx]] = [0, 0];
+                    if (!MapHS["H"][arr[0]][this.nowTitleType[idx]]) {
+                        MapHS["H"][arr[0]][this.nowTitleType[idx]] = [0, 0];
                     }
 
                     // 竖向初始化赋值
                     if (!MapHS["S"][arr[1]]) {
                         MapHS["S"][arr[1]] = {};
                     }
-                    if (!MapHS["S"][arr[1]][TitleType[idx]]) {
-                        MapHS["S"][arr[1]][TitleType[idx]] = [0, 0];
+                    if (!MapHS["S"][arr[1]][this.nowTitleType[idx]]) {
+                        MapHS["S"][arr[1]][this.nowTitleType[idx]] = [0, 0];
                     }
 
                     // 限制判断
@@ -841,13 +843,13 @@ export class CreateRoleYarnNew {
 
                     const key = arr[0] - 1;
                     if (map_role[key]) {
-                        if (map_role[key][arr[1]] === TitleType[idx]) {
+                        if (map_role[key][arr[1]] === this.nowTitleType[idx]) {
                             return false;
                         }
                     }
 
                     if (map_role[arr[0]]) {
-                        if (map_role[arr[0]][arr[1] - 1] === TitleType[idx]) {
+                        if (map_role[arr[0]][arr[1] - 1] === this.nowTitleType[idx]) {
                             return false;
                         }
                     }
@@ -870,32 +872,32 @@ export class CreateRoleYarnNew {
 
             if (afresh_again.length === 1) {
                 if (!LastHS["H"][arr[0]]) {
-                    LastHS["H"][arr[0]] = TitleType[idx];
+                    LastHS["H"][arr[0]] = this.nowTitleType[idx];
                 }
                 if (!LastHS["S"][arr[1]]) {
-                    LastHS["S"][arr[1]] = TitleType[idx];
+                    LastHS["S"][arr[1]] = this.nowTitleType[idx];
                 }
 
-                if (LastHS["H"][arr[0]] !== TitleType[idx]) {
-                    MapHS["H"][arr[0]][TitleType[idx]][0] = 0;
+                if (LastHS["H"][arr[0]] !== this.nowTitleType[idx]) {
+                    MapHS["H"][arr[0]][this.nowTitleType[idx]][0] = 0;
                 }
-                if (LastHS["S"][arr[1]] !== TitleType[idx]) {
-                    MapHS["S"][arr[1]][TitleType[idx]][0] = 0;
+                if (LastHS["S"][arr[1]] !== this.nowTitleType[idx]) {
+                    MapHS["S"][arr[1]][this.nowTitleType[idx]][0] = 0;
                 }
 
-                MapHS["H"][arr[0]][TitleType[idx]][0]++;
-                MapHS["S"][arr[1]][TitleType[idx]][0]++;
-                MapHS["H"][arr[0]][TitleType[idx]][1]++;
-                MapHS["S"][arr[1]][TitleType[idx]][1]++;
+                MapHS["H"][arr[0]][this.nowTitleType[idx]][0]++;
+                MapHS["S"][arr[1]][this.nowTitleType[idx]][0]++;
+                MapHS["H"][arr[0]][this.nowTitleType[idx]][1]++;
+                MapHS["S"][arr[1]][this.nowTitleType[idx]][1]++;
 
-                LastHS["H"][arr[0]] = TitleType[idx];
-                LastHS["S"][arr[1]] = TitleType[idx];
+                LastHS["H"][arr[0]] = this.nowTitleType[idx];
+                LastHS["S"][arr[1]] = this.nowTitleType[idx];
 
                 count[idx]--;
                 if (count[idx] === 0) {
                     delete count[idx];
                 }
-                return TitleType[idx]; // Convert 'A' to 0, 'B' to 1, etc.
+                return this.nowTitleType[idx]; // Convert 'A' to 0, 'B' to 1, etc.
             }
 
             return 0;
@@ -1094,7 +1096,7 @@ export class CreateRoleYarnNew {
                         }
                     }
 
-                    const Type = TitleType[chosenKey];
+                    const Type = this.nowTitleType[chosenKey];
                     if (peopleArr.length === 0) {
                         liftPeoCount[chosenKey]--;
                         if (liftPeoCount[chosenKey] === 0) delete liftPeoCount[chosenKey];
@@ -1114,7 +1116,7 @@ export class CreateRoleYarnNew {
 
                         if (newarr.length === 1 || newarr.length > 1) {
                             const nextKey = newarr[1]?.[0] || chosenKey;
-                            const nextType = TitleType[nextKey];
+                            const nextType = this.nowTitleType[nextKey];
                             if (peopleArr[peopleArr.length - 1] !== nextType) {
                                 liftPeoCount[nextKey]--;
                                 if (liftPeoCount[nextKey] === 0) delete liftPeoCount[nextKey];
@@ -1124,7 +1126,7 @@ export class CreateRoleYarnNew {
 
                         if (newarr.length > 2) {
                             const nextKey = newarr[2][0];
-                            const nextType = TitleType[nextKey];
+                            const nextType = this.nowTitleType[nextKey];
                             if (peopleArr[peopleArr.length - 1] !== nextType) {
                                 liftPeoCount[nextKey]--;
                                 if (liftPeoCount[nextKey] === 0) delete liftPeoCount[nextKey];
@@ -1146,7 +1148,7 @@ export class CreateRoleYarnNew {
             // const liftArr = newLiftRule(lift_roles);
             // for (let k in count) {
             //     for (let i = 0; i < count[k]; i++) {
-            //         Roles += ',' + TitleType[k]
+            //         Roles += ',' + this.nowTitleType[k]
             //     }
             // }
 
@@ -1230,14 +1232,14 @@ export class CreateRoleYarnNew {
             }
             // 获取当前段位需要的颜色数量
             let ColorKey = []
-            if (Object.keys(NowColors.colors).length < ColorLen && Object.keys(colorCountsCopy).length>0) {
+            if (Object.keys(NowColors.colors).length < ColorLen && Object.keys(colorCountsCopy).length > 0) {
                 ColorKey = this.findTopFourKeys(colorCountsCopy, ColorLen - Object.keys(NowColors.colors).length)
             }
             for (let c_k of ColorKey) {
                 addNowColors(c_k)
             }
             // 需要总数比颜色库中数量多就多取1个颜色
-            while (NeedLen > NowColors.count && Object.keys(colorCountsCopy).length>0) {
+            while (NeedLen > NowColors.count && Object.keys(colorCountsCopy).length > 0) {
                 console.log("数量少于段位对应颜色数，多取一种颜色");
                 let c_k = this.findTopFourKeys(colorCountsCopy, 1)[0]
                 addNowColors(c_k)
@@ -1257,7 +1259,7 @@ export class CreateRoleYarnNew {
                             Colors[NowColors.colors[k]].push(k)
                         }
                     }
-                    while (Object.keys(Colors).length == 0 && Object.keys(colorCountsCopy).length>0) {
+                    while (Object.keys(Colors).length == 0 && Object.keys(colorCountsCopy).length > 0) {
                         let c_k = this.findTopFourKeys(colorCountsCopy, 1)[0]
                         addNowColors(c_k)
                         if (NoKeys.indexOf(c_k) < 0) {
@@ -1286,10 +1288,10 @@ export class CreateRoleYarnNew {
                         return this.splitValuesFillColors(grid, Values, colorCounts, idx + 1)
                     }
                     let c = this.getColor(Colors)
-                   if(! setColors[c]){
-                     setColors[c] = 0
-                   }
-                    setColors[c]+=1
+                    if (!setColors[c]) {
+                        setColors[c] = 0
+                    }
+                    setColors[c] += 1
                     gridCopy[pos.y][pos.x][3] = c
                     NowColors.colors[c] -= 1
                     if (NowColors.colors[c] == 0) {
@@ -1630,9 +1632,9 @@ export class CreateRoleYarnNew {
             let floor = Math.floor(value);
             let fraction = value - floor;
 
-            colorCounts[TitleType[i]] = floor;
+            colorCounts[this.nowTitleType[i]] = floor;
             total += floor;
-            fractions.push({ key: TitleType[i], value: fraction });
+            fractions.push({ key: this.nowTitleType[i], value: fraction });
         }
 
         // 2. 按分数部分降序排序

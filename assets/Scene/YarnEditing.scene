@@ -175,7 +175,7 @@
     "_priority": 2,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 507.69708737864073,
+    "_orthoHeight": 462.35897435897436,
     "_near": 0,
     "_far": 1000,
     "_color": {
@@ -1390,7 +1390,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 120,
+      "width": 119.99226300832238,
       "height": 37.8
     },
     "_anchorPoint": {
@@ -1423,7 +1423,7 @@
     "_string": "数据保存",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 30,
+    "_actualFontSize": 31.0119940029985,
     "_fontSize": 30,
     "_fontFamily": "Arial",
     "_lineHeight": 30,

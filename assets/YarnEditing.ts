@@ -2700,7 +2700,30 @@ export class YarnEditing extends Component {
                 return
             }
             // CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor)
-            let dataArr = CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor, this.lift_shaft, JSON.parse(JSON.stringify(this.AllColorCounts)), target.name == "seve_data_easy")
+            let TitleTypeArr = JSON.parse(JSON.stringify(TitleType))
+            if (this.yarn_mapLayoutData[this.MapId].poxel) {
+
+                let data = null
+                if (this.yarn_mapLayoutData[this.MapId].poxel.indexOf("_set") >= 0) {
+                    let key = this.yarn_mapLayoutData[this.MapId].poxel.slice(0, -4)
+                    data = this.DataStorage[key]
+
+                } else {
+                    let poxel = this.yarn_mapLayoutData[this.MapId].poxel
+                    data = this.allPixelData[poxel]
+                }
+                let notK = ["data", "max_color", "need_item"]
+                for (let k in data) {
+                    if (notK.indexOf(k) < 0 && !isNaN(Number(k))) {
+                        let idx = Number(k) - 1
+                        // 从原数组移除元素
+                        const element = TitleTypeArr.splice(idx, 1)[0];
+                        // 添加到第一位
+                        TitleTypeArr.unshift(element);
+                    }
+                }
+            }
+            let dataArr = CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor, TitleTypeArr, this.lift_shaft, JSON.parse(JSON.stringify(this.AllColorCounts)), target.name == "seve_data_easy")
             let data = dataArr[0]
             let lift_shaft = dataArr[1]
             if (this.MapId && data) {
@@ -5381,7 +5404,6 @@ export class YarnEditing extends Component {
         if (change) {
             let c = this.ColorList[this.ColorList.length - 1][2]
             // 当前颜色实际间隔
-            console.log(c);
             if (!this.MapValueData.BallColorChange[c]) {
                 this.MapValueData.BallColorChange[c] = {
                     value: 0,
@@ -5774,6 +5796,12 @@ export class YarnEditing extends Component {
         }
         this.yarn_mapLayoutData[this.MapId]["WalkValue"] = this.MapValueData.WalkDiffValue
         this.yarn_mapLayoutData[this.MapId]["WalkValueChange"] = this.MapValueData.WalkDiffChange.toString();
+        // Object.keys(this.yarn_mapLayoutData)[idx]
+        // this.onList()
+        let idx = Object.keys(this.yarn_mapLayoutData).indexOf(this.MapId + "")
+        if (idx >= 0) {
+            this.onList(this.LayoutList.content.getChildByName(this.MapId + ""), idx)
+        }
         // this.LayoutList.numItems = Object.keys(this.yarn_mapLayoutData).length
         // this.exportData()
     }
