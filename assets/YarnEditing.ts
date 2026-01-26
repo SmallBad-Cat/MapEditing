@@ -5382,6 +5382,12 @@ export class YarnEditing extends Component {
             let c = this.ColorList[this.ColorList.length - 1][2]
             // 当前颜色实际间隔
             console.log(c);
+            if (!this.MapValueData.BallColorChange[c]) {
+                this.MapValueData.BallColorChange[c] = {
+                    value: 0,
+                    change: []
+                }
+            }
             let color_sjjg = this.MapValueData.BallColorChange[c].value
             this.MapValueData.BallColorChange[c].change.push(this.MapValueData.BallColorChange[c].value)
             this.MapValueData.BallColorChange[c].value = 0
