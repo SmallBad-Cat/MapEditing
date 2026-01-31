@@ -922,7 +922,7 @@ export class YarnEditing extends Component {
                         return
                     }
                 }
-                if (data.go_num == 0 && data.json[2]) {
+                // if (data.go_num == 0 && data.json[2]) {
                     if (this.AttrItemData[data_name] && this.AttrItemData[data_name].key > 50 && this.AttrItemData[data_name].key < 56) {
                         for (let ks of this.AttrItemData[data_name].idxs) {
                             this.ChooseColorData(this.map_data[ks[0]][ks[1]])
@@ -930,7 +930,7 @@ export class YarnEditing extends Component {
                     }
                     this.ChooseColorData(data)
                     this.AttrChange(data)
-                }
+                // }
             }
             return
         }
@@ -2701,7 +2701,7 @@ export class YarnEditing extends Component {
             }
             // CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor)
             let TitleTypeArr = JSON.parse(JSON.stringify(TitleType))
-            if (this.yarn_mapLayoutData[this.MapId].poxel) {
+            if (this.yarn_mapLayoutData[this.MapId]&&this.yarn_mapLayoutData[this.MapId].poxel) {
 
                 let data = null
                 if (this.yarn_mapLayoutData[this.MapId].poxel.indexOf("_set") >= 0) {
@@ -5799,7 +5799,9 @@ export class YarnEditing extends Component {
         // Object.keys(this.yarn_mapLayoutData)[idx]
         // this.onList()
         let idx = Object.keys(this.yarn_mapLayoutData).indexOf(this.MapId + "")
-        if (idx >= 0) {
+        
+        console.log(this.LayoutList);
+        if (idx >= 0&&this.LayoutList.content&&this.LayoutList.content.getChildByName(this.MapId + "")) {
             this.onList(this.LayoutList.content.getChildByName(this.MapId + ""), idx)
         }
         // this.LayoutList.numItems = Object.keys(this.yarn_mapLayoutData).length
