@@ -893,7 +893,7 @@ export class YarnEditing extends Component {
                 if (!this.TouchNode) {
                     this.TouchNode = instantiate(data.child)
                     this.node.addChild(this.TouchNode)
-                    this.TouchNode.getChildByName("ice").destroy()
+                    this.TouchNode.getChildByName("ice") && this.TouchNode.getChildByName("ice").destroy()
                 }
                 let c = TitleType.indexOf(data.json[2] == 10 || data.json[2] == 31 ? data.json[3] : data.json[2]) + 1
                 this.TouchNode.getComponent(Sprite).color = new Color(CellToColor[c]);
