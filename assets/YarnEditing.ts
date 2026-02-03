@@ -894,7 +894,7 @@ export class YarnEditing extends Component {
                     this.TouchNode = instantiate(data.child)
                     this.node.addChild(this.TouchNode)
                 }
-                let c = TitleType.indexOf(data.json[2] == 10 ? data.json[3] : data.json[2]) + 1
+                let c = TitleType.indexOf(data.json[2] == 10 || data.json[2] == 31 ? data.json[3] : data.json[2]) + 1
                 this.TouchNode.getComponent(Sprite).color = new Color(CellToColor[c]);
                 this.TouchNode.active = true
                 data.child.active = false
@@ -923,13 +923,13 @@ export class YarnEditing extends Component {
                     }
                 }
                 // if (data.go_num == 0 && data.json[2]) {
-                    if (this.AttrItemData[data_name] && this.AttrItemData[data_name].key > 50 && this.AttrItemData[data_name].key < 56) {
-                        for (let ks of this.AttrItemData[data_name].idxs) {
-                            this.ChooseColorData(this.map_data[ks[0]][ks[1]])
-                        }
+                if (this.AttrItemData[data_name] && this.AttrItemData[data_name].key > 50 && this.AttrItemData[data_name].key < 56) {
+                    for (let ks of this.AttrItemData[data_name].idxs) {
+                        this.ChooseColorData(this.map_data[ks[0]][ks[1]])
                     }
-                    this.ChooseColorData(data)
-                    this.AttrChange(data)
+                }
+                this.ChooseColorData(data)
+                this.AttrChange(data)
                 // }
             }
             return
@@ -1046,18 +1046,19 @@ export class YarnEditing extends Component {
                 let StartData = this.map_data[this.ChangePosData.start.y][this.ChangePosData.start.x]
                 StartData.child.active = true
                 if (data && this.Obstacle.Role.indexOf(data.type) >= 0) {
-                    let StartColor = StartData.json[2] == 10 ? StartData.json[3] : StartData.json[2]
-                    let EndColor = data.json[2] == 10 ? data.json[3] : data.json[2]
-                    if (StartData.json[2] == 10) {
+                    let StartColor = StartData.json[2] == 10 || StartData.json[2] == 31 ? StartData.json[3] : StartData.json[2]
+                    let EndColor = data.json[2] == 10 || data.json[2] == 31 ? data.json[3] : data.json[2]
+                    if (StartData.json[2] == 10 || StartData.json[2] == 31) {
                         StartData.json[3] = EndColor
                     } else {
                         StartData.json[2] = EndColor
                     }
-                    if (data.json[2] == 10) {
+                    if (data.json[2] == 10 || data.json[2] == 31) {
                         data.json[3] = StartColor
                     } else {
                         data.json[2] = StartColor
                     }
+
                     StartData.child.getComponent(Sprite).color = new Color(CellToColor[TitleType.indexOf(EndColor) + 1]);
                     data.child.getComponent(Sprite).color = new Color(CellToColor[TitleType.indexOf(StartColor) + 1]);
                     let DataSprite = data.child.getComponent(Sprite).spriteFrame
@@ -2701,7 +2702,7 @@ export class YarnEditing extends Component {
             }
             // CreateRoleYarnNew.getRoleData(this.getNowData(true), true, this.setColor)
             let TitleTypeArr = JSON.parse(JSON.stringify(TitleType))
-            if (this.yarn_mapLayoutData[this.MapId]&&this.yarn_mapLayoutData[this.MapId].poxel) {
+            if (this.yarn_mapLayoutData[this.MapId] && this.yarn_mapLayoutData[this.MapId].poxel) {
 
                 let data = null
                 if (this.yarn_mapLayoutData[this.MapId].poxel.indexOf("_set") >= 0) {
@@ -5799,9 +5800,9 @@ export class YarnEditing extends Component {
         // Object.keys(this.yarn_mapLayoutData)[idx]
         // this.onList()
         let idx = Object.keys(this.yarn_mapLayoutData).indexOf(this.MapId + "")
-        
+
         console.log(this.LayoutList);
-        if (idx >= 0&&this.LayoutList.content&&this.LayoutList.content.getChildByName(this.MapId + "")) {
+        if (idx >= 0 && this.LayoutList.content && this.LayoutList.content.getChildByName(this.MapId + "")) {
             this.onList(this.LayoutList.content.getChildByName(this.MapId + ""), idx)
         }
         // this.LayoutList.numItems = Object.keys(this.yarn_mapLayoutData).length
