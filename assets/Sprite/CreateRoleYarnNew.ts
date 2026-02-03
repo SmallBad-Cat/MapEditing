@@ -638,7 +638,8 @@ export class CreateRoleYarnNew {
             }
         }
         for (let i = 0; i < 1; i++) {
-            let getData = this.getRoleDataStrs(0, this.splitValuesFillColors(data, Values, colorCounts), all_roles, all_lift, color, SizeKey[size.y][size.x], fixed, LiftColor)
+            let getData = this.getRoleDataStrs(0, (!easy)?this.fillColors(data, Values, colorCounts):this.splitValuesFillColors(data, Values, colorCounts), all_roles, all_lift, color, SizeKey[size.y][size.x], fixed, LiftColor)
+            // let 
             if (getData) {
                 if (!getDatas[getData[3]]) {
                     getDatas[getData[3]] = []
