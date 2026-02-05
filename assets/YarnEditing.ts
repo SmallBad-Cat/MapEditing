@@ -891,11 +891,11 @@ export class YarnEditing extends Component {
             let data = this.TouchData(worldPos);
             if (data && this.Obstacle.Role.indexOf(data.type) >= 0) {
                 if (!this.TouchNode) {
-                    this.TouchNode = instantiate(data.child)
+                    this.TouchNode = instantiate(this.node.getChildByName("PureImage"))
                     this.node.addChild(this.TouchNode)
-                    this.TouchNode.getChildByName("ice") && this.TouchNode.getChildByName("ice").destroy()
+                    this.TouchNode.getComponent(UITransform).setContentSize(data.child.getComponent(UITransform).contentSize)
                 }
-                let c = TitleType.indexOf(data.json[2] == 10 || data.json[2] == 31 ? data.json[3] : data.json[2]) + 1
+                let c = TitleType.indexOf(data.json.length > 3 ? data.json[3] : data.json[2]) + 1
                 this.TouchNode.getComponent(Sprite).color = new Color(CellToColor[c]);
                 this.TouchNode.active = true
                 data.child.active = false
@@ -1047,14 +1047,14 @@ export class YarnEditing extends Component {
                 let StartData = this.map_data[this.ChangePosData.start.y][this.ChangePosData.start.x]
                 StartData.child.active = true
                 if (data && this.Obstacle.Role.indexOf(data.type) >= 0) {
-                    let StartColor = StartData.json[2] == 10 || StartData.json[2] == 31 ? StartData.json[3] : StartData.json[2]
-                    let EndColor = data.json[2] == 10 || data.json[2] == 31 ? data.json[3] : data.json[2]
-                    if (StartData.json[2] == 10 || StartData.json[2] == 31) {
+                    let StartColor = StartData.json.length > 3 ? StartData.json[3] : StartData.json[2]
+                    let EndColor = data.json.length > 3 ? data.json[3] : data.json[2]
+                    if (StartData.json.length > 3) {
                         StartData.json[3] = EndColor
                     } else {
                         StartData.json[2] = EndColor
                     }
-                    if (data.json[2] == 10 || data.json[2] == 31) {
+                    if (data.json.length > 3) {
                         data.json[3] = StartColor
                     } else {
                         data.json[2] = StartColor
