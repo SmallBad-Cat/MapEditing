@@ -3668,6 +3668,9 @@ export class YarnEditing extends Component {
                 need_item = ColorData.need_item
                 this.setImage(key, this.node.getChildByPath("poxel/Image"))
             } else {
+                for (let child of this.node.getChildByPath("poxel/Image").children) {
+                    child.active = false;
+                }
                 this.node.getChildByPath("poxel/Image").getComponent(Sprite).spriteFrame = this.dataParent.getChildByPath("PixelData/view/Content/" + data.poxel).getComponent(Sprite).spriteFrame;
                 ColorData = this.allPixelData[data.poxel]
                 this.PixelListItems = JSON.parse(JSON.stringify(this.allPixelData[data.poxel].data.items))
